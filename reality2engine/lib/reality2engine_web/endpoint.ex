@@ -7,7 +7,7 @@ defmodule Reality2engineWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_reality2engine_key",
-    signing_salt: "TQ9+7kyg",
+    signing_salt: "oc0SHKQm",
     same_site: "Lax"
   ]
 
@@ -26,8 +26,6 @@ defmodule Reality2engineWeb.Endpoint do
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
-    socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
-    plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :reality2engine
   end

@@ -14,8 +14,6 @@ defmodule Reality2engine.Application do
       Reality2engine.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: Reality2engine.PubSub},
-      # Start Finch
-      {Finch, name: Reality2engine.Finch},
       # Start the Endpoint (http/https)
       Reality2engineWeb.Endpoint
       # Start a worker by calling: Reality2engine.Worker.start_link(arg)

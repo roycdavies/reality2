@@ -7,7 +7,7 @@ import Config
 # Run `mix help test` for more information.
 config :reality2engine, Reality2engine.Repo,
   username: "postgres",
-  password: "postgres",
+  password: "#6DDf9f9ce4",
   hostname: "localhost",
   database: "reality2engine_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
@@ -17,14 +17,8 @@ config :reality2engine, Reality2engine.Repo,
 # you can enable the server option below.
 config :reality2engine, Reality2engineWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "AoIGu6lVDSZS1w2XXIuvCudSGGKX3ApS4fvcE2JMhxPxKkEM/HFx42XpWBUWg6CV",
+  secret_key_base: "6LZF3gz9To6N+qWSm7H5yM0TRdlWN0zmDeTEMQyCBphcz3XjH9rv1j1KG/s3LX59",
   server: false
-
-# In test we don't send emails.
-config :reality2engine, Reality2engine.Mailer, adapter: Swoosh.Adapters.Test
-
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
 
 # Print only warnings and errors during test
 config :logger, level: :warning
