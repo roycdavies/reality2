@@ -112,7 +112,7 @@ transition:
 # To access the current state of that default Automation, use the automation name "_" (underscore).
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 automation:
-  # The name of the automation
+  # The name of the automation (must be unique within the Sentant)
   name: !str
 
   # The description of the automation
@@ -183,6 +183,7 @@ sentant:
   # Current stored states of the Sentant (empty if Sentant Template)
   states: [ !stored_state ]
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
