@@ -162,6 +162,9 @@ sentant:
   # The initial (immutable) data of the Sentant in key/value pairs of JSON formatted data
   data: { !str: !json }
 
+  # The initial (immutable) binary data of the Sentant in key/value pairs of binary data, eg images, audio, video, etc
+  binary: { !str: !binary }
+
   # A list of strings that may be used to group Sentants together in a Node
   groups: [ !str ]
 
