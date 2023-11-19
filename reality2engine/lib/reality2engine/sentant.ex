@@ -1,12 +1,11 @@
 # ****************************************************************************************************
-# Core database functions to be used by the resolvers for Sentant
+# Core database functions to be used by the resolvers for Sentants
 # ****************************************************************************************************
-defmodule Labbookings.Booking do
+defmodule Reality2engine.Sentant do
   import Ecto.Query, warn: false
 
-  alias Labbookings.Repo
-  alias Labbookings.Bookings.Booking
-
+  alias Reality2engine.Repo
+  alias Reality2engine.Node.Sentant
   # ------------------------------------------------------------------------------------------------------
   # Get the bookings by the upi and whether they overlap the optional start and end times
   # TODO: This could get quite inefficient as the number of bookings in the system increase

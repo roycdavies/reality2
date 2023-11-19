@@ -1,7 +1,7 @@
 # ****************************************************************************************************
 # Define the Sentant database structure for Ecto
 # ****************************************************************************************************
-defmodule Reality2engine.Sentants.Sentant do
+defmodule Reality2engine.Node.Sentant do
   use Ecto.Schema
   import Ecto.Changeset
 
