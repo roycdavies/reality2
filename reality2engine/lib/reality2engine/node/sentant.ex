@@ -6,7 +6,7 @@ defmodule Reality2engine.Node.Sentant do
   import Ecto.Changeset
 
   schema "sentant" do
-    field :id, :guid
+    #field :id, :string
     field :name, :string
 
     field :starttime, :utc_datetime

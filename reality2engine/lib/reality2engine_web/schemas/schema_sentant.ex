@@ -1,4 +1,4 @@
-defmodule Reality2engineWeb.Schema do
+defmodule Reality2engineWeb.Schema.Sentant do
   use Absinthe.Schema.Notation
 
   require Reality2engineWeb.Schema.Enums
@@ -25,7 +25,7 @@ defmodule Reality2engineWeb.Schema do
     #   end
     # end
 
-    field :id, non_null(:guid), description: "Sentant unique GUID"
+    field :id, non_null(:uuid4), description: "Sentant unique GUID"
     field :name, non_null(:string), description: "Sentant name"
 
     field :starttime, non_null(:datetime), description: "Starting time"
@@ -49,7 +49,9 @@ defmodule Reality2engineWeb.Schema do
   # Queries
   # ------------------------------------------------------------------------------------------------------
   object :sentant_queries do
-    # Nothing here - bookings are found through the items and persons queries.
+    # New Sentant
+    # Load Sentant
+    # Unload Sentant
   end
   # ------------------------------------------------------------------------------------------------------
 
