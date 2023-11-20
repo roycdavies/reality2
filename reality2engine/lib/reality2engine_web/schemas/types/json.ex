@@ -1,4 +1,4 @@
-defmodule Reality2engineWeb.Schema.Types.Custom.JSON do
+defmodule Reality2engine.Schema.Types.Custom.JSON do
   @moduledoc """
   The Json scalar type allows arbitrary JSON values to be passed in and out.
   Requires `{ :jason, "~> 1.1" }` package: https://github.com/michalmuskala/jason

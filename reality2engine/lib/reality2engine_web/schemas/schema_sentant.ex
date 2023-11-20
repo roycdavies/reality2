@@ -25,7 +25,7 @@ defmodule Reality2engineWeb.Schema.Sentant do
     #   end
     # end
 
-    field :id, non_null(:uuid4), description: "Sentant unique GUID"
+    # field :id, non_null(:uuid4), description: "Sentant unique GUID"
     field :name, non_null(:string), description: "Sentant name"
 
     field :starttime, non_null(:datetime), description: "Starting time"
@@ -52,6 +52,16 @@ defmodule Reality2engineWeb.Schema.Sentant do
     # New Sentant
     # Load Sentant
     # Unload Sentant
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Get all the sentants"
+    # ----------------------------------------------------------------------------------------------------
+    field :sentant_all, non_null(list_of(:sentant)) do
+      arg :starttime, :datetime
+      arg :endtime, :datetime
+      # resolve(&SentantResolver.all_items/3)
+      {:ok, %{}}
+    end
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -60,8 +70,8 @@ defmodule Reality2engineWeb.Schema.Sentant do
   # ------------------------------------------------------------------------------------------------------
   # Mutations
   # ------------------------------------------------------------------------------------------------------
-  object :sentant_mutations do
-    # Nothing here - bookings are made as part of the items mutations.
-  end
+  # object :sentant_mutations do
+  #   # Nothing here - bookings are made as part of the items mutations.
+  # end
   # ------------------------------------------------------------------------------------------------------
 end

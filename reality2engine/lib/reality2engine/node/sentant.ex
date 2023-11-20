@@ -16,9 +16,9 @@ defmodule Reality2engine.Node.Sentant do
   end
 
   @doc false
-  def changeset(induction, attrs) do
-    induction
-    |> cast(attrs, [:id, :name, :starttime, :endtime])
-    |> validate_required([:id, :name, :details, :starttime, :endtime])
+  def changeset(sentant, attrs) do
+    sentant
+    |> cast(attrs, [:name, :starttime, :endtime])
+    |> validate_required([:name, :details, :starttime, :endtime])
   end
 end

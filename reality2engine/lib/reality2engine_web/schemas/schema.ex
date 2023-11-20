@@ -9,8 +9,8 @@ defmodule Reality2engineWeb.Schema do
     import_fields :sentant_queries
   end
 
-  mutation do
-    import_fields :sentant_mutations
-  end
+  # mutation do
+  #   import_fields :sentant_mutations
+  # end
 
 end
