@@ -1,12 +1,12 @@
 defmodule Reality2engineWeb.Router do
   use Reality2engineWeb, :router
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
+  # pipeline :api do
+  #   plug :accepts, ["json"]
+  # end
 
   pipeline :graphql do
-    # Will be used later
+    plug :accepts, ["json"]
   end
 
   scope "/reality2", Reality2engineWeb do
