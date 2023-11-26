@@ -1,0 +1,23 @@
+type Sentant {
+    uuid: UUID!
+    name: String!
+    data: JSON!
+}
+
+type Node {
+    uuid: UUID!
+    name: String!
+    sentants: [Sentant]!
+}
+
+type Cluster {
+    uuid: UUID!
+    name: String!
+    nodes: [Node]!
+    sentants: [Sentant]!
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+}

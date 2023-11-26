@@ -9,7 +9,7 @@ defmodule Reality2engineWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/reality2", Reality2engineWeb do
+  scope "/r2", Reality2engineWeb do
     pipe_through :graphql
 
     forward "/", Absinthe.Plug, schema: Reality2engineWeb.Schema
