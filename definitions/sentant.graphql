@@ -1,23 +1,195 @@
-type Sentant {
-    uuid: UUID!
-    name: String!
-    data: JSON!
-}
+# ******************************************************************************************************************************************************
+# The Schema describes the core data model of Sentants, Nodes and Clusters
 
-type Node {
-    uuid: UUID!
-    name: String!
-    sentants: [Sentant]!
-}
-
-type Cluster {
-    uuid: UUID!
-    name: String!
-    nodes: [Node]!
-    sentants: [Sentant]!
-}
-
+# ******************************************************************************************************************************************************
 schema {
-    query: Query
-    mutation: Mutation
+    query: Query                                                            # The query root of the schema
+    mutation: Mutation                                                      # The mutation root of the schema
+    subscription: Subscription                                              # The subscription root of the schema
 }
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# A path is a link between the current node and a sentant on another node or cluster.  It may be given as a list of names or a list of UUIDs ordered by
+# the clusters and/or nodes that must be traversed to reach the sentant
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type NamePath {
+    path: [String!]!                                                        # The path as a list of names
+}
+
+type UUIDPath {
+    path: [UUID!]!                                                          # The path as a list of UUIDs
+}
+
+union Path = NamePath | UUIDPath                                            # A path can be given as either a list of names or a list of UUIDs
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# A User is a person that can interact with the Sentants, Nodes and Clusters
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type User {
+    uuid: UUID!                                                             # The UUID of the user
+    name: String!                                                           # The name of the user
+    email: String!                                                          # The email address of the user
+    data: JSON!                                                             # The data realted to the user
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# An Authority is used to identify a user or application that is allowed to perform certain actions on a Sentant, Node or Cluster.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Authority {
+    user: User!                                                             # The User related to the authority
+    path: Path!                                                             # The path to the node that can validate the User
+    data: JSON!                                                             # Data related to this authorization
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# The Command is the information that can be sent to a Sentant
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Command {
+    name: String!                                                           # The name of the command
+    parameters: JSON!                                                       # The parameters of the command
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# An action is executed one a transition is triggered
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Action {
+    name: String!                                                           # The name of the action
+    parameters: JSON!                                                       # The parameters of the action
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# A Transition is the link between two states of an automation
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Transition {
+    in: String!                                                             # The state the transition is coming from
+    event: String!                                                          # The event that triggers the transition
+    out: String!                                                            # The state the transition is going to
+    actions: [Action]!                                                      # The actions to execute when the transition is triggered
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# An Automation is a state machine that can be executed on a Sentant
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Automation {
+    uuid: UUID!                                                             # The UUID of the automation
+    name: String!                                                           # The name of the automation
+    transitions: [Transition]!                                              # The transitions on the automation
+    state: String!                                                          # The current state of the automation
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# A Sentant is an Sentient Digital Agent
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Sentant {
+    uuid: UUID!                                                             # The UUID of the sentant
+    name: String!                                                           # The name of the sentant
+    owner: User!                                                            # The owner of the sentant
+    data: JSON!                                                             # The data on the sentant
+    automations: [Automation]!                                              # The automations on the sentant
+    plugins: [Plugin]!                                                      # The plugins used by the sentant
+    node: Node                                                              # The node the sentant is on
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# A Node is a physical or virtual machine that can host Sentants
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Node {
+    uuid: UUID!                                                             # The UUID of the node
+    name: String!                                                           # The name of the node
+    owner: User!                                                            # The owner of the node
+    sentants: [Sentant]!                                                    # All the sentants on the node
+    cluster: Cluster                                                        # The cluster the node belongs to
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# A Cluster is a group of Nodes
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Cluster {
+    uuid: UUID!                                                             # The UUID of the cluster
+    name: String!                                                           # The name of the cluster
+    nodes: [Node]!                                                          # All the nodes in the cluster
+    sentants: [Sentant]!                                                    # All the sentants on the nodes in the cluster
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Queries
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Query {
+    # Get the specified node, or if no UUID given, the current node.  If no authority is given, only public data may be found.
+    node(path: Path, authority: Authority): Node
+
+    # Get the specified sentant.  if no Authority is given, only public data may be found.
+    sentant(path: Path!, authority: Authority): Sentant
+
+    # Convert a path given as a list of names to a path given as a list of UUIDs
+    convertPath(namePath: NamePath): UUIDPath
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Mutations
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Mutation {
+    # Create, update and delete a user on the given node, or current node if no path is given.
+    createUser(path: Path, name: String!, email: String!, data: JSON): User
+    updateUser(path: Path, uuid: UUID!, name: String, email: String, data: JSON): User
+    deleteUser(path: Path, uuid: UUID!): User
+
+    # Create a Sentant.  If no path is given, a new sentant will be generated on the current node.
+    createSentant(path: Path, authority: Authority!, name: String!, data: JSON, automations: [Automation]): Sentant
+
+    # Update a Sentant.  If no path is given, it is assumed that the Sentant is on the current node.
+    updateSentant(path: Path!, authority: Authority!, name: String!, data: JSON, automations: [Automation]): Sentant
+
+    # Delete a Sentant.  If no path is given, it is assumed that the Sentant is on the current node.
+    deleteSentant(path: Path!, authority: Authority!): Sentant
+
+    # Authorize and deAuthorize a user on a Node.  If no path is given, the current node is assumed.
+    # The data is used to validate the user on the node.
+    authorize(path: Path, user: User!, data: JSON!): Authority
+    deAuthorize(path: Path, user: User!, data: JSON!): Authority
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Subscriptions
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Subscription {
+    # Subscribe to changes to the specified sentant (including state changes to automations)
+    sentant(path: Path!): Sentant
+}
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
