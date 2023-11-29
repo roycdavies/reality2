@@ -1,3 +1,7 @@
-git add .
-git commit -a -m $1
-git push
+if [ $# -ne 1 ]; then
+	echo "Enter title for GIT push"
+else
+	git add .
+	git commit -a -m $1
+	git push
+fi
