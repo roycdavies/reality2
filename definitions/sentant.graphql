@@ -77,9 +77,9 @@ type Action {
 # A Transition is the link between two states of an automation
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 type Transition {
-    in: String!                                                             # The state the transition is coming from
+    from: String!                                                           # The state the transition is coming from
     event: String!                                                          # The event that triggers the transition
-    out: String!                                                            # The state the transition is going to
+    to: String!                                                             # The state the transition is going to
     actions: [Action]!                                                      # The actions to execute when the transition is triggered
 }
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -175,6 +175,9 @@ type Mutation {
 
     # Delete a Sentant.  If no path is given, it is assumed that the Sentant is on the current node.
     deleteSentant(path: Path!, authority: Authority!): Sentant
+
+    # Create a Sentant from a YAML template
+    load(path: Path, authority: Authority!, template: String!): [Sentant]
 
     # Authorize and deAuthorize a user on a Node.  If no path is given, the current node is assumed.
     # The data is used to validate the user on the node.
