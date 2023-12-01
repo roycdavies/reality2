@@ -27,7 +27,6 @@ defmodule Reality2engineWeb.Schema.Sentant do
 
     field :uuid, non_null(:uuid4), description: "Sentant unique GUID"
     field :name, non_null(:string), description: "Sentant name"
-
     field :data, non_null(:JSON), description: "Sentant data"
   end
 
