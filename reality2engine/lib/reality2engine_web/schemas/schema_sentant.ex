@@ -25,11 +25,10 @@ defmodule Reality2engineWeb.Schema.Sentant do
     #   end
     # end
 
-    # field :id, non_null(:uuid4), description: "Sentant unique GUID"
+    field :uuid, non_null(:uuid4), description: "Sentant unique GUID"
     field :name, non_null(:string), description: "Sentant name"
 
-    field :starttime, non_null(:datetime), description: "Starting time"
-    field :endtime, non_null(:datetime), description: "Ending time"
+    field :data, non_null(:JSON), description: "Sentant data"
   end
 
   # def people(_, []) do %{} end
@@ -70,9 +69,43 @@ defmodule Reality2engineWeb.Schema.Sentant do
   # ------------------------------------------------------------------------------------------------------
   # Mutations
   # ------------------------------------------------------------------------------------------------------
-  # object :sentant_mutations do
-  #   # Nothing here - bookings are made as part of the items mutations.
-  # end
+  object :sentant_mutations do
+    # New Sentant
+    # Load Sentant
+    # Unload Sentant
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Create a new sentant"
+    # ----------------------------------------------------------------------------------------------------
+    field :createSentant, non_null(:sentant) do
+      arg :name, non_null(:string)
+      arg :starttime, non_null(:datetime)
+      arg :endtime, non_null(:datetime)
+      # resolve(&SentantResolver.create_sentant/3)
+      {:ok, %{}}
+    end
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Update a sentant"
+    # ----------------------------------------------------------------------------------------------------
+    field :sentant_update, non_null(:sentant) do
+      arg :id, non_null(:uuid4)
+      arg :name, :string
+      arg :starttime, :datetime
+      arg :endtime, :datetime
+      # resolve(&SentantResolver.update_sentant/3)
+      {:ok, %{}}
+    end
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Delete a sentant"
+    # ----------------------------------------------------------------------------------------------------
+    field :sentant_delete, non_null(:sentant) do
+      arg :id, non_null(:uuid4)
+      # resolve(&SentantResolver.delete_sentant/3)
+      {:ok, %{}}
+    end
+  end
   # ------------------------------------------------------------------------------------------------------
 
 

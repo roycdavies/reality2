@@ -66,6 +66,7 @@ type Command {
 # An action is executed one a transition is triggered
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 type Action {
+    plugin: String                                                          # The plugin that will execute the action (if not given, is on the sentant)
     name: String!                                                           # The name of the action
     parameters: JSON!                                                       # The parameters of the action
 }
