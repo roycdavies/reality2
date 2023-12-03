@@ -1,24 +1,23 @@
 # ****************************************************************************************************
 # Define the Sentant database structure for Ecto
 # ****************************************************************************************************
-defmodule Reality2engine.Node.Sentant do
+defmodule Reality2engineStorage.Node.Sentant do
   use Ecto.Schema
   import Ecto.Changeset
 
   schema "sentant" do
-    #field :id, :string
+    field :uuid, :binary_id, primary_key: true
     field :name, :string
+    field :data, :map
+    field :automations, :map
 
-    field :starttime, :utc_datetime
-    field :endtime, :utc_datetime
-
-    timestamps()
+    # timestamps()
   end
 
   @doc false
   def changeset(sentant, attrs) do
     sentant
-    |> cast(attrs, [:name, :starttime, :endtime])
-    |> validate_required([:name, :details, :starttime, :endtime])
+    |> cast(attrs, [:uuid, :name, :data, :automations])
+    |> validate_required([:uuid, :name, :data, :automations])
   end
 end

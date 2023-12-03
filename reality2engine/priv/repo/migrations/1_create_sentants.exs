@@ -1,11 +1,14 @@
-defmodule Reality2engine.Repo.Migrations.CreateSentant do
+defmodule Reality2engineStorage.Repo.Migrations.CreateSentant do
   use Ecto.Migration
 
   def change do
-    create table(:sentant) do
+    create table(:sentant, primary_key: false) do
+      add :uuid, :uuid, primary_key: true
       add :name, :string
+      add :data, :json
+      add :automations, :json
 
-      timestamps()
+      # timestamps()
     end
   end
 end

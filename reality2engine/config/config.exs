@@ -8,7 +8,7 @@
 import Config
 
 config :reality2engine,
-  ecto_repos: [Reality2engine.Repo],
+  ecto_repos: [Reality2engineStorage.Repo],
   generators: [binary_id: true]
 
 # Configures the endpoint

@@ -11,13 +11,16 @@ defmodule Reality2engine.Application do
       # Start the Telemetry supervisor
       Reality2engineWeb.Telemetry,
       # Start the Ecto repository
-      Reality2engine.Repo,
+      Reality2engineStorage.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: Reality2engine.PubSub},
       # Start the Endpoint (http/https)
-      Reality2engineWeb.Endpoint
+      Reality2engineWeb.Endpoint,
+
+      Reality2engine.SentantSupervisor
+
       # Start a worker by calling: Reality2engine.Worker.start_link(arg)
-      # {Reality2engine.Worker, arg}
+      # {Reality2engine.Worker, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -1,25 +1,9 @@
-# ****************************************************************************************************
-# Core database functions to be used by the resolvers for Sentants
-# ****************************************************************************************************
 defmodule Reality2engine.Sentant do
-  import Ecto.Query, warn: false
-
-  alias Reality2engine.Repo
-  alias Reality2engine.Node.Sentant
-  # ------------------------------------------------------------------------------------------------------
-  # Get a saved Sentant by its id from the DB
-  # ------------------------------------------------------------------------------------------------------
-  def get_sentant_by_id(_id) do
-    # Get Sentant from database
-    # Decrypt Sentant
-  end
-  # ------------------------------------------------------------------------------------------------------
-
-  # ------------------------------------------------------------------------------------------------------
-  # Save a Sentant to the DB
-  # ------------------------------------------------------------------------------------------------------
-
-  # ------------------------------------------------------------------------------------------------------
-
-
+  # Each Sentant consists of a number of sub processes
+  # Sentant (which is a supervisor)
+  #   +- Automations Supervisor
+  #   |   +- Automation 1
+  #   |   +- Automation 2
+  #   |   +- ...
+  #   +- Comms (PubSub) Supervisor
 end

@@ -1,10 +1,14 @@
-defmodule Reality2engine.MixProject do
+defmodule Reality2Web.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :reality2engine,
+      app: :reality2_web,
       version: "0.1.0",
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps_path: "../../deps",
+      lockfile: "../../mix.lock",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -18,8 +22,8 @@ defmodule Reality2engine.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Reality2engine.Application, []},
-      extra_applications: [:logger, :runtime_tools, :observer]
+      mod: {Reality2Web.Application, []},
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
@@ -32,16 +36,13 @@ defmodule Reality2engine.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.7"},
+      {:phoenix, "~> 1.7.10"},
       {:phoenix_ecto, "~> 4.4"},
-      {:phoenix_view, "2.0.2"},
-      {:ecto_sql, "~> 3.6"},
-      {:postgrex, ">= 0.0.0"},
-      {:phoenix_live_dashboard, "~> 0.6"},
+      {:phoenix_live_dashboard, "~> 0.8.2"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.18"},
-      {:jason, "~> 1.3"},
+      {:reality2, in_umbrella: true},
+      {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:absinthe, "~> 1.6"},
       {:absinthe_plug, "~> 1.5"},
@@ -52,16 +53,11 @@ defmodule Reality2engine.MixProject do
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
-  # For example, to install project dependencies and perform other setup tasks, run:
-  #
-  #     $ mix setup
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      setup: ["deps.get"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end

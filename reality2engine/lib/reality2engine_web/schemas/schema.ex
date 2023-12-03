@@ -2,6 +2,7 @@ defmodule Reality2engineWeb.Schema do
   use Absinthe.Schema
 
   import_types Reality2engine.Schema.Types.Custom.JSON
+  import_types Reality2engine.Schema.Types.Custom.UUID4
   import_types Absinthe.Type.Custom
   import_types Reality2engineWeb.Schema.Sentant
 
@@ -9,8 +10,8 @@ defmodule Reality2engineWeb.Schema do
     import_fields :sentant_queries
   end
 
-  # mutation do
-  #   import_fields :sentant_mutations
-  # end
+  mutation do
+    import_fields :sentant_mutations
+  end
 
 end

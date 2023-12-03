@@ -1,4 +1,4 @@
-defmodule Reality2engineWeb.Telemetry do
+defmodule Reality2Web.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 
@@ -52,23 +52,23 @@ defmodule Reality2engineWeb.Telemetry do
       ),
 
       # Database Metrics
-      summary("Reality2engineStorage.Repo.query.total_time",
+      summary("reality2.repo.query.total_time",
         unit: {:native, :millisecond},
         description: "The sum of the other measurements"
       ),
-      summary("Reality2engineStorage.Repo.query.decode_time",
+      summary("reality2.repo.query.decode_time",
         unit: {:native, :millisecond},
         description: "The time spent decoding the data received from the database"
       ),
-      summary("Reality2engineStorage.Repo.query.query_time",
+      summary("reality2.repo.query.query_time",
         unit: {:native, :millisecond},
         description: "The time spent executing the query"
       ),
-      summary("Reality2engineStorage.Repo.query.queue_time",
+      summary("reality2.repo.query.queue_time",
         unit: {:native, :millisecond},
         description: "The time spent waiting for a database connection"
       ),
-      summary("Reality2engineStorage.Repo.query.idle_time",
+      summary("reality2.repo.query.idle_time",
         unit: {:native, :millisecond},
         description:
           "The time the connection spent waiting before being checked out for the query"
@@ -86,7 +86,7 @@ defmodule Reality2engineWeb.Telemetry do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {Reality2engineWeb, :count_users, []}
+      # {Reality2Web, :count_users, []}
     ]
   end
 end
