@@ -1,7 +1,0 @@
-{application,edate,
-             [{description,"date manipulation library"},
-              {vsn,"0.1"},
-              {registered,[]},
-              {applications,[kernel,stdlib]},
-              {env,[]},
-              {modules, ['edate']}]}.
