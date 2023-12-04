@@ -1,0 +1,4 @@
+-sname mrserver@mrserver
+-setcookie mrserver
+-heart
+# -heart -env HEART_COMMAND heart

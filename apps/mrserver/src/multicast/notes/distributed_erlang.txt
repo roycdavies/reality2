@@ -1,0 +1,7 @@
+Erlang can automatically work in a distributed environment with multiple nodes.  Nodes form a tight communication package that all work together.
+
+http://erlang.org/doc/reference_manual/distributed.html
+
+This will work well when there are a small number of nodes working together, but not sure about large numbers, as all nodes connect to all nodes, whereas we want each node to connect to only a small number of other nodes (5 or so).
+
+Do we want to be dependent on the Erlang way of networking, or do we want to ensure the protocols are sub-system independent?

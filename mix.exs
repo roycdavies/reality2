@@ -4,6 +4,7 @@ defmodule Reality2.Umbrella.MixProject do
   def project do
     [
       apps_path: "apps",
+      # apps: [ :mrserver, :reality2, :reality2_web ],
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
