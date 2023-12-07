@@ -9,6 +9,6 @@ defmodule Reality2.Sentants.Supervisor do
   def init (_args) do
     children = []
 
-    Supervisor.init(children, strategy: :simple_one_for_one)
+    Supervisor.init(children, strategy: :one_for_one)
   end
 end
