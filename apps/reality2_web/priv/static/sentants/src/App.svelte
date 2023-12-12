@@ -3,7 +3,7 @@
 </script>
 
 <main>
-  <Button ui simple red>Hello World</Button>
+  <Button ui simple red>This is Reality2</Button>
 </main>
 
 <style>
