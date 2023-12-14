@@ -47,7 +47,7 @@ defmodule Reality2Web.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:absinthe, "~> 1.6"},
       {:absinthe_plug, "~> 1.5"},
-      {:uuid, "~> 1.1" },
+      {:uuid, "~> 1.1"},
       {:yaml_elixir, "~> 2.9"},
       {:bcrypt_elixir, "~> 3.0"}
     ]
