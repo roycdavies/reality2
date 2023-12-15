@@ -12,7 +12,7 @@ alias Reality2.SentantsSup
       # Reality2.Repo,
       # {DNSCluster, query: Application.get_env(:reality2, :dns_cluster_query) || :ignore},
       # {Phoenix.PubSub, name: Reality2.PubSub},
-      {DynamicSupervisor, name: Reality2.Sentants.Supervisor}
+      {PartitionSupervisor, child_spec: DynamicSupervisor, name: Reality2.Sentants.Supervisor}
       # Start a worker by calling: Reality2.Worker.start_link(arg)
       # {Reality2.Worker, arg}
     ]
