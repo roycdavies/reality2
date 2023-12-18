@@ -1,4 +1,4 @@
-defmodule Reality2.Sentants.Sentant do
+defmodule Reality2.Sentant do
   use Agent
 
   def start_link({name, initial_value}) do
