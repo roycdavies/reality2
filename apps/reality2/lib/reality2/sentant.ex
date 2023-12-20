@@ -1,16 +1,62 @@
 defmodule Reality2.Sentant do
-  use Agent
+# ********************************************************************************************************************************************
+@moduledoc """
+  The Sentant Digital Agent, which is a Supervisor that starts the Automations and Plugins.
 
-  def start_link({name, initial_value}) do
-    Agent.start_link(fn -> initial_value end, name: String.to_atom(name))
+  **Author**
+  - Dr. Roy C. Davies
+  - [roycdavies.github.io](https://roycdavies.github.io/)
+"""
+# ********************************************************************************************************************************************
+  use Supervisor
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Supervisor Callbacks
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  @doc false
+  def start_link({name, definition_map}) do
+    Supervisor.start_link(__MODULE__, {name, definition_map}, name: String.to_atom(name))
   end
 
-  def value do
-    Agent.get(__MODULE__, & &1)
+  @impl true
+  def init({name, definition_map}) do
+    children = [
+      {Reality2.Automations, {name, definition_map}},
+      {Reality2.Plugins, {name, definition_map}}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
   end
 
-  def increment do
-    Agent.update(__MODULE__, &(&1 + 1))
+  def handle_info(:close, state) do
+    IO.puts "Received close message. Stopping gracefully."
+    {:stop, :normal, state}
   end
 
+  def terminate(_reason, state) do
+    IO.puts "Terminating MyChildSupervisor gracefully"
+    {:ok, state}
+  end
+
+  # @doc false
+  # def child_spec(arg) do
+  #   Supervisor.child_spec({__MODULE__, arg}, id: __MODULE__)
+  # end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Sentant Functions
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Helper Functions
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
 end

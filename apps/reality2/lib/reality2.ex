@@ -1,9 +1,15 @@
 defmodule Reality2 do
   @moduledoc """
-  Reality2 keeps the contexts that define your domain
-  and business logic.
+  Reality2 is the App that manages Sentants on a Reality2 Node.
 
-  Contexts are also responsible for managing your data, regardless
-  if it comes from the database, an external API or others.
+  **Author**
+  - Dr. Roy C. Davies
+  - [roycdavies.github.io](https://roycdavies.github.io/)
   """
+  @doc"""
+  Run various Reality2 Unit Tests - same as running "mix test"
+  """
+  def test() do
+    Mix.Task.run("test")
+  end
 end

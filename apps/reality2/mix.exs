@@ -14,7 +14,10 @@ defmodule Reality2.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      description: "Reality2 Sentant Application"
+      description: "Reality2 Sentant Application",
+      docs: [
+        main: "Reality2", output: "doc/", format: :html
+      ]
     ]
   end
 
@@ -41,7 +44,9 @@ defmodule Reality2.MixProject do
       {:phoenix_pubsub, "~> 2.1"},
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      {:yaml_elixir, "~> 2.9"},
+      {:ex_doc, "~> 0.31", only: :dev, runtime: false}
     ]
   end
 

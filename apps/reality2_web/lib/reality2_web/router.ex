@@ -39,7 +39,9 @@ defmodule Reality2Web.Router do
   end
 
   # Enable LiveDashboard in development
-  if Application.compile_env(:reality2_web, :dev_routes) do
+  IO.puts "Mix.env: #{Mix.env}"
+  # if Application.compile_env(:reality2_web, :dev_routes) do
+  if Mix.env == :dev || Mix.env == :test do
     # If you want to use the LiveDashboard in production, you should put
     # it behind authentication and allow only admins to access it.
     # If your application does not have an admins-only section yet,
