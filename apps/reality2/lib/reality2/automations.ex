@@ -1,16 +1,25 @@
 defmodule Reality2.Automations do
-  @moduledoc false
+# ********************************************************************************************************************************************
+@moduledoc """
+  Module for creating and managing Automations on a Sentant.
+
+  **Author**
+  - Dr. Roy C. Davies
+  - [roycdavies.github.io](https://roycdavies.github.io/)
+"""
+# ********************************************************************************************************************************************
 
   use DynamicSupervisor
 
-  def start_link({name, init_arg}) do
-    DynamicSupervisor.start_link(__MODULE__, init_arg, name: String.to_atom(name <> "_automations"))
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Supervisor Callbacks
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  def start_link({name, id, definition_map}) do
+    DynamicSupervisor.start_link(__MODULE__, {name, id, definition_map}, name: String.to_atom(id <> "_automations"))
   end
 
-  def start_child({name, init_arg}) do
-    # If MyWorker is not using the new child specs, we need to pass a map:
-    # spec = %{id: MyWorker, start: {MyWorker, :start_link, [foo, bar, baz]}}
-    spec = {Reality2.Automation, {name, init_arg}}
+  def start_child({name, id, definition_map}) do
+    spec = {Reality2.Automation, {name, id, definition_map}}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 
@@ -21,4 +30,33 @@ defmodule Reality2.Automations do
       extra_arguments: [init_arg]
     )
   end
+
+  # @doc false
+  # def child_spec(init_arg), do: {Reality2.Automation, value: init_arg}
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Automation Management Functions
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  @spec create(map()) ::
+    {:ok, pid()}
+    | {:ok, pid(), info :: term()}
+    | {:error, :definition}
+  @doc """
+  Create a new Automation on the Sentant, returning {:ok, pid} or an appropriate error.
+
+  **Parameters**
+  - `definition` - A map containing the definition of the Automation.
+  """
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  def create(definition_map) do
+    definition_map
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
 end

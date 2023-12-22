@@ -12,4 +12,19 @@ defmodule Reality2 do
   def test() do
     Mix.Task.run("test")
   end
+
+  def test_one(test_name) do
+    Mix.Task.run("test", [test_name])
+  end
+
+  def test_call() do
+    sentant_definition = """
+    sentant:
+      name: fred
+    """
+
+    {:ok, _id} = Reality2.Sentants.create(sentant_definition)
+
+    Reality2.Sentants.sendto(%{:name => "fred"}, %{:command => "test", :parameters => %{}})
+  end
 end

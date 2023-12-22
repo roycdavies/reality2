@@ -3,14 +3,14 @@ defmodule Reality2.Plugins do
 
   use DynamicSupervisor
 
-  def start_link({name, init_arg}) do
-    DynamicSupervisor.start_link(__MODULE__, init_arg, name: String.to_atom(name <> "_plugins"))
+  def start_link({name, id, definition_map}) do
+    DynamicSupervisor.start_link(__MODULE__, {name, id, definition_map}, name: String.to_atom(id <> "_plugins"))
   end
 
-  def start_child({name, init_arg}) do
+  def start_child({name, id, definition_map}) do
     # If MyWorker is not using the new child specs, we need to pass a map:
     # spec = %{id: MyWorker, start: {MyWorker, :start_link, [foo, bar, baz]}}
-    spec = {Reality2.Plugin, {name, init_arg}}
+    spec = {Reality2.Plugin, {name, id, definition_map}}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 

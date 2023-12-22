@@ -1,47 +1,27 @@
 defmodule Reality2.Sentant do
-# ********************************************************************************************************************************************
-@moduledoc """
-  The Sentant Digital Agent, which is a Supervisor that starts the Automations and Plugins.
+@moduledoc false
 
-  **Author**
-  - Dr. Roy C. Davies
-  - [roycdavies.github.io](https://roycdavies.github.io/)
-"""
-# ********************************************************************************************************************************************
-  use Supervisor
+use Supervisor, restart: :transient
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @doc false
-  def start_link({name, definition_map}) do
-    Supervisor.start_link(__MODULE__, {name, definition_map}, name: String.to_atom(name))
+  def start_link({name, id, definition_map}) do
+    Supervisor.start_link(__MODULE__, {name, id, definition_map}, name: String.to_atom(id))
   end
 
   @impl true
-  def init({name, definition_map}) do
+  def init({name, id, definition_map}) do
     children = [
-      {Reality2.Automations, {name, definition_map}},
-      {Reality2.Plugins, {name, definition_map}}
+      {Reality2.Automations, {name, id, definition_map}},
+      {Reality2.Plugins, {name, id, definition_map}},
+      {Reality2.Sentant.Comms, {name, id, definition_map}},
+      %{id: String.to_atom((id <> "_vars")), start: {Reality2.Metadata, :start_link, [String.to_atom((id <> "_vars"))]}},
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
-
-  def handle_info(:close, state) do
-    IO.puts "Received close message. Stopping gracefully."
-    {:stop, :normal, state}
-  end
-
-  def terminate(_reason, state) do
-    IO.puts "Terminating MyChildSupervisor gracefully"
-    {:ok, state}
-  end
-
-  # @doc false
-  # def child_spec(arg) do
-  #   Supervisor.child_spec({__MODULE__, arg}, id: __MODULE__)
-  # end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 

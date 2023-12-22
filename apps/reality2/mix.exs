@@ -46,7 +46,8 @@ defmodule Reality2.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.2"},
       {:yaml_elixir, "~> 2.9"},
-      {:ex_doc, "~> 0.31", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.31", only: :dev, runtime: false},
+      {:uuid, "~> 1.1"}
     ]
   end
 

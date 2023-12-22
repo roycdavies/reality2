@@ -1,7 +1,7 @@
 defmodule Reality2.Plugin do
   @moduledoc false
 
-  use Agent
+  use Agent, restart: :transient
 
   def start_link({name, initial_value}) do
     Agent.start_link(fn -> initial_value end, name: String.to_atom(name))
