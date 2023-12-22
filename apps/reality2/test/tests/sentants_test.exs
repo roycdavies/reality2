@@ -14,7 +14,8 @@ defmodule TestSentants do
     assert result == :ok
     assert Process.whereis(String.to_atom(id)) != nil
 
-    Reality2.Sentants.sendto(%{:name => "fred"}, %{:command => "test", :parameters => %{}})
+    {result} =  Reality2.Sentants.sendto(%{:name => "fred"}, %{:command => "test", :parameters => %{}})
+    assert result == :ok
 
     {result, id} = Reality2.Sentants.delete(%{:name => "fred"})
     assert result == :ok
@@ -29,6 +30,9 @@ defmodule TestSentants do
     |> count_processes
 
     assert check_non_zero(process_array)
+
+    result =  Reality2.Sentants.sendto_all(%{:command => "test", :parameters => %{}})
+    assert result == {:ok, 20}
 
     delete_many_sentants("test", 20)
 
