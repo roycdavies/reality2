@@ -14,11 +14,11 @@ defmodule TestSentants do
     assert result == :ok
     assert Process.whereis(String.to_atom(id)) != nil
 
-    {result} =  Reality2.Sentants.sendto(%{:name => "fred"}, %{:command => "test", :parameters => %{}})
-    assert result == :ok
+    result2 = Reality2.Sentants.sendto(%{:name => "fred"}, %{:command => "test", :parameters => %{}})
+    assert result2 == :ok
 
-    {result, id} = Reality2.Sentants.delete(%{:name => "fred"})
-    assert result == :ok
+    {result3, id} = Reality2.Sentants.delete(%{:name => "fred"})
+    assert result3 == :ok
     assert Process.whereis(String.to_atom(id)) == nil
   end
 
