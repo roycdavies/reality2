@@ -10,6 +10,7 @@ defmodule Reality2.Sentants do
 # ********************************************************************************************************************************************
 
   use DynamicSupervisor
+  alias YAML.Sentant_types
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
@@ -49,17 +50,18 @@ defmodule Reality2.Sentants do
   Each Sentant has a unique UUID.  This is checked to ensure that the Sentant is unique in the world, and it's running status is set accordingly to
   either `:main` or `:shadow`.  If the UUID is not checked (for example, if the node is offline), then it is set to `:unchecked`.
   """
-  @type uuid :: String.t()
+  @opaque uuid :: String.t()
 
   @typedoc """
-  Each Sentant can be referred to be either its name or its ID.  The name of a Sentant is unique on the node, but not necessarily in the world.
+  Each Sentant can be referred to by either its name or its ID.  The name of a Sentant is unique on the node, but not in the world.
+  This is used in pathing.
   """
-  @type sentant_name_or_id :: %{:id => uuid()} | %{:name => String.t()}
+  @type sentant_name_or_uuid :: %{:id => uuid()} | %{:name => String.t()}
 
   @typedoc """
-  The definition of a Sentant is a string containing the definition of the Sentant in YAML format.  See the definition of `Reality2.Sentant.YAML`.
+  The definition of a Sentant is a string containing the definition of the Sentant in YAML format.  See the definition of `YAML.Sentant`.
   """
-  @type sentant_definition :: String.t()
+  @opaque sentant_definition :: String.t()
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -69,7 +71,7 @@ defmodule Reality2.Sentants do
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec create(definition :: sentant_definition()) ::
+  @spec create(definition :: sentant_definition() | definition_map :: Sentant_types.sentant()) ::
     {:ok, String.t()}
     | {:error, :definition}
   @doc """
@@ -77,45 +79,52 @@ defmodule Reality2.Sentants do
 
   **Parameters**
   - `definition` - A string containing the definition of the Sentant to be created in YAML format.
+  - (or) 'definition_map' - A map as created from a YAML definition.
 
   **Returns**
   - `{:ok, id}` - The Sentant was created.
   - `{:error, :definition}` if the definition is invalid.
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
+  def create(definition_map) when is_map(definition_map), do: create_from_map(definition_map)
   def create(definition) do
     definition
     |> YamlElixir.read_from_string()
     |> case do
       {:ok, definition_map} ->
-        case sentant_name(definition_map) do
-          {:ok, name} ->
-            case sentant_id(definition_map) do
-              {:ok, _, id} ->
-                case DynamicSupervisor.start_child(
-                  {:via, PartitionSupervisor, {Reality2.Sentants, choose_supervisor()}},
-                  {Reality2.Sentant, {name, id, definition_map}}
-                ) do
-                    {:ok, _pid} ->
-                      Reality2.Metadata.set :SentantNames, id, name
-                      Reality2.Metadata.set :SentantIDs, name, id
-                      {:ok, id}
-                    error -> error
-                end
-              error -> error
+        create_from_map(definition_map)
+       _ ->
+        {:error, :definition}
+    end
+  end
+
+  defp create_from_map(definition_map) do
+    case sentant_name(definition_map) do
+      {:ok, name} ->
+        case sentant_id(definition_map) do
+          {:ok, _, id} ->
+            case DynamicSupervisor.start_child(
+              {:via, PartitionSupervisor, {Reality2.Sentants, choose_supervisor()}},
+              {Reality2.Sentant, {name, id, definition_map}}
+            ) do
+                {:ok, _pid} ->
+                  Reality2.Metadata.set :SentantNames, id, name
+                  Reality2.Metadata.set :SentantIDs, name, id
+                  {:ok, id}
+                error -> error
             end
           error -> error
         end
-      _ ->
-        {:error, :definition}
+      error -> error
     end
+
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec read(name_or_id :: sentant_name_or_id()) ::
+  @spec read(name_or_uuid :: sentant_name_or_uuid()) ::
     {:ok, map()}
     | {:error, :existance}
     | {:error, :invalid}
@@ -123,7 +132,7 @@ defmodule Reality2.Sentants do
   TODO: Read the definition and status of an existing Sentant.
 
   **Parameters**
-  - `name_or_id` - The name or ID of the Sentant to be read from as a map containing either a `:name` or `:id` key.
+  - `name_or_uuid` - The name or ID of the Sentant to be read from as a map containing either a `:name` or `:id` key.
 
   **Returns**
   - `{:ok, definition}` - The Sentant was read.
@@ -131,6 +140,8 @@ defmodule Reality2.Sentants do
   - `{:error, :invalid}` if the parameter is invalid.
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
+
+  def read (name_or_uuid)
   def read(%{:name => name}) do
     case Reality2.Metadata.get :SentantIDs, name do
       nil ->
@@ -195,7 +206,7 @@ defmodule Reality2.Sentants do
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec delete(name_or_id :: sentant_name_or_id()) ::
+  @spec delete(name_or_uuid :: sentant_name_or_uuid()) ::
     {:ok, String.t()}
     | {:error, :existance}
     | {:error, :invalid}
@@ -203,13 +214,15 @@ defmodule Reality2.Sentants do
   Delete a Sentant and return the result of the operation with the pid of the deleted Sentant, or an appropriate error.
 
   **Parameters**
-  - `name_or_id` - The name or ID of the Sentant to be deleted as a map containing either a `:name` or `:id` key.
+  - `name_or_uuid` - The name or ID of the Sentant to be deleted as a map containing either a `:name` or `:id` key.
 
   **Returns**
   - `{:ok, id}` - The Sentant was deleted.
   - `{:error, :existance}` if the Sentant with that ID or name does not exist on this node.
-  - `{:error, :invalid}` if the parameter is invalid.  """
+  - `{:error, :invalid}` if the parameter is invalid.
+  """
   # -----------------------------------------------------------------------------------------------------------------------------------------
+  def delete(name_or_uuid)
   def delete(%{:name => name}) do
     case Reality2.Metadata.get(:SentantIDs, name) do
       nil ->
@@ -244,7 +257,7 @@ defmodule Reality2.Sentants do
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec sendto(name_or_id :: sentant_name_or_id(), message :: map()) ::
+  @spec sendto(name_or_uuid :: sentant_name_or_uuid(), message :: map()) ::
     {:ok}
     | {:error, :name}
     | {:error, :existance}
@@ -253,7 +266,7 @@ defmodule Reality2.Sentants do
   Send a message to the named Sentant if it exists and return the result of the operation, or an appropriate error. This is an asynchronous operation.
 
   **Parameters**
-  - `name_or_id` - The name or ID of the Sentant to have the message sent to as a map containing either a `:name` or `:id` key.
+  - `name_or_uuid` - The name or ID of the Sentant to have the message sent to as a map containing either a `:name` or `:id` key.
   - `message` - The message to be sent, which must contain a `:command` key and optionally a `:parameters` key, and optionaslly a ':passthrough' key.
 
   **Returns**
@@ -262,6 +275,7 @@ defmodule Reality2.Sentants do
   - `{:error, :invalid}` if the first parameter is invalid.
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
+  def sendto(name_or_uuid, message_map)
   def sendto(%{:name => name}, message_map) do
     case Reality2.Metadata.get(:SentantIDs, name) do
       nil ->
@@ -318,7 +332,6 @@ defmodule Reality2.Sentants do
   end
 
 
-
   # Returns a list of tuples containing the Supervisor index and the number of child processes on that Supervisor.
   defp count_processes([]), do: []
   defp count_processes([{id, pid, _, _} | tail]) do
@@ -333,7 +346,12 @@ defmodule Reality2.Sentants do
 
 
   # Get the ID of the Sentant from the definition map.
-  defp sentant_id(%{"sentant" => %{"id" => id}}) do
+  defp sentant_id(%{"sentant" => %{"id" => id}}), do: sentant_id(%{id: id})
+  defp sentant_id(%{sentant: %{"id" => id}}), do: sentant_id(%{id: id})
+  defp sentant_id(%{"sentant" => %{id: id}}), do: sentant_id(%{id: id})
+  defp sentant_id(%{sentant: %{id: id}}), do: sentant_id(%{id: id})
+  defp sentant_id{%{"id" => id}}, do: sentant_id(%{id: id})
+  defp sentant_id{%{id: id}} do
     # TODO: Check that the Sentant identified by the ID is unique in the world and if not, detemine which should be the main and which shadows.
     # Should return either that the sentant is the main one, a shadow one, or that it is unchecked.
     case UUID.info(id) do
@@ -343,11 +361,16 @@ defmodule Reality2.Sentants do
         {:error, :id}
     end
   end
-  defp sentant_id(_), do: {:ok, UUID.uuid1} # No ID given, so assume a new Sentant is to be created with a new ID.
+  defp sentant_id(_), do: {:ok, :main, UUID.uuid1} # No ID given, so assume a new Sentant is to be created with a new ID.
 
 
   # Get the name of the Sentant from the definition map.
   defp sentant_name(%{"sentant" => %{"name" => name}}), do: {:ok, name}
+  defp sentant_name(%{sentant: %{"name" => name}}), do: {:ok, name}
+  defp sentant_name(%{"sentant" => %{name: name}}), do: {:ok, name}
+  defp sentant_name(%{sentant: %{name: name}}), do: {:ok, name}
+  defp sentant_name(%{"name" => name}), do: {:ok, name}
+  defp sentant_name(%{name: name}), do: {:ok, name}
   defp sentant_name(_), do: {:error, :definition}
 
 

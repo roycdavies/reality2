@@ -2,16 +2,19 @@ defmodule Reality2.Sentant do
 @moduledoc false
 
 use Supervisor, restart: :transient
+alias YAML.Sentant_types
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @doc false
+  @spec start_link({String.t(), Sentant_types.uuid(), Sentant_types.sentant()})
   def start_link({name, id, definition_map}) do
     Supervisor.start_link(__MODULE__, {name, id, definition_map}, name: String.to_atom(id))
   end
 
   @impl true
+  @spec init({String.t(), Sentant_types.uuid(), Sentant_types.sentant()})
   def init({name, id, definition_map}) do
     children = [
       {Reality2.Automations, {name, id, definition_map}},

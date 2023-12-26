@@ -28,7 +28,7 @@ defmodule Reality2.Umbrella.MixProject do
   #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
   #
   # Type "mix help deps" for more examples and options.
-  #
+  #ssss
   # Dependencies listed here are available only for this project
   # and cannot be accessed from applications inside the apps/ folder.
   defp deps do
@@ -47,7 +47,11 @@ defmodule Reality2.Umbrella.MixProject do
   defp aliases do
     [
       # run `mix setup` in all child apps
-      setup: ["cmd mix setup"]
+      setup: ["cmd mix setup"],
+      # run `mix docs` in all child apps
+      docs: ["cmd mix docs"],
+      # run the tests in all child apps
+      test: ["cmd mix test"]
     ]
   end
 end

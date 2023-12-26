@@ -5,21 +5,37 @@ defmodule TestSentants do
   # Test functionality of Reality.Sentants
   # -------------------------------------------------------------------------------------------------------------------
   test "Test single sentant" do
+
     sentant_definition = """
     sentant:
       name: fred
+      description: "This is a Sentant."
     """
 
-    {result, id} = Reality2.Sentants.create(sentant_definition)
-    assert result == :ok
-    assert Process.whereis(String.to_atom(id)) != nil
+    sentant_map = %{ name: "george" }
 
-    result2 = Reality2.Sentants.sendto(%{:name => "fred"}, %{:command => "test", :parameters => %{}})
+    {result, id} = Reality2.Sentants.create sentant_definition
+    assert result == :ok
+    assert id |> String.to_atom |> Process.whereis != nil
+
+    result2 = Reality2.Sentants.sendto( %{ name: "fred" }, %{ command: "test", parameters: %{ } } )
     assert result2 == :ok
 
-    {result3, id} = Reality2.Sentants.delete(%{:name => "fred"})
+    {result3, id} = Reality2.Sentants.delete %{ name: "fred" }
     assert result3 == :ok
-    assert Process.whereis(String.to_atom(id)) == nil
+    assert id |> String.to_atom |> Process.whereis == nil
+
+    {result4, id2} = Reality2.Sentants.create sentant_map
+    assert result4 == :ok
+    assert id2 |> String.to_atom |> Process.whereis != nil
+
+    result5 = Reality2.Sentants.sendto( %{ id: id2 }, %{ command: "test", parameters: %{ } } )
+    assert result5 == :ok
+
+    {result6, id2} = Reality2.Sentants.delete %{ name: "george" }
+    assert result6 == :ok
+    assert id2 |> String.to_atom |> Process.whereis == nil
+
   end
 
   test "Test multiple sentants" do
