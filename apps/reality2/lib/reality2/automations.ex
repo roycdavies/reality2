@@ -9,7 +9,9 @@ defmodule Reality2.Automations do
 """
 # ********************************************************************************************************************************************
 
+  @doc false
   use DynamicSupervisor
+  alias YAML.Sentant_types
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
@@ -19,20 +21,14 @@ defmodule Reality2.Automations do
   end
 
   def start_child({name, id, definition_map}) do
-    spec = {Reality2.Automation, {name, id, definition_map}}
-    DynamicSupervisor.start_child(__MODULE__, spec)
+    DynamicSupervisor.start_child(__MODULE__, {Reality2.Automation, {name, id, definition_map}})
   end
 
   @impl true
   def init(init_arg) do
-    DynamicSupervisor.init(
-      strategy: :one_for_one,
-      extra_arguments: [init_arg]
-    )
+    IO.puts("Automations.init: init_arg = #{inspect(init_arg)}")
+    DynamicSupervisor.init(strategy: :one_for_one, extra_arguments: [init_arg])
   end
-
-  # @doc false
-  # def child_spec(init_arg), do: {Reality2.Automation, value: init_arg}
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -42,19 +38,18 @@ defmodule Reality2.Automations do
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec create(map()) ::
-    {:ok, pid()}
-    | {:ok, pid(), info :: term()}
+  @spec create(Sentant_types.uuid(), Sentant_types.automation()) ::
+    {:ok}
     | {:error, :definition}
   @doc """
-  Create a new Automation on the Sentant, returning {:ok, pid} or an appropriate error.
+  Create a new Automation on the Sentant, returning {:ok} or an appropriate error.
 
   **Parameters**
   - `definition` - A map containing the definition of the Automation.
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  def create(definition_map) do
-    definition_map
+  def create(id, automation_map) do
+    DynamicSupervisor.start_child(Reality2.Automations, {Reality2.Automation, {id, automation_map}})
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 

@@ -14,7 +14,7 @@ defmodule Reality2 do
   end
 
   def test_one(test_name) do
-    Mix.Task.run("test", [test_name])
+    Mix.Task.run("test", ["test/tests/" <> test_name])
   end
 
   def test_call() do
@@ -23,8 +23,10 @@ defmodule Reality2 do
       name: fred
     """
 
-    {:ok, _id} = Reality2.Sentants.create(sentant_definition)
+    {:ok, id} = Reality2.Sentants.create(sentant_definition)
 
     Reality2.Sentants.sendto(%{:name => "fred"}, %{:command => "test", :parameters => %{}})
+
+    {:ok, id}
   end
 end

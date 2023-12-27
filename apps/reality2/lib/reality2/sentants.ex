@@ -8,7 +8,7 @@ defmodule Reality2.Sentants do
   - [roycdavies.github.io](https://roycdavies.github.io/)
 """
 # ********************************************************************************************************************************************
-
+  @doc false
   use DynamicSupervisor
   alias YAML.Sentant_types
 
@@ -30,15 +30,6 @@ defmodule Reality2.Sentants do
   def init(init_arg) do
     DynamicSupervisor.init( strategy: :one_for_one, extra_arguments: [init_arg] )
   end
-
-  @doc false
-  def child_spec(data) do
-    %{
-      id: Reality2.Sentants,
-      start: {Reality2.Sentants, :start_link, [data]},
-      type: :supervisor
-    }
-  end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -47,16 +38,10 @@ defmodule Reality2.Sentants do
   # Types
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @typedoc """
-  Each Sentant has a unique UUID.  This is checked to ensure that the Sentant is unique in the world, and it's running status is set accordingly to
-  either `:main` or `:shadow`.  If the UUID is not checked (for example, if the node is offline), then it is set to `:unchecked`.
-  """
-  @opaque uuid :: String.t()
-
-  @typedoc """
   Each Sentant can be referred to by either its name or its ID.  The name of a Sentant is unique on the node, but not in the world.
   This is used in pathing.
   """
-  @type sentant_name_or_uuid :: %{:id => uuid()} | %{:name => String.t()}
+  @type sentant_name_or_uuid :: %{:id => Sentant_types.uuid()} | %{:name => String.t()}
 
   @typedoc """
   The definition of a Sentant is a string containing the definition of the Sentant in YAML format.  See the definition of `YAML.Sentant`.
@@ -71,7 +56,7 @@ defmodule Reality2.Sentants do
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec create(definition :: sentant_definition() | definition_map :: Sentant_types.sentant()) ::
+  @spec create((definition :: sentant_definition()) | (definition_map :: Sentant_types.sentant())) ::
     {:ok, String.t()}
     | {:error, :definition}
   @doc """
@@ -87,7 +72,7 @@ defmodule Reality2.Sentants do
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def create(definition_map) when is_map(definition_map), do: create_from_map(definition_map)
-  def create(definition) do
+  def create(definition) when is_binary(definition) do
     definition
     |> YamlElixir.read_from_string()
     |> case do
@@ -97,15 +82,17 @@ defmodule Reality2.Sentants do
         {:error, :definition}
     end
   end
+  def create(_), do: {:error, :definition}
 
   defp create_from_map(definition_map) do
-    case sentant_name(definition_map) do
+    sentant_map = remove_sentant_parent_from_definition_map(definition_map)
+    case sentant_name(sentant_map) do
       {:ok, name} ->
-        case sentant_id(definition_map) do
+        case sentant_id(sentant_map) do
           {:ok, _, id} ->
             case DynamicSupervisor.start_child(
               {:via, PartitionSupervisor, {Reality2.Sentants, choose_supervisor()}},
-              {Reality2.Sentant, {name, id, definition_map}}
+              {Reality2.Sentant, {name, id, sentant_map}}
             ) do
                 {:ok, _pid} ->
                   Reality2.Metadata.set :SentantNames, id, name
@@ -146,18 +133,19 @@ defmodule Reality2.Sentants do
     case Reality2.Metadata.get :SentantIDs, name do
       nil ->
         {:error, :existance}
-      id ->
-        read(%{:id => id})
+      uuid ->
+        read(%{:id => uuid})
     end
   end
 
-  def read(%{:id => id}) do
-    case Process.whereis(String.to_atom(id)) do
+  def read(%{:id => uuid}) do
+    case Process.whereis(String.to_atom(uuid <> "_comms")) do
       nil ->
         {:error, :existance}
-      _pid ->
+      pid ->
         #TODO: Read the definition and status of the Sentant.
-        {:ok, %{}}
+        sentant_map = GenServer.call(pid, %{read: %{}})
+        {:ok, sentant_map}
       end
   end
 
@@ -186,7 +174,8 @@ defmodule Reality2.Sentants do
     |> YamlElixir.read_from_string()
     |> case do
       {:ok, definition_map} ->
-        case sentant_id(definition_map) do
+        sentant_map = remove_sentant_parent_from_definition_map(definition_map)
+        case sentant_id(sentant_map) do
           {:ok, _, id} ->
             case Process.whereis(String.to_atom(id)) do
               nil ->
@@ -323,7 +312,7 @@ defmodule Reality2.Sentants do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Helper Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  # Returns a random Supervisor index weighted by the number of child processes on all Supervisors.
+  # Returns the supervisor index of the Supervisor with the fewest child processes.
   defp choose_supervisor() do
     Reality2.Sentants
     |> PartitionSupervisor.which_children
@@ -346,12 +335,11 @@ defmodule Reality2.Sentants do
 
 
   # Get the ID of the Sentant from the definition map.
-  defp sentant_id(%{"sentant" => %{"id" => id}}), do: sentant_id(%{id: id})
-  defp sentant_id(%{sentant: %{"id" => id}}), do: sentant_id(%{id: id})
-  defp sentant_id(%{"sentant" => %{id: id}}), do: sentant_id(%{id: id})
-  defp sentant_id(%{sentant: %{id: id}}), do: sentant_id(%{id: id})
-  defp sentant_id{%{"id" => id}}, do: sentant_id(%{id: id})
-  defp sentant_id{%{id: id}} do
+  # Can accept either a string or an atom as the ID, and either with the 'sentant' key or not.
+  # Each Sentant has a unique UUID.  This is checked to ensure that the Sentant is unique in the world, and it's running status is set accordingly to
+  # either `:main` or `:shadow`.  If the UUID is not checked (for example, if the node is offline), then it is set to `:unchecked`.
+  defp sentant_id(%{"id" => id}), do: sentant_id(%{id: id})
+  defp sentant_id(%{id: id}) do
     # TODO: Check that the Sentant identified by the ID is unique in the world and if not, detemine which should be the main and which shadows.
     # Should return either that the sentant is the main one, a shadow one, or that it is unchecked.
     case UUID.info(id) do
@@ -365,10 +353,7 @@ defmodule Reality2.Sentants do
 
 
   # Get the name of the Sentant from the definition map.
-  defp sentant_name(%{"sentant" => %{"name" => name}}), do: {:ok, name}
-  defp sentant_name(%{sentant: %{"name" => name}}), do: {:ok, name}
-  defp sentant_name(%{"sentant" => %{name: name}}), do: {:ok, name}
-  defp sentant_name(%{sentant: %{name: name}}), do: {:ok, name}
+  # Can accept either a string or an atom as the name, and either with the 'sentant' key or not.
   defp sentant_name(%{"name" => name}), do: {:ok, name}
   defp sentant_name(%{name: name}), do: {:ok, name}
   defp sentant_name(_), do: {:error, :definition}
@@ -380,5 +365,10 @@ defmodule Reality2.Sentants do
     |> Enum.map(fn {_, id} -> Process.whereis(String.to_atom(id <> "_comms")) end)
     |> Enum.filter(&(&1 != nil))
   end
+
+  # Returns a sentant definition map with the sentant parent removed if present.
+  defp remove_sentant_parent_from_definition_map(%{"sentant" => sentant_map}), do: sentant_map
+  defp remove_sentant_parent_from_definition_map(%{sentant: sentant_map}), do: sentant_map
+  defp remove_sentant_parent_from_definition_map(sentant_map), do: sentant_map
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

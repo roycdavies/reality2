@@ -100,4 +100,5 @@ defmodule TestSentants do
       Reality2.Sentants.delete(%{:name => name <> Integer.to_string(x)})
     end)
   end
+  # -------------------------------------------------------------------------------------------------------------------
 end
