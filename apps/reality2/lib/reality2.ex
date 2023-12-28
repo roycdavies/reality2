@@ -70,11 +70,11 @@ defmodule Reality2 do
     automation_state = Reality2.Sentants.read(%{:id => id})
     IO.puts("Automation State = #{inspect(automation_state)}")
 
-    Reality2.Sentants.sendto(%{:id => id}, %{event: "turn_on", parameters: %{}, passthrough: %{}})
+    Reality2.Sentants.sendto(%{:id => id}, %{event: "turn_on"})
     automation_state = Reality2.Sentants.read(%{:id => id})
     IO.puts("Automation State = #{inspect(automation_state)}")
 
-    Reality2.Sentants.sendto(%{:id => id}, %{event: "turn_off", parameters: %{}, passthrough: %{}})
+    Reality2.Sentants.sendto(%{:id => id}, %{event: "turn_off"})
     automation_state = Reality2.Sentants.read(%{:id => id})
     IO.puts("Automation State = #{inspect(automation_state)}")
 

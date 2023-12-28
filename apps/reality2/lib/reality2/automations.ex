@@ -50,7 +50,7 @@ defmodule Reality2.Automations do
       pid ->
         case DynamicSupervisor.start_child(pid, Reality2.Automation.child_spec(automation_map)) do
           {:ok, _pid} ->
-            Reality2.Sentants.sendto(%{:id => id}, %{event: "init", parameters: %{}, passthrough: %{}})
+            Reality2.Sentants.sendto(%{:id => id}, %{event: "init"})
             {:ok, :child_started}
           {:error, reason} ->
             {:error, reason}

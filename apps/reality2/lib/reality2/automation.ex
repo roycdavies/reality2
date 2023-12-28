@@ -26,23 +26,29 @@ defmodule Reality2.Automation do
   end
 
   @impl true
-  def handle_cast(%{event: event, parameters: parameters, passthrough: passthrough}, {name, automation_map, state}) do
+  def handle_cast(args, {name, automation_map, state}) do
+    parameters = Map.get(args, :parameters, %{})
+    passthrough = Map.get(args, :passthrough, %{})
 
-    case Map.get(automation_map, "transitions") do
-      nil ->
-        {:noreply, {name, automation_map, state}}
-      transitions ->
-        new_state = transitions
-        |> Enum.reduce_while(state, fn transition_map, acc_state ->
-          case check_transition(transition_map, event, parameters, passthrough, acc_state) do
-            {:no_match, the_state} ->
-              {:cont, the_state}
-            {:ok, the_state} ->
-              {:halt, the_state}
-          end
-        end)
+    case Map.get(args, :event) do
+      nil -> {:noreply, {name, automation_map, state}}
+      event ->
+        case Map.get(automation_map, "transitions") do
+          nil ->
+            {:noreply, {name, automation_map, state}}
+          transitions ->
+            new_state = transitions
+            |> Enum.reduce_while(state, fn transition_map, acc_state ->
+              case check_transition(transition_map, event, parameters, passthrough, acc_state) do
+                {:no_match, the_state} ->
+                  {:cont, the_state}
+                {:ok, the_state} ->
+                  {:halt, the_state}
+              end
+            end)
 
-        {:noreply, {name, automation_map, new_state}}
+            {:noreply, {name, automation_map, new_state}}
+        end
     end
   end
 
