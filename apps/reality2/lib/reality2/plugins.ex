@@ -4,7 +4,7 @@ defmodule Reality2.Plugins do
   use DynamicSupervisor
 
   def start_link({name, id, definition_map}) do
-    DynamicSupervisor.start_link(__MODULE__, {name, id, definition_map}, name: String.to_atom(id <> "_plugins"))
+    DynamicSupervisor.start_link(__MODULE__, {name, id, definition_map}, name: String.to_atom(id <> "|plugins"))
   end
 
   def start_child({name, id, definition_map}) do

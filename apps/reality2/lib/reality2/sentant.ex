@@ -17,7 +17,7 @@ use Supervisor, restart: :transient
       {Reality2.Automations, {name, id, sentant_map}},
       {Reality2.Plugins, {name, id, sentant_map}},
       {Reality2.Sentant.Comms, {name, id, sentant_map}},
-      %{id: String.to_atom((id <> "_vars")), start: {Reality2.Metadata, :start_link, [String.to_atom((id <> "_vars"))]}},
+      %{id: String.to_atom((id <> "|vars")), start: {Reality2.Metadata, :start_link, [String.to_atom((id <> "|vars"))]}},
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

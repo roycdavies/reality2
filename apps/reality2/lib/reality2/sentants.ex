@@ -22,8 +22,7 @@ defmodule Reality2.Sentants do
 
   @doc false
   def start_child(init_arg) do
-    spec = child_spec(init_arg)
-    DynamicSupervisor.start_child(__MODULE__, spec)
+    DynamicSupervisor.start_child(__MODULE__, child_spec(init_arg))
   end
 
   @impl true
@@ -97,6 +96,8 @@ defmodule Reality2.Sentants do
                 {:ok, _pid} ->
                   Reality2.Metadata.set :SentantNames, id, name
                   Reality2.Metadata.set :SentantIDs, name, id
+
+                  add_automations_to_sentant(id, sentant_map)
                   {:ok, id}
                 error -> error
             end
@@ -105,6 +106,16 @@ defmodule Reality2.Sentants do
       error -> error
     end
 
+  end
+
+  defp add_automations_to_sentant(id, sentant_map) do
+    case Map.get(sentant_map, "automations") do
+      nil ->
+        :ok
+      automations ->
+        # IO.puts("Adding automations to sentant: " <> inspect(automations))
+        Enum.each(automations, fn automation_map -> Reality2.Automations.create(id, automation_map) end)
+    end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -139,13 +150,13 @@ defmodule Reality2.Sentants do
   end
 
   def read(%{:id => uuid}) do
-    case Process.whereis(String.to_atom(uuid <> "_comms")) do
+    case Process.whereis(String.to_atom(uuid <> "|comms")) do
       nil ->
         {:error, :existance}
       pid ->
         #TODO: Read the definition and status of the Sentant.
-        sentant_map = GenServer.call(pid, %{read: %{}})
-        {:ok, sentant_map}
+        result = GenServer.call(pid, %{read: %{}})
+        {:ok, result}
       end
   end
 
@@ -275,7 +286,7 @@ defmodule Reality2.Sentants do
   end
 
   def sendto(%{:id => id}, message_map) do
-    case Process.whereis(String.to_atom(id <> "_comms")) do
+    case Process.whereis(String.to_atom(id <> "|comms")) do
       nil ->
         {:error, :id}
       pid ->
@@ -362,7 +373,7 @@ defmodule Reality2.Sentants do
   # Returns a list of all the children of the PartitionSupervisor's children.
   defp get_all_sentant_comms do
     Reality2.Metadata.all(:SentantIDs)
-    |> Enum.map(fn {_, id} -> Process.whereis(String.to_atom(id <> "_comms")) end)
+    |> Enum.map(fn {_, id} -> Process.whereis(String.to_atom(id <> "|comms")) end)
     |> Enum.filter(&(&1 != nil))
   end
 

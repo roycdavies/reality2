@@ -6,7 +6,7 @@ defmodule TestAutomations do
   # -------------------------------------------------------------------------------------------------------------------
   test "Test automations" do
 
-    sentant_map = %{ name: "george" }
+    sentant_map = %{ name: "george", description: "This is a test sentant.", automations: [ %{ name: "test", description: "This is a test automation." } ] }
 
     {result4, id2} = Reality2.Sentants.create sentant_map
     assert result4 == :ok

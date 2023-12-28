@@ -16,17 +16,12 @@ defmodule Reality2.Automations do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  def start_link({name, id, definition_map}) do
-    DynamicSupervisor.start_link(__MODULE__, {name, id, definition_map}, name: String.to_atom(id <> "_automations"))
-  end
-
-  def start_child({name, id, definition_map}) do
-    DynamicSupervisor.start_child(__MODULE__, {Reality2.Automation, {name, id, definition_map}})
+  def start_link({_name, id, _automation_map} = init_arg) do
+    DynamicSupervisor.start_link(__MODULE__, init_arg, name: String.to_atom(id <> "|automations"))
   end
 
   @impl true
   def init(init_arg) do
-    IO.puts("Automations.init: init_arg = #{inspect(init_arg)}")
     DynamicSupervisor.init(strategy: :one_for_one, extra_arguments: [init_arg])
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -49,9 +44,19 @@ defmodule Reality2.Automations do
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def create(id, automation_map) do
-    DynamicSupervisor.start_child(Reality2.Automations, {Reality2.Automation, {id, automation_map}})
+    case Process.whereis(String.to_atom(id <> "|automations")) do
+      nil->
+        {:error, :existence}
+      pid ->
+        case DynamicSupervisor.start_child(pid, Reality2.Automation.child_spec(automation_map)) do
+          {:ok, _pid} ->
+            Reality2.Sentants.sendto(%{:id => id}, %{event: "init", parameters: %{}, passthrough: %{}})
+            {:ok, :child_started}
+          {:error, reason} ->
+            {:error, reason}
+        end
+    end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
-
 
 end
