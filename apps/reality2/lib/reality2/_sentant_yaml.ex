@@ -221,7 +221,7 @@ sentant:
   groups: [ !str ]
 
   # A list of strings that may be used to search for Sentants in a Node
-  keywords: [ !str ]
+  tags: [ !str ]
 
   # The description of the Sentant
   description: !str
@@ -234,6 +234,9 @@ sentant:
 
   # Current stored states of the Sentant (empty if Sentant Template)
   states: [ !stored_state ]
+
+  # The status of the Sentant
+  status: !str
 ```
 """
 @type sentant :: %{
@@ -243,12 +246,13 @@ sentant:
   class: String.t,
   data: map,
   binary: map,
-  groups: [String.t],
+  tags: [String.t],
   keywords: [String.t],
   description: String.t,
   author: author,
   automations: [automation],
-  states: [stored_state]
+  states: [stored_state],
+  status: status()
 }
 
 @typedoc """
@@ -283,6 +287,16 @@ swarm:
   version: String.t,
   sentants: [sentant]
 }
+
+@typedoc """
+The current status of this Sentant on this node.
+
+```yaml
+ "active" | "shadow" | "inactive" | "unchecked" | "unknown"
+```
+"""
+@type status :: String.t()
+
 end
 
 defmodule YAML.Sentant_example do

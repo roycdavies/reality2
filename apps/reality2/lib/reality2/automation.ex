@@ -21,8 +21,11 @@ defmodule Reality2.Automation do
   end
 
   @impl true
-  def handle_call(%{:read => _}, _from, {name, automation_map, state}) do
+  def handle_call(:state, _from, {name, automation_map, state}) do
     {:reply, {name, state}, {name, automation_map, state}}
+  end
+  def handle_call(_, _, {name, automation_map, state}) do
+    {:reply, {:error, :unknown_command}, {name, automation_map, state}}
   end
 
   @impl true

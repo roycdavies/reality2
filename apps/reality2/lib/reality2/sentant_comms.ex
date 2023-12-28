@@ -16,6 +16,9 @@ defmodule Reality2.Sentant.Comms do
     end
 
     @impl true
+    def (handle_call(:definition, _from, {id, sentant_map})) do
+      {:reply, sentant_map, {id, sentant_map}}
+    end
     def handle_call(command_and_parameters, _from, {id, sentant_map}) do
 
       result = String.to_atom(id <> "|automations")

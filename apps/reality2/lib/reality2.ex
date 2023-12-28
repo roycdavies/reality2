@@ -67,16 +67,19 @@ defmodule Reality2 do
 
     {:ok, id} = Reality2.Sentants.create(sentant_definition)
 
-    automation_state = Reality2.Sentants.read(%{:id => id})
+    automation_state = Reality2.Sentants.read(%{:id => id}, :state)
     IO.puts("Automation State = #{inspect(automation_state)}")
 
     Reality2.Sentants.sendto(%{:id => id}, %{event: "turn_on"})
-    automation_state = Reality2.Sentants.read(%{:id => id})
+    automation_state = Reality2.Sentants.read(%{:id => id}, :state)
     IO.puts("Automation State = #{inspect(automation_state)}")
 
     Reality2.Sentants.sendto(%{:id => id}, %{event: "turn_off"})
-    automation_state = Reality2.Sentants.read(%{:id => id})
+    automation_state = Reality2.Sentants.read(%{:id => id}, :state)
     IO.puts("Automation State = #{inspect(automation_state)}")
+
+    returned_definition = Reality2.Sentants.read(%{:id => id}, :definition)
+    IO.puts("Returned Definition = #{inspect(returned_definition, pretty: true)}")
 
     {:ok, id}
   end

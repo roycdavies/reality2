@@ -84,7 +84,10 @@ defmodule Reality2.Sentants do
   def create(_), do: {:error, :definition}
 
   defp create_from_map(definition_map) do
-    sentant_map = remove_sentant_parent_from_definition_map(definition_map)
+    sentant_map = definition_map
+    |> remove_sentant_parent_from_definition_map
+    |> add_defaults
+
     case sentant_name(sentant_map) do
       {:ok, name} ->
         case sentant_id(sentant_map) do
@@ -122,62 +125,99 @@ defmodule Reality2.Sentants do
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec read(name_or_uuid :: sentant_name_or_uuid()) ::
+  @spec read(name_or_uuid :: sentant_name_or_uuid(), command :: :state | :definition) ::
     {:ok, map()}
+    | {:error, :name}
     | {:error, :existance}
-    | {:error, :invalid}
+    | {:error, :id}
   @doc """
-  TODO: Read the definition and status of an existing Sentant.
+  Read something from an existing Sentant - determined by the command.  The result will depend on the command.
 
-  **Parameters**
-  - `name_or_uuid` - The name or ID of the Sentant to be read from as a map containing either a `:name` or `:id` key.
+  - Parameters
+    - `name_or_uuid` - The name or ID of the Sentant to be read from as a map containing either a `:name` or `:id` key.
+    - `command` - The command to be executed on the Sentant, which must be either `:state` or `:definition`.
 
-  **Returns**
-  - `{:ok, definition}` - The Sentant was read.
-  - `{:error, :existance}` if the Sentant with that ID or name does not exist on this node.
-  - `{:error, :invalid}` if the parameter is invalid.
+  - Returns
+    - `{:ok, definition}` - The Sentant was read.
+    - `{:error, :existance}` if the Sentant with that ID or name does not exist on this node.
+    - `{:error, :invalid}` if the parameter is invalid.
+
+  - Example
+  ```elixir
+  case Reality2.Sentants.read(%{:name => "my_sentant"}, :definition) do
+    {:ok, definition} ->
+      # Do something with the definition
+    {:error, :existance} ->
+      # Sentant does not exist
+    {:error, :invalid} ->
+      # Invalid parameter
+  end
+
+  Reality2.Sentants.read(%{id: "123e4567-e89b-12d3-a456-426614174000"}, :state)
+  ```
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
-  def read (name_or_uuid)
-  def read(%{:name => name}) do
+  def read(name_or_uuid, command)
+  def read(%{:name => name}, command) do
     case Reality2.Metadata.get :SentantIDs, name do
       nil ->
-        {:error, :existance}
+        {:error, :name}
       uuid ->
-        read(%{:id => uuid})
+        read(%{:id => uuid}, command)
     end
   end
 
-  def read(%{:id => uuid}) do
+  def read(%{:id => uuid}, command) do
     case Process.whereis(String.to_atom(uuid <> "|comms")) do
       nil ->
-        {:error, :existance}
+        {:error, :id}
       pid ->
         #TODO: Read the definition and status of the Sentant.
-        result = GenServer.call(pid, %{read: %{}})
+        result = GenServer.call(pid, command)
         {:ok, result}
       end
   end
 
-  def read(_), do: {:error, :invalid}
+  def read(_), do: {:error, :existance}
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @spec update(definition :: sentant_definition()) ::
-    {:ok, String.t()}
+    {:ok, Sentant_types.uuid()}
     | {:error, :definition}
   @doc """
   TODO: Update an existing Sentant.  If the Sentant does not exist, create it.
 
-  **Parameters**
-  - `definition` - A string containing the definition of the Sentant to be updated in YAML format (including its name and ID).
+  - Parameters
+    - `definition` - A string containing the definition of the Sentant to be updated in YAML format (including its name and ID).
 
-  **Returns**
-  - `{:ok, id}` - The Sentant was updated.
-  - `{:error, :definition}` if the definition is invalid.
+  - Returns
+    - `{:ok, id}` - The Sentant was updated.
+    - `{:error, :definition}` if the definition is invalid.
+
+  - Example
+  ```elixir
+  new_definition = \"\"\"
+    name: Light Switch
+    id: 123e4567-e89b-12d3-a456-426614174000
+    automations:
+      - name: switch
+        transitions:
+          - from: start
+            to: on
+            event: init
+          - from: "*"
+            to: off
+            event: turn_off
+          - from: "*"
+            to: on
+            event: turn_on
+  \"\"\"
+  Reality2.Sentants.update(new_definition)
+  ```
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def update(definition) do
@@ -188,11 +228,11 @@ defmodule Reality2.Sentants do
         sentant_map = remove_sentant_parent_from_definition_map(definition_map)
         case sentant_id(sentant_map) do
           {:ok, _, id} ->
-            case Process.whereis(String.to_atom(id)) do
+            case Process.whereis(String.to_atom(id <> "|comms")) do
               nil ->
                 create(definition)
-              _pid ->
-                #TODO: DO UPDATE HERE
+              pid ->
+                GenServer.call(pid, %{command: "update", parameters: %{definition: definition_map}})
                 {:ok, id}
               end
           error -> error
@@ -207,26 +247,33 @@ defmodule Reality2.Sentants do
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @spec delete(name_or_uuid :: sentant_name_or_uuid()) ::
-    {:ok, String.t()}
+    {:ok, Sentant_types.uuid()}
+    | {:error, :name}
     | {:error, :existance}
-    | {:error, :invalid}
+    | {:error, :id}
   @doc """
   Delete a Sentant and return the result of the operation with the pid of the deleted Sentant, or an appropriate error.
 
-  **Parameters**
-  - `name_or_uuid` - The name or ID of the Sentant to be deleted as a map containing either a `:name` or `:id` key.
+  - Parameters
+    - `name_or_uuid` - The name or ID of the Sentant to be deleted as a map containing either a `:name` or `:id` key.
 
-  **Returns**
-  - `{:ok, id}` - The Sentant was deleted.
-  - `{:error, :existance}` if the Sentant with that ID or name does not exist on this node.
-  - `{:error, :invalid}` if the parameter is invalid.
+  - Returns
+    - `{:ok, id}` - The Sentant was deleted.
+    - `{:error, :name}` if the Sentant with that name does not exist on this node.
+    - `{:error, :id}` if the Sentant with that ID does not exist on this node.
+    - `{:error, :existance}` if the Sentant with that ID or name does not exist on this node.
+
+  - Example
+  ```elixir
+  Reality2.Sentants.delete(%{:name => "my_sentant"})
+  ```
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def delete(name_or_uuid)
   def delete(%{:name => name}) do
     case Reality2.Metadata.get(:SentantIDs, name) do
       nil ->
-        {:error, :existance}
+        {:error, :name}
       id ->
         delete(%{:id => id})
     end
@@ -235,7 +282,7 @@ defmodule Reality2.Sentants do
   def delete(%{:id => id}) do
     case Process.whereis(String.to_atom(id)) do
       nil ->
-        {:error, :existance}
+        {:error, :id}
       pid ->
         case Supervisor.stop(pid, :shutdown) do
           :ok ->
@@ -251,7 +298,7 @@ defmodule Reality2.Sentants do
       end
   end
 
-  def delete(_), do: {:error, :invalid}
+  def delete(_), do: {:error, :existance}
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -261,18 +308,24 @@ defmodule Reality2.Sentants do
     {:ok}
     | {:error, :name}
     | {:error, :existance}
-    | {:error, :invalid}
+    | {:error, :id}
   @doc """
   Send a message to the named Sentant if it exists and return the result of the operation, or an appropriate error. This is an asynchronous operation.
 
-  **Parameters**
-  - `name_or_uuid` - The name or ID of the Sentant to have the message sent to as a map containing either a `:name` or `:id` key.
-  - `message` - The message to be sent, which must contain a `:command` key and optionally a `:parameters` key, and optionaslly a ':passthrough' key.
+  - Parameters
+    - `name_or_uuid` - The name or ID of the Sentant to have the message sent to as a map containing either a `:name` or `:id` key.
+    - `message` - The message to be sent, which must contain a `:command` string and optionally a `:parameters` map, and a `:passthrough` map.
 
-  **Returns**
-  - `{:ok}` - The message was sent.
-  - `{:error, :existance}` if the Sentant with that ID or name does not exist on this node.
-  - `{:error, :invalid}` if the first parameter is invalid.
+  - Returns
+    - `{:ok}` - The message was sent.
+    - `{:error, :name}` if the Sentant with that name does not exist on this node.
+    - `{:error, :id}` if the Sentant with that ID does not exist on this node.
+    - `{:error, :existance}` if the Sentant with that ID or name does not exist on this node.
+
+  - Example
+  ```elixir
+  Reality2.Sentants.sendto(%{:name => "my_sentant"}, %{event: "turn_on"})
+  ```
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def sendto(name_or_uuid, message_map)
@@ -305,11 +358,16 @@ defmodule Reality2.Sentants do
   @doc """
   Send a message to all Sentants.  This is an asynchronous operation, so the result is always `{:ok}`.
 
-  **Parameters**
-  - `message` - The message to be sent, which must contain a `:command` key and optionally a `:parameters` key, and optionaslly a ':passthrough' key.
+  - Parameters
+    - `message` - The message to be sent, which must contain a `:command` string and optionally a `:parameters` map, and a `:passthrough` map.
 
-  **Returns**
-  - `{:ok, num_sentants}` - The number of Sentants that the message was sent to.
+  - Returns
+    - `{:ok, num_sentants}` - The number of Sentants that the message was sent to.
+
+  - Example
+  ```elixir
+  Reality2.Sentants.sendto_all(%{event: "turn_on"})
+  ```
   """
   def sendto_all(message_map) do
     sentants = get_all_sentant_comms()
@@ -381,5 +439,20 @@ defmodule Reality2.Sentants do
   defp remove_sentant_parent_from_definition_map(%{"sentant" => sentant_map}), do: sentant_map
   defp remove_sentant_parent_from_definition_map(%{sentant: sentant_map}), do: sentant_map
   defp remove_sentant_parent_from_definition_map(sentant_map), do: sentant_map
+
+  defp add_defaults(definition_map) do
+    definition_map
+    |> Map.put_new("description", "This is a new Sentant.")
+    |> Map.put_new("version", "0.1.0")
+    |> Map.put_new("author", %{id: "", name: "", email: ""})
+    |> Map.put_new("class", "ai.reality2.default")
+    |> Map.put_new("data", %{})
+    |> Map.put_new("binary", %{})
+    |> Map.put_new("groups", [])
+    |> Map.put_new("tags", [])
+    |> Map.put_new("automations", [])
+    |> Map.put_new("states", [])
+    |> Map.put_new("status", "unchecked")
+  end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end
