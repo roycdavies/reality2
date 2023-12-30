@@ -1,5 +1,12 @@
 defmodule Reality2.Sentant do
+# *******************************************************************************************************************************************
 @moduledoc false
+# Start the Sentant, which is a Supervisor that manages the Sentant's Automations, Comms and Plugins.
+
+# **Author**
+# - Dr. Roy C. Davies
+# - [roycdavies.github.io](https://roycdavies.github.io/)
+# *******************************************************************************************************************************************
 
 use Supervisor, restart: :transient
 
@@ -16,8 +23,7 @@ use Supervisor, restart: :transient
     children = [
       {Reality2.Automations, {name, id, sentant_map}},
       {Reality2.Plugins, {name, id, sentant_map}},
-      {Reality2.Sentant.Comms, {name, id, sentant_map}},
-      %{id: String.to_atom((id <> "|vars")), start: {Reality2.Metadata, :start_link, [String.to_atom((id <> "|vars"))]}},
+      {Reality2.Sentant.Comms, {name, id, sentant_map}}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -27,7 +33,7 @@ use Supervisor, restart: :transient
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  # Sentant Functions
+  # Public Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
   # -----------------------------------------------------------------------------------------------------------------------------------------

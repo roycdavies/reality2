@@ -1,4 +1,4 @@
-defmodule YAML.Sentant_types do
+defmodule Reality2.Types do
 @moduledoc """
 This is a Sentant definition template.  Follow this guide to define a Sentant Template or a specific Sentant.
   - NOTE: This is a work in progress and is subject to change.
@@ -18,6 +18,7 @@ A universal ID.
 @typedoc """
 A description of who made or owns the Sentant.
 
+### YAML
 ```yaml
 author:
   # The author's ID
@@ -39,6 +40,7 @@ author:
 @typedoc """
 An event definition sent to a Sentant.
 
+### YAML
 ```yaml
 input_event:
   # The name of the event (to match the transition event)
@@ -59,6 +61,7 @@ Plugins are used to add functionality to Sentants beyond the built-in actions.
 The name is used to specify exactly how the plugin works and is defined
 separately in a plugin definition file.
 
+### YAML
 ```yaml
 plugin:
   # The name of the plugin in reverse domain notation, eg: ai.reality2.storage
@@ -76,6 +79,7 @@ plugin:
 @typedoc """
 The action definition of an automation.
 
+### YAML
 ```yaml
 action:
   # Optional plugin to use for this action
@@ -120,6 +124,7 @@ There are some events that are reserved for the Node and Sentant system, and the
 ** Other Events **
 - do_transfer - transfer control of the Sentant to one of the shadow Sentants (thus becoming a shadow Sentant itself and sending a go_shadow event)
 
+### YAML
 ```yaml
 transition:
   # State to match (* = any)
@@ -145,9 +150,10 @@ transition:
 @typedoc """
 A sentant automation definition.
 
-Each Sentant has a default Automation that determines it's current status, such as active and shadow, and which is preprogrammed to handle the init, join_cluster, leave_cluster, connect, disconnect, go_shadow, go_active, shadows, active and transfer events, and change the Sentant state accordingly.
+Each Sentant has a default Automation that determines it's current status, such as active and shadow, and which is preprogrammed to handle the `init, join_cluster, leave_cluster, connect, disconnect, go_shadow, go_active, shadows, active` and `transfer` events, and change the Sentant state accordingly.
 To access the current state of that default Automation, use the automation name "_" (underscore).
 
+### YAML
 ```yaml
 automation:
   # The name of the automation (must be unique within the Sentant)
@@ -169,6 +175,7 @@ automation:
 @typedoc """
 A stored state of an Automation.
 
+### YAML
 ```yaml
 stored_state:
   # The name of the automation
@@ -186,6 +193,7 @@ stored_state:
 @typedoc """
 The definition of a Sentant.
 
+### YAML
 ```yaml
 sentant:
   # The guid of the Sentant - for a Sentant Template, this is left empty
@@ -258,6 +266,7 @@ sentant:
 @typedoc """
 A group of Sentant Templates that work together to achieve a common goal.
 
+### YAML
 ```yaml
 swarm:
   # The name of the swarm
@@ -291,6 +300,7 @@ swarm:
 @typedoc """
 The current status of this Sentant on this node.
 
+### YAML
 ```yaml
  "active" | "shadow" | "inactive" | "unchecked" | "unknown"
 ```
@@ -303,6 +313,7 @@ defmodule YAML.Sentant_example do
 @moduledoc """
 Reality2 Swarm Definition representing a light and switch.
 
+### YAML
 ```yaml
 swarm:
   # -----------------------------------------------------------------------------------------------

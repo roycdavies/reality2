@@ -1,24 +1,60 @@
 defmodule Reality2.Plugins do
+  # ********************************************************************************************************************************************
   @moduledoc false
+  # Module for creating and managing Plugins on a Sentant.
 
-  use DynamicSupervisor
+  # **Author**
+  # - Dr. Roy C. Davies
+  # - [roycdavies.github.io](https://roycdavies.github.io/)
+  # ********************************************************************************************************************************************
 
-  def start_link({name, id, definition_map}) do
-    DynamicSupervisor.start_link(__MODULE__, {name, id, definition_map}, name: String.to_atom(id <> "|plugins"))
+    @doc false
+    use DynamicSupervisor
+    alias Reality2.Types
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+    # Supervisor Callbacks
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+    def start_link({_name, id, _plugin_map} = init_arg) do
+      DynamicSupervisor.start_link(__MODULE__, init_arg, name: String.to_atom(id <> "|plugins"))
+    end
+
+    @impl true
+    def init(init_arg) do
+      DynamicSupervisor.init(strategy: :one_for_one, extra_arguments: [init_arg])
+    end
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+    # Public Functions
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+    @spec create(Types.uuid(), Types.automation()) ::
+      {:ok}
+      | {:error, :definition}
+    @doc """
+    Create a new Plugin on the Sentant, returning {:ok} or an appropriate error.
+
+    **Parameters**
+    - `definition` - A map containing the definition of the Plugin.
+    """
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+    def create(id, plugin_map) do
+      case Process.whereis(String.to_atom(id <> "|plugins")) do
+        nil->
+          {:error, :existence}
+        pid ->
+          case DynamicSupervisor.start_child(pid, Reality2.Plugin.child_spec(plugin_map)) do
+            {:ok, _pid} ->
+              {:ok}
+            {:error, reason} ->
+              {:error, reason}
+          end
+      end
+    end
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+
   end
-
-  def start_child({name, id, definition_map}) do
-    # If MyWorker is not using the new child specs, we need to pass a map:
-    # spec = %{id: MyWorker, start: {MyWorker, :start_link, [foo, bar, baz]}}
-    spec = {Reality2.Plugin, {name, id, definition_map}}
-    DynamicSupervisor.start_child(__MODULE__, spec)
-  end
-
-  @impl true
-  def init(init_arg) do
-    DynamicSupervisor.init(
-      strategy: :one_for_one,
-      extra_arguments: [init_arg]
-    )
-  end
-end

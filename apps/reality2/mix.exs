@@ -48,7 +48,8 @@ defmodule Reality2.MixProject do
       {:yaml_elixir, "~> 2.9"},
       {:makeup_elixir, ">= 0.0.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.31", only: :dev, runtime: false},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:ai_reality2_vars, in_umbrella: true}
     ]
   end
 

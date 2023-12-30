@@ -1,17 +1,16 @@
 defmodule Reality2.Automations do
 # ********************************************************************************************************************************************
-@moduledoc """
-  Module for creating and managing Automations on a Sentant.
+@moduledoc false
+# Module for creating and managing Automations on a Sentant.
 
-  **Author**
-  - Dr. Roy C. Davies
-  - [roycdavies.github.io](https://roycdavies.github.io/)
-"""
+# **Author**
+# - Dr. Roy C. Davies
+# - [roycdavies.github.io](https://roycdavies.github.io/)
 # ********************************************************************************************************************************************
 
   @doc false
   use DynamicSupervisor
-  alias YAML.Sentant_types
+  alias Reality2.Types
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
@@ -29,11 +28,11 @@ defmodule Reality2.Automations do
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  # Automation Management Functions
+  # Public Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec create(Sentant_types.uuid(), Sentant_types.automation()) ::
+  @spec create(Types.uuid(), Types.automation()) ::
     {:ok}
     | {:error, :definition}
   @doc """
@@ -50,8 +49,9 @@ defmodule Reality2.Automations do
       pid ->
         case DynamicSupervisor.start_child(pid, Reality2.Automation.child_spec(automation_map)) do
           {:ok, _pid} ->
+            # Once the Sentant is created, send it the init event
             Reality2.Sentants.sendto(%{:id => id}, %{event: "init"})
-            {:ok, :child_started}
+            {:ok}
           {:error, reason} ->
             {:error, reason}
         end

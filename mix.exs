@@ -4,7 +4,7 @@ defmodule Reality2.Umbrella.MixProject do
   def project do
     [
       apps_path: "apps",
-      # apps: [ :mrserver, :reality2, :reality2_web ],
+      # apps: [ :ai_reality2_vars, :reality2, :reality2_web ],
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -32,7 +32,8 @@ defmodule Reality2.Umbrella.MixProject do
   # Dependencies listed here are available only for this project
   # and cannot be accessed from applications inside the apps/ folder.
   defp deps do
-    []
+    [
+    ]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

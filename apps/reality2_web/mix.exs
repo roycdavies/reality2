@@ -59,8 +59,7 @@ defmodule Reality2Web.MixProject do
   defp aliases do
     [
       setup: ["deps.get"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      reality2_test: "cmd --app reality2 mix test --color"
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end
 end

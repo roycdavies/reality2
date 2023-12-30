@@ -1,66 +1,102 @@
 defmodule Reality2.Sentant.Comms do
+# *******************************************************************************************************************************************
 @moduledoc false
-    use GenServer
+# Manage the communications to and from the Sentant and Automations.
 
-    # Client
+# **Author**
+# - Dr. Roy C. Davies
+# - [roycdavies.github.io](https://roycdavies.github.io/)
+# *******************************************************************************************************************************************
+  use GenServer
 
-    def start_link({name, id, sentant_map}) do
-      GenServer.start_link(__MODULE__, {name, id, sentant_map}, name: String.to_atom(id <> "|comms"))
-    end
-
-    # Server (callbacks)
-
-    @impl true
-    def init({_name, id, sentant_map}) do
-      {:ok, {id, sentant_map}}
-    end
-
-    @impl true
-    def (handle_call(:definition, _from, {id, sentant_map})) do
-      {:reply, sentant_map, {id, sentant_map}}
-    end
-    def handle_call(command_and_parameters, _from, {id, sentant_map}) do
-
-      result = String.to_atom(id <> "|automations")
-      |> DynamicSupervisor.which_children()
-      |> Enum.map( fn {_, pid_or_restarting, _, _} ->
-        # Send the message to each child
-        case pid_or_restarting do
-          :restarting ->
-            # Ignore
-            :ok
-          pid ->
-            GenServer.call(pid, command_and_parameters)
-        end
-      end)
-
-      {:reply, result, {id, sentant_map}}
-    end
-
-    @impl true
-    def handle_cast(command_and_parameters, {id, sentant_map}) do
-      # IO.puts("Sentant.Comms.handle_call: args = #{inspect(command_and_parameters)}")
-      # IO.puts("                         : id = #{inspect(id)}")
-      # IO.puts("                         : sentant_map = #{inspect(sentant_map)}")
-
-      String.to_atom(id <> "|automations")
-      |> DynamicSupervisor.which_children()
-      |> Enum.each( fn {_, pid_or_restarting, _, _} ->
-        # Send the message to each child
-        case pid_or_restarting do
-          :restarting ->
-            # Ignore
-            :ok
-          pid ->
-            GenServer.cast(pid, command_and_parameters)
-        end
-      end)
-
-      {:noreply, {id, sentant_map}}
-    end
-
-    @impl true
-    def handle_info(_message_map, state) do
-      {:noreply, state}
-    end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Supervisor Callbacks
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  def start_link({name, id, sentant_map}) do
+    GenServer.start_link(__MODULE__, {name, id, sentant_map}, name: String.to_atom(id <> "|comms"))
   end
+
+  @impl true
+  def init({_name, id, sentant_map}) do
+    {:ok, {id, sentant_map}}
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Public Functions
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Synchronous Calls
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+  # Return the current definition of the Sentant
+  @impl true
+  def handle_call(:definition, _from, {id, sentant_map}) do
+    {:reply, sentant_map, {id, sentant_map}}
+  end
+
+  # def handle_call({:plugin, plugin_name, command, parameters}, _from, {id, sentant_map}) do
+  #   # Get the plugin
+  #   plugin = sentant_map["plugins"][plugin_name]
+  #   # Call the plugin
+  #   metadata = Reality2.Metadata.all(String.to_atom(id <> "|ai.reality2.vars"))
+  #   result = plugin[command].(parameters)
+  #   {:reply, result, {id, sentant_map}}
+  # end
+
+  # Return the states of all the Automations on the Sentant
+  def handle_call(command_and_parameters, _from, {id, sentant_map}) do
+
+    result = String.to_atom(id <> "|automations")
+    |> DynamicSupervisor.which_children()
+    |> Enum.map( fn {_, pid_or_restarting, _, _} ->
+      # Send the message to each child
+      case pid_or_restarting do
+        :restarting ->
+          # Ignore
+          :ok
+        pid ->
+          GenServer.call(pid, command_and_parameters)
+      end
+    end)
+
+    {:reply, result, {id, sentant_map}}
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Asynchronous Casts
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  @impl true
+  def handle_cast(command_and_parameters, {id, sentant_map}) do
+
+    String.to_atom(id <> "|automations")
+    |> DynamicSupervisor.which_children()
+    |> Enum.each( fn {_, pid_or_restarting, _, _} ->
+      # Send the message to each child
+      case pid_or_restarting do
+        :restarting ->
+          # Ignore
+          :ok
+        pid ->
+          GenServer.cast(pid, command_and_parameters)
+      end
+    end)
+
+    {:noreply, {id, sentant_map}}
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Helper Functions
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+end

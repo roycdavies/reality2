@@ -6,17 +6,19 @@ defmodule Reality2 do
   - Dr. Roy C. Davies
   - [roycdavies.github.io](https://roycdavies.github.io/)
   """
-  @doc"""
-  Run various Reality2 Unit Tests - same as running "mix test"
-  """
+
+
+  @doc false
   def test() do
     Mix.Task.run("test")
   end
 
+  @doc false
   def test_one(test_name) do
     Mix.Task.run("test", ["test/tests/" <> test_name])
   end
 
+  @doc false
   def test_call() do
     sentant_definition = """
     sentant:
@@ -30,10 +32,11 @@ defmodule Reality2 do
     {:ok, id}
   end
 
+  @doc false
   def test_automations() do
     sentant_definition = """
     sentant:
-      name: fred
+      name: Light Switch
       description: This is a test sentant.
       automations:
         - name: light_switch
@@ -43,26 +46,37 @@ defmodule Reality2 do
               event: init
               to: ready
               actions:
-                - command: set
+                - plugin: ai.reality2.vars
+                  command: set
                   parameters:
-                    name: switch
+                    key: switch
                     value: 0
             - from: "*"
               event: turn_on
               to: on
               actions:
                 - command: set
+                  plugin: ai.reality2.vars
                   parameters:
-                    name: switch
+                    key: switch
                     value: 1
+                - command: send
+                  parameters:
+                    to: light_bulb
+                    event: turn_on
             - from: "*"
               event: turn_off
               to: off
               actions:
-                - command: set
+                - plugin: ai.reality2.vars
+                  command: set
                   parameters:
-                    name: switch
+                    key: switch
                     value: 0
+                - command: send
+                  parameters:
+                    to: light_bulb
+                    event: turn_off
     """
 
     {:ok, id} = Reality2.Sentants.create(sentant_definition)
@@ -74,12 +88,15 @@ defmodule Reality2 do
     automation_state = Reality2.Sentants.read(%{:id => id}, :state)
     IO.puts("Automation State = #{inspect(automation_state)}")
 
-    Reality2.Sentants.sendto(%{:id => id}, %{event: "turn_off"})
+    Reality2.Sentants.sendto(%{:name => "Light Switch"}, %{event: "turn_off"})
     automation_state = Reality2.Sentants.read(%{:id => id}, :state)
     IO.puts("Automation State = #{inspect(automation_state)}")
 
     returned_definition = Reality2.Sentants.read(%{:id => id}, :definition)
     IO.puts("Returned Definition = #{inspect(returned_definition, pretty: true)}")
+    metadata = GenServer.call(String.to_atom(id <> "|ai.reality2.vars"), %{command: "all"})
+
+    IO.puts("Metadata = #{inspect(metadata)}")
 
     {:ok, id}
   end

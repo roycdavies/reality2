@@ -1,5 +1,5 @@
 defmodule Reality2.Sentants do
-# ********************************************************************************************************************************************
+# *******************************************************************************************************************************************
 @moduledoc """
   Module for creating and managing Sentants, and the DynamicSupervisor that manages them.
 
@@ -7,10 +7,10 @@ defmodule Reality2.Sentants do
   - Dr. Roy C. Davies
   - [roycdavies.github.io](https://roycdavies.github.io/)
 """
-# ********************************************************************************************************************************************
+# *******************************************************************************************************************************************
   @doc false
   use DynamicSupervisor
-  alias YAML.Sentant_types
+  alias Reality2.Types
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
@@ -40,7 +40,7 @@ defmodule Reality2.Sentants do
   Each Sentant can be referred to by either its name or its ID.  The name of a Sentant is unique on the node, but not in the world.
   This is used in pathing.
   """
-  @type sentant_name_or_uuid :: %{:id => Sentant_types.uuid()} | %{:name => String.t()}
+  @type sentant_name_or_uuid :: %{:id => Types.uuid()} | %{:name => String.t()}
 
   @typedoc """
   The definition of a Sentant is a string containing the definition of the Sentant in YAML format.  See the definition of `YAML.Sentant`.
@@ -51,11 +51,11 @@ defmodule Reality2.Sentants do
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  # Sentant Management Functions
+  # Public Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec create((definition :: sentant_definition()) | (definition_map :: Sentant_types.sentant())) ::
+  @spec create((definition :: sentant_definition()) | (definition_map :: Types.sentant())) ::
     {:ok, String.t()}
     | {:error, :definition}
   @doc """
@@ -101,6 +101,7 @@ defmodule Reality2.Sentants do
                   Reality2.Metadata.set :SentantIDs, name, id
 
                   add_automations_to_sentant(id, sentant_map)
+                  add_plugins_to_sentant(id, sentant_map)
                   {:ok, id}
                 error -> error
             end
@@ -118,6 +119,20 @@ defmodule Reality2.Sentants do
       automations ->
         # IO.puts("Adding automations to sentant: " <> inspect(automations))
         Enum.each(automations, fn automation_map -> Reality2.Automations.create(id, automation_map) end)
+    end
+  end
+
+  defp add_plugins_to_sentant(id, sentant_map) do
+    # Add the default plugins
+    Reality2.Plugins.create(id, %{"name" => "ai.reality2.vars", "type" => "internal"})
+    Reality2.Plugins.create(id, %{"name" => "ai.reality2.geospatial", "type" => "internal"})
+
+    case Map.get(sentant_map, "plugins") do
+      nil ->
+        :ok
+      plugins ->
+        # IO.puts("Adding plugins to sentant: " <> inspect(plugins))
+        Enum.each(plugins, fn plugin_map -> Reality2.Plugins.create(id, plugin_map) end)
     end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -173,81 +188,19 @@ defmodule Reality2.Sentants do
       nil ->
         {:error, :id}
       pid ->
-        #TODO: Read the definition and status of the Sentant.
         result = GenServer.call(pid, command)
         {:ok, result}
       end
   end
 
-  def read(_), do: {:error, :existance}
-  # -----------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-  # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec update(definition :: sentant_definition()) ::
-    {:ok, Sentant_types.uuid()}
-    | {:error, :definition}
-  @doc """
-  TODO: Update an existing Sentant.  If the Sentant does not exist, create it.
-
-  - Parameters
-    - `definition` - A string containing the definition of the Sentant to be updated in YAML format (including its name and ID).
-
-  - Returns
-    - `{:ok, id}` - The Sentant was updated.
-    - `{:error, :definition}` if the definition is invalid.
-
-  - Example
-  ```elixir
-  new_definition = \"\"\"
-    name: Light Switch
-    id: 123e4567-e89b-12d3-a456-426614174000
-    automations:
-      - name: switch
-        transitions:
-          - from: start
-            to: on
-            event: init
-          - from: "*"
-            to: off
-            event: turn_off
-          - from: "*"
-            to: on
-            event: turn_on
-  \"\"\"
-  Reality2.Sentants.update(new_definition)
-  ```
-  """
-  # -----------------------------------------------------------------------------------------------------------------------------------------
-  def update(definition) do
-    definition
-    |> YamlElixir.read_from_string()
-    |> case do
-      {:ok, definition_map} ->
-        sentant_map = remove_sentant_parent_from_definition_map(definition_map)
-        case sentant_id(sentant_map) do
-          {:ok, _, id} ->
-            case Process.whereis(String.to_atom(id <> "|comms")) do
-              nil ->
-                create(definition)
-              pid ->
-                GenServer.call(pid, %{command: "update", parameters: %{definition: definition_map}})
-                {:ok, id}
-              end
-          error -> error
-        end
-      _ ->
-        {:error, :definition}
-    end
-  end
+  def read(_, _), do: {:error, :existance}
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @spec delete(name_or_uuid :: sentant_name_or_uuid()) ::
-    {:ok, Sentant_types.uuid()}
+    {:ok, Types.uuid()}
     | {:error, :name}
     | {:error, :existance}
     | {:error, :id}
@@ -292,6 +245,8 @@ defmodule Reality2.Sentants do
               name ->
                 Reality2.Metadata.delete(:SentantNames, id)
                 Reality2.Metadata.delete(:SentantIDs, name)
+
+                AiReality2Vars.Main.delete(id <> "|data")
             end
             {:ok, id}
         end
