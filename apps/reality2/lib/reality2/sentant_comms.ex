@@ -38,15 +38,6 @@ defmodule Reality2.Sentant.Comms do
     {:reply, sentant_map, {id, sentant_map}}
   end
 
-  # def handle_call({:plugin, plugin_name, command, parameters}, _from, {id, sentant_map}) do
-  #   # Get the plugin
-  #   plugin = sentant_map["plugins"][plugin_name]
-  #   # Call the plugin
-  #   metadata = Reality2.Metadata.all(String.to_atom(id <> "|ai.reality2.vars"))
-  #   result = plugin[command].(parameters)
-  #   {:reply, result, {id, sentant_map}}
-  # end
-
   # Return the states of all the Automations on the Sentant
   def handle_call(command_and_parameters, _from, {id, sentant_map}) do
 
@@ -64,6 +55,10 @@ defmodule Reality2.Sentant.Comms do
     end)
 
     {:reply, result, {id, sentant_map}}
+  end
+
+  def handle_call(_, _, state) do
+    {:reply, :ok, state}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -89,6 +84,15 @@ defmodule Reality2.Sentant.Comms do
     end)
 
     {:noreply, {id, sentant_map}}
+  end
+
+  def handle_cast(_, state) do
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(command_and_parameters, {id, sentant_map}) do
+    handle_cast(command_and_parameters, {id, sentant_map})
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 

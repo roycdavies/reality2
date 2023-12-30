@@ -237,6 +237,10 @@ defmodule Reality2.Sentants do
       nil ->
         {:error, :id}
       pid ->
+        # Remove the Apps assoeciated with plugins from the Sentant
+        remove_plugins_from_sentant(id)
+
+        # Remove the Sentant processes.  Potentially, if this fails, the sentant could be left running, but with no plugin processes in the Apps.
         case Supervisor.stop(pid, :shutdown) do
           :ok ->
             case Reality2.Metadata.get(:SentantNames, id) do
@@ -245,8 +249,6 @@ defmodule Reality2.Sentants do
               name ->
                 Reality2.Metadata.delete(:SentantNames, id)
                 Reality2.Metadata.delete(:SentantIDs, name)
-
-                AiReality2Vars.Main.delete(id <> "|data")
             end
             {:ok, id}
         end
@@ -254,6 +256,26 @@ defmodule Reality2.Sentants do
   end
 
   def delete(_), do: {:error, :existance}
+
+
+  defp remove_plugins_from_sentant(id) do
+    # Get the children of the plugis supervisor
+
+    String.to_atom(id <> "|plugins")
+    |> Supervisor.which_children()
+    |> Enum.map( fn {_, pid_or_restarting, _, _} ->
+      # Send the message to each child
+      case pid_or_restarting do
+        :restarting ->
+          # Ignore
+          :ok
+        pid ->
+          GenServer.cast(pid, :delete)
+      end
+    end)
+
+    # For each of these, call the delete function on the associated App
+  end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 

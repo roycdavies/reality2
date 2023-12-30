@@ -39,7 +39,7 @@ defmodule Reality2 do
       name: Light Switch
       description: This is a test sentant.
       automations:
-        - name: light_switch
+        - name: switch
           description: This is a test automation.
           transitions:
             - from: start

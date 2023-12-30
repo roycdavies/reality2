@@ -98,7 +98,9 @@ defmodule Reality2.Automation do
   # Helper Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
+  # -----------------------------------------------------------------------------------------------------------------------------------------
   # Check the Transition Map to see if it matches the current state and event
+  # -----------------------------------------------------------------------------------------------------------------------------------------
   defp check_transition(id, transition_map, event, parameters, passthrough, state) do
     # IO.puts("Automation.check_transition: args = #{inspect(transition_map)}, #{inspect(event)}, #{inspect(state)}")
     case Map.get(transition_map, "from") do
@@ -109,8 +111,13 @@ defmodule Reality2.Automation do
       _ -> {:no_match, state}
     end
   end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
   # Check the Event Map to see if it matches the current event, and do appropiate actions and state change if it does
+  # -----------------------------------------------------------------------------------------------------------------------------------------
   defp check_event(id, transition_map, event, parameters, passthrough, state) do
     case Map.get(transition_map, "event") do
       nil ->
@@ -132,7 +139,13 @@ defmodule Reality2.Automation do
         {:no_match, state}
     end
   end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Do the Actions in the Transition Map when the Transition triggers
+  # -----------------------------------------------------------------------------------------------------------------------------------------
   defp do_actions(id, transition_map, parameters, passthrough) do
     case Map.get(transition_map, "actions") do
       nil ->
@@ -143,7 +156,13 @@ defmodule Reality2.Automation do
         end)
     end
   end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Do a single Action
+  # -----------------------------------------------------------------------------------------------------------------------------------------
   defp do_action(id, action_map, acc, _parameters, _passthrough) do
     # IO.puts("Automation.do_action: action_map = #{inspect(action_map)}")
     action_parameters = case Map.get(action_map, "parameters") do
@@ -153,18 +172,41 @@ defmodule Reality2.Automation do
 
     case Map.get(action_map, "plugin") do
       nil ->
-        IO.puts("standard actions not implemented yet")
+        do_inbuilt_action(Map.get(action_map, "command"), id, action_map, action_parameters, acc)
       plugin ->
         do_plugin_action(plugin, id, action_map, action_parameters, acc)
     end
   end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
 
-  def do_plugin_action(plugin, id, action_map, action_parameters, _acc) do
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Do a Plugin Action
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  defp do_plugin_action(plugin, id, action_map, action_parameters, _acc) do
     case Process.whereis(String.to_atom(id <> "|plugin|" <> plugin)) do
       nil ->
         {:error, :no_plugin}
       pid ->
+        # Call the plugin on the Sentant, which in turn will call the appropriate internal App
         GenServer.call(pid, %{command: Map.get(action_map, "command"), parameters: action_parameters})
+    end
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Do an Inbuilt Action
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  defp do_inbuilt_action(action, _id, _action_map, _action_parameters, _acc) do
+    IO.puts("Automation.do_inbuilt_action: action = #{inspect(action)}")
+    case action do
+      "send" ->
+        IO.puts("Automation.do_inbuilt_action: send not implemented yet")
+      _ ->
+        IO.puts("Automation.do_inbuilt_action: unknown action")
     end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------

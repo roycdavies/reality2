@@ -27,21 +27,19 @@ defmodule Reality2.Plugin do
     @impl true
     def init({name, id, plugin_map}) do
       # if the plugin is internal, then start it
-      # IO.puts("Plugin.init: args = #{inspect(plugin_map)}")
-      # IO.puts("Plugin.init: name = #{inspect(name)}")
-      # IO.puts("Plugin.init: id = #{inspect(id)}")
 
+      # In the definition file, the plugins have '.' between sections of the name, but in the code, we use '_' between sections
       app_name_atom = name
       |> String.split(".")
       |> Enum.join("_")
       |> String.downcase
       |> String.to_atom
 
-      # IO.puts("Plugin.init: app_name_atom = #{inspect(app_name_atom)}")
-
+      # Check that there is an App with the name of the plugin
       case Enum.any?(Application.loaded_applications(), fn({app_name, _, _}) -> app_name == app_name_atom end) do
         true ->
           # Run the 'create' function in the App referenced to by the plugin name, in the module named Main
+          # This should be defined to set up the plugin.  Each Sentant will get its own instance of the plugin.
           name
           |> String.split(".")
           |> Enum.map(&String.capitalize/1)
@@ -100,6 +98,10 @@ defmodule Reality2.Plugin do
     # Asynchronous Casts
     # -----------------------------------------------------------------------------------------------------------------------------------------
     @impl true
+    def handle_cast(:delete, {name, id, plugin_map, state}) do
+      delete(id, name)
+      {:noreply, {name, id, plugin_map, state}}
+    end
     def handle_cast(command, {name, id, plugin_map, state}) do
       case Map.get(plugin_map, "type") do
         "internal" ->
@@ -123,6 +125,37 @@ defmodule Reality2.Plugin do
     end
     def handle_info(_, state), do: {:noreply, state}
     # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+    # Terminate the instance of the Plugin in the App
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+    defp delete(id, name) do
+
+      app_name_atom = name
+      |> String.split(".")
+      |> Enum.join("_")
+      |> String.downcase
+      |> String.to_atom
+
+      # Check that there is an App with the name of the plugin
+      case Enum.any?(Application.loaded_applications(), fn({app_name, _, _}) -> app_name == app_name_atom end) do
+        true ->
+          # Run the 'delete' function in the App referenced to by the plugin name, in the module named Main
+          # This should be defined to set up the plugin.
+          name
+          |> String.split(".")
+          |> Enum.map(&String.capitalize/1)
+          |> Enum.join("")
+          |> Module.concat(String.to_atom("Main"))
+          |> apply(:delete, [id <> "|" <> name])
+        false ->
+          {:error, :not_found}
+      end
+    end
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+
 
 
     # -----------------------------------------------------------------------------------------------------------------------------------------
