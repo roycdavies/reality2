@@ -90,14 +90,18 @@ defmodule Reality2.Plugin do
     # Asynchronous Casts
     # -----------------------------------------------------------------------------------------------------------------------------------------
     @impl true
+    # Time to die.
     def handle_cast(:delete, {name, id, plugin_map, state}) do
       delete(id, name)
       {:noreply, {name, id, plugin_map, state}}
     end
+    # Time to reinitialise.
     def handle_cast({:reinit, new_plugin_map}, {name, id, _plugin_map, state}) do
+      IO.puts("Plugin.handle_cast: args = #{inspect(new_plugin_map)} #{inspect(name)}, #{inspect(id)}, #{inspect(state)}")
       init_plugin({name, id})
       {:noreply, {name, id, new_plugin_map, state}}
     end
+    # Time to send a command to the plugin.
     def handle_cast(command, {name, id, plugin_map, state}) do
       case Map.get(plugin_map, "type") do
         "internal" ->
@@ -108,6 +112,7 @@ defmodule Reality2.Plugin do
       end
       {:noreply, {name, id, plugin_map, state}}
     end
+    # Ignore anything else.
     def handle_cast(_, state), do: {:noreply, state}
 
     # Useful for sending events in the future using Process.send_after
@@ -131,7 +136,7 @@ defmodule Reality2.Plugin do
       case Enum.any?(Application.loaded_applications(), fn({app_name, _, _}) -> app_name == app_name_atom end) do
         true ->
           # Run the 'delete' function in the App referenced to by the plugin name, in the module named Main
-          # This should be defined to set up the plugin.
+          # This should be defined to delete the plugin.
           name
           |> app_main_module
           |> apply(:delete, [id])
