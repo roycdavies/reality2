@@ -2,7 +2,7 @@ defmodule Reality2.Sentant do
 # *******************************************************************************************************************************************
 @moduledoc false
 # Start the Sentant, which is a Supervisor that manages the Sentant's Automations, Comms and Plugins.
-
+#
 # **Author**
 # - Dr. Roy C. Davies
 # - [roycdavies.github.io](https://roycdavies.github.io/)

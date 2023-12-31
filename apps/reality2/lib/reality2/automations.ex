@@ -2,7 +2,7 @@ defmodule Reality2.Automations do
 # ********************************************************************************************************************************************
 @moduledoc false
 # Module for creating and managing Automations on a Sentant.
-
+#
 # **Author**
 # - Dr. Roy C. Davies
 # - [roycdavies.github.io](https://roycdavies.github.io/)

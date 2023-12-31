@@ -2,7 +2,7 @@ defmodule Reality2.Automation do
 # ********************************************************************************************************************************************
 @moduledoc false
 # The Automation on a Sentant, managed as a Finite State Machine.
-
+#
 # **Author**
 # - Dr. Roy C. Davies
 # - [roycdavies.github.io](https://roycdavies.github.io/)

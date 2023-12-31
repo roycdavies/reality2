@@ -1,12 +1,12 @@
 defmodule Reality2.Plugins do
-  # ********************************************************************************************************************************************
-  @moduledoc false
-  # Module for creating and managing Plugins on a Sentant.
-
-  # **Author**
-  # - Dr. Roy C. Davies
-  # - [roycdavies.github.io](https://roycdavies.github.io/)
-  # ********************************************************************************************************************************************
+# *********************************************************************************************************************************************
+@moduledoc false
+# Module for creating and managing Plugins on a Sentant.
+#
+# **Author**
+# - Dr. Roy C. Davies
+# - [roycdavies.github.io](https://roycdavies.github.io/)
+# *********************************************************************************************************************************************
 
     @doc false
     use DynamicSupervisor

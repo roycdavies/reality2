@@ -1,12 +1,12 @@
 defmodule Reality2.Swarm do
-  # ********************************************************************************************************************************************
-  @moduledoc false
-  # Module for creating and managing Swarms on a Node.  A Swarm is a collection of Sentants that are managed together.
-
-  # **Author**
-  # - Dr. Roy C. Davies
-  # - [roycdavies.github.io](https://roycdavies.github.io/)
-  # ********************************************************************************************************************************************
+# *******************************************************************************************************************************************
+@moduledoc false
+# Module for creating and managing Swarms on a Node.  A Swarm is a collection of Sentants that are managed together.
+#
+# **Author**
+# - Dr. Roy C. Davies
+# - [roycdavies.github.io](https://roycdavies.github.io/)
+# *******************************************************************************************************************************************
 
   alias Reality2.Types
 
