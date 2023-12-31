@@ -1,12 +1,12 @@
 defmodule Reality2.Plugin do
-  # ********************************************************************************************************************************************
-  @moduledoc false
-  # The Plugin on a Sentant.
-  #
-  # **Author**
-  # - Dr. Roy C. Davies
-  # - [roycdavies.github.io](https://roycdavies.github.io/)
-  # ********************************************************************************************************************************************
+# *********************************************************************************************************************************************
+@moduledoc false
+# The Plugin on a Sentant.
+#
+# **Author**
+# - Dr. Roy C. Davies
+# - [roycdavies.github.io](https://roycdavies.github.io/)
+# *********************************************************************************************************************************************
 
     @doc false
     use GenServer, restart: :transient
@@ -66,7 +66,7 @@ defmodule Reality2.Plugin do
       case Map.get(plugin_map, "type") do
         "internal" ->
           # Internal Plugin
-          case Reality2.sendto(id, name, command) do
+          case sendto(id, name, command) do
             {:ok, answer} ->
               {:reply, {:ok, answer}, {name, id, plugin_map, state}}
             :ok ->
@@ -105,7 +105,7 @@ defmodule Reality2.Plugin do
     def handle_cast(command, {name, id, plugin_map, state}) do
       case Map.get(plugin_map, "type") do
         "internal" ->
-          Reality2.sendto(id, name, command)
+          sendto(id, name, command)
         _ ->
           # External Plugin
           :ok
@@ -187,6 +187,22 @@ defmodule Reality2.Plugin do
         false ->
           # Strictly speaking, not OK, but we don't want to stop the Sentant from starting.
           :ok
+      end
+    end
+
+    def sendto(sentant_id, plugin_name, command_and_parameters) do
+      try do
+        plugin_name
+        |> String.split(".")
+        |> Enum.map(&String.capitalize/1)
+        |> Enum.join("")
+        |> Module.safe_concat(String.to_atom("Main"))
+        |> case do
+          nil -> {:error, :plugin}
+          module_name -> apply(module_name, :sendto, [sentant_id, command_and_parameters])
+        end
+      rescue _ ->
+        {:error, :plugin}
       end
     end
     # -----------------------------------------------------------------------------------------------------------------------------------------

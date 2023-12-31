@@ -17,9 +17,11 @@ defmodule AiReality2Vars.MixProject do
       description: "Reality2 Vars Plugin",
 
       name: "Plugin: ai.reality2.vars",
+      source_url: "https://github.com/roycdavies/reality2",
+      homepage_url: "https://reality2.ai",
       docs: [
         main: "AiReality2Vars",
-        output: "doc/",
+        output: "../../docs/ai_reality2_vars",
         format: :html,
       ]
     ]

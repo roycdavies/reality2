@@ -1,13 +1,19 @@
 defmodule Reality2 do
   @moduledoc """
-  Reality2 is the App that manages Sentants on a Reality2 Node.
+  Reality2 Sentient Agent (Sentant) based Platform with plugin architecture for Intuitive Spatial Computing supporting Assistive Technologies.
+
+  This is the main module for managing Sentants, Swarms and Plugins on a Node and in a Cluster.
+  Primarily, this will not be accessed directly, but rather through the GraphQL API [Reality2.Web](../reality2_web/api-reference.html).
+
+  **Plugins**
+  - [ai.reality2.vars](../ai_reality2_vars/AiReality2Vars.html) - A plugin for managing variables on a Sentant.
+  - [ai.reality2.geospatial](../ai_reality2_geospatial/AiReality2Geospatial.html) - Coming Soon - A plugin for managing geospatial location and context on a Sentant.
+  - [ai.reality2.pathing](../ai_reality2_pathing/AiReality2Pathing.html) - Coming Soon - A plugin for managing pathing on a node, cluster and globally - interfaces with the Pathing Name System (PNS) and ensures Sentant Global Uniqueness and Addressability.
 
   **Author**
   - Dr. Roy C. Davies
   - [roycdavies.github.io](https://roycdavies.github.io/)
   """
-
-
   @doc false
   def test() do
     Mix.Task.run("test")
@@ -257,69 +263,12 @@ defmodule Reality2 do
   # Public Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
-  # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec whereis(String.t(), String.t()) :: pid() | nil
-  @doc """
-  Run the whereis function in the Main module of the App with the given name, passing in the Sentant ID.
-
-  This returns a Process ID for the plugin in the App for the given Sentant ID which can then be used for, say, a GenServer.call (or nil, if it doesn't exist).
-
-  - Parameters
-    - `sentant_id` - The id of the Sentant for which the plugin is being created.
-    - `plugin_name` - The name of the App in which the plugin is defined.
-
-  - Returns
-    - `pid` - The Process ID of the plugin in the App for the given Sentant ID.
-    - `nil` - If a proces for the Sentant for the plugin does not exist.
-
-  - Example
-    ```elixir
-    Reality2.whereis("afb38d1e-a740-11ee-bca6-18c04dee389e", "ai.reality2.vars")
-    ```
-  """
-  # -----------------------------------------------------------------------------------------------------------------------------------------
-  def whereis(sentant_id, plugin_name) do
-    plugin_name
-    |> String.split(".")
-    |> Enum.map(&String.capitalize/1)
-    |> Enum.join("")
-    |> Module.concat(String.to_atom("Main"))
-    |> apply(:whereis, [sentant_id])
-  end
-  # -----------------------------------------------------------------------------------------------------------------------------------------
-
-
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec sendto(String.t(), String.t(), map()) :: {:ok} | any() | {:error, :command} | {:error, :plugin} | {:error, :existence} | {:error, :key}
-  @doc """
-  Send a command to the Main module of the App with the given name, passing in the Sentant ID.
-
-  - Parameters
-    - `sentant_id` - The id of the Sentant for which the command is being sent.
-    - `plugin_name` - The name of the App in which the plugin is defined.
-    - `command_and_parameters` - A map containing the command and parameters to be sent.
-
-  - Returns
-    - `{:ok}` - If the command was sent successfully or a result if it was a call.
-    - `{:error, :command}` - If the command was not recognised.
-    - `{:error, :plugin}` - If the plugin was not recognised.
-    - `{:error, :existence}` - If the Sentant with that ID does not exist.
-    - `{:error, :key}` - If the key does not exist.
-
-  - Example
-    ```elixir
-    Reality2.sendto("afb38d1e-a740-11ee-bca6-18c04dee389e", "ai.reality.vars", %{command: "set", parameters: %{key: "answer", value: 42}})
-
-    result = Reality2.sendto("afb38d1e-a740-11ee-bca6-18c04dee389e", "ai.reality.vars", %{command: "get", parameters: %{key: "answer"}})
-    IO.puts("Result = \#{inspect(result)}")
-
-    # The output would be:
-    # Result = 42
-    ```
-  """
+  # Private Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  def sendto(sentant_id, plugin_name, command_and_parameters) do
+  @doc false
+  defp sendto(sentant_id, plugin_name, command_and_parameters) do
     try do
       plugin_name
       |> String.split(".")

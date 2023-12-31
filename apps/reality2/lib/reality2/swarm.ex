@@ -1,12 +1,13 @@
 defmodule Reality2.Swarm do
-  # ********************************************************************************************************************************************
-  @moduledoc false
-  # Module for creating and managing Swarms on a Node.  A Swarm is a collection of Sentants that are managed together.
+# *******************************************************************************************************************************************
+@moduledoc """
+  Module for creating and managing Swarms on a Node.  A Swarm is a collection of Sentants that are managed together.
 
-  # **Author**
-  # - Dr. Roy C. Davies
-  # - [roycdavies.github.io](https://roycdavies.github.io/)
-  # ********************************************************************************************************************************************
+  **Author**
+  - Dr. Roy C. Davies
+  - [roycdavies.github.io](https://roycdavies.github.io/)
+"""
+# *******************************************************************************************************************************************
 
   alias Reality2.Types
 
@@ -17,9 +18,13 @@ defmodule Reality2.Swarm do
   @doc """
   Create a new Swarm on the Node, returning {:ok} or an appropriate error.
 
+  Uploading a Swarm creates the Sentants on the Node, and then sends the init event to each Sentant.
+  If Sentants with the same name or ID already exist on the Node, then they are not created again, but redefined and restarted.
+
   - Parameters
-    - `swarm_map` - A map containing the definition of the Swarm.
+    - `swarm_definition` - A map containing the definition of the Swarm, or a string containing the YAML definition of the Swarm.
   """
+  def create(swarm_definition)
   def create(swarm_map) when is_map(swarm_map), do: create_from_map(swarm_map)
   def create(definition) when is_binary(definition) do
     definition
@@ -34,7 +39,7 @@ defmodule Reality2.Swarm do
   def create(_), do: {:error, :definition}
 
   defp create_from_map(definition_map) do
-    IO.puts("Swarm.create_from_map(#{inspect(definition_map)})")
+
     case Map.get(definition_map, "swarm") do
       nil ->
         {:error, :definition}
@@ -53,6 +58,7 @@ defmodule Reality2.Swarm do
             end)
         end
     end
+
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

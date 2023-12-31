@@ -1,12 +1,12 @@
 defmodule Reality2.Plugins do
-  # ********************************************************************************************************************************************
-  @moduledoc false
-  # Module for creating and managing Plugins on a Sentant.
-
-  # **Author**
-  # - Dr. Roy C. Davies
-  # - [roycdavies.github.io](https://roycdavies.github.io/)
-  # ********************************************************************************************************************************************
+# *********************************************************************************************************************************************
+@moduledoc false
+# Module for creating and managing Plugins on a Sentant.
+#
+# **Author**
+# - Dr. Roy C. Davies
+# - [roycdavies.github.io](https://roycdavies.github.io/)
+# *********************************************************************************************************************************************
 
     @doc false
     use DynamicSupervisor
@@ -48,11 +48,14 @@ defmodule Reality2.Plugins do
           {:error, :existence}
         pid ->
           case DynamicSupervisor.start_child(pid, Reality2.Plugin.child_spec(plugin_map)) do
+            # New child proces started
             {:ok, _pid} ->
               {:ok}
+            # Child process already existing, so just send a reinitialise message to the plugin GenServer
             {:error, {:already_started, existing_pid}} ->
               GenServer.cast(existing_pid, {:reinit, plugin_map})
               {:ok}
+            # Error starting child for some other reason.
             {:error, reason} ->
               IO.puts("Error starting child: #{inspect(reason)}")
               {:error, reason}

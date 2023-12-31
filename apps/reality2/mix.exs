@@ -14,11 +14,14 @@ defmodule Reality2.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      description: "Reality2 Sentant Application",
+      description: "Reality2 Sentient Agent (Sentant) based Platform with plugin architecture for Intuitive Spatial Computing supporting Assistive Technologies.",
 
-      name: "Reality2",
+      name: "Reality2.AI",
+      source_url: "https://github.com/roycdavies/reality2/tree/main/apps/reality2",
+      homepage_url: "https://reality2.ai",
       docs: [
-        main: "Reality2", output: "doc/", format: :html
+        main: "Reality2.AI", output: "../../docs/reality2", format: :html,
+        extras: ["README.md"]
       ]
     ]
   end

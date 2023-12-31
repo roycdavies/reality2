@@ -2,7 +2,7 @@ defmodule Reality2.Sentant.Comms do
 # *******************************************************************************************************************************************
 @moduledoc false
 # Manage the communications to and from the Sentant and Automations.
-
+#
 # **Author**
 # - Dr. Roy C. Davies
 # - [roycdavies.github.io](https://roycdavies.github.io/)

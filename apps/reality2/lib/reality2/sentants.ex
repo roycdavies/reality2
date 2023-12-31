@@ -3,6 +3,15 @@ defmodule Reality2.Sentants do
 @moduledoc """
   Module for creating and managing Sentants, and the DynamicSupervisor that manages them.
 
+  When a Sentant is created, it is given a unique ID, and a name.  The name is unique on the node, but not in the world.
+  Upon creation, the Sentant is sent the init event, which is handled by the Sentant's Automations.
+
+  If a Sentant with the same name or ID already exists on the Node, then it is not created again, but redefined and restarted.
+
+  Sentants are immutable, so they cannot be changed once created.  To change a Sentant, it must be reloaded.
+  However, some data in plugins may change (such as `Reality2.AiReality2Vars`), and this is handled by the plugin itself.
+  Further, the state(s) of the Sentant Automations can change.
+
   **Author**
   - Dr. Roy C. Davies
   - [roycdavies.github.io](https://roycdavies.github.io/)

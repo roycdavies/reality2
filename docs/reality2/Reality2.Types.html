@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.31.0">
+    <meta name="project" content="Reality2.AI v0.1.0">
+
+
+    <title>Reality2.Types — Reality2.AI v0.1.0</title>
+    <link rel="stylesheet" href="dist/html-elixir-3ZLIM5JF.css" />
+
+
+    <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
+    <script src="dist/handlebars.templates-43PMFBC7.js"></script>
+    <script src="dist/sidebar_items-2E5E77E0.js"></script>
+
+      <script src="docs_config.js"></script>
+
+    <script async src="dist/html-CILPWI2Q.js"></script>
+
+
+  </head>
+  <body data-type="modules" class="page-module">
+    <script>
+
+      try {
+        var settings = JSON.parse(localStorage.getItem('ex_doc:settings') || '{}');
+
+        if (settings.theme === 'dark' ||
+           ((settings.theme === 'system' || settings.theme == null) &&
+             window.matchMedia('(prefers-color-scheme: dark)').matches)
+           ) {
+          document.body.classList.add('dark')
+        }
+      } catch (error) { }
+    </script>
+
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://reality2.ai" class="sidebar-projectName" translate="no">
+Reality2.AI
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-listNav" class="sidebar-listNav" role="tablist">
+      <li>
+        <button id="extras-list-tab-button" role="tab" data-type="extras" aria-controls="extras-tab-panel" aria-selected="true" tabindex="0">
+Pages
+        </button>
+      </li>
+
+        <li>
+          <button id="modules-list-tab-button" role="tab" data-type="modules" aria-controls="modules-tab-panel" aria-selected="false" tabindex="-1">
+            Modules
+          </button>
+        </li>
+
+
+    </ul>
+  </div>
+
+  <div id="extras-tab-panel" class="sidebar-tabpanel" role="tabpanel" aria-labelledby="extras-list-tab-button">
+    <ul id="extras-full-list" class="full-list"></ul>
+  </div>
+
+    <div id="modules-tab-panel" class="sidebar-tabpanel" role="tabpanel" aria-labelledby="modules-list-tab-button" hidden>
+      <ul id="modules-full-list" class="full-list"></ul>
+    </div>
+
+
+</nav>
+
+<main class="content">
+  <output role="status" id="toast"></output>
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+      <div class="top-search">
+        <div class="search-settings">
+          <form class="search-bar" action="search.html">
+            <label class="search-label">
+              <span class="sr-only">Search documentation of Reality2.AI</span>
+              <input name="q" type="text" class="search-input" placeholder="Search Documentation (press /)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            </label>
+            <button type="submit" class="search-button" aria-label="Submit Search">
+              <i class="ri-search-2-line ri-lg" aria-hidden="true" title="Submit search"></i>
+            </button>
+            <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+              <i class="ri-close-line ri-lg" title="Cancel search"></i>
+            </button>
+          </form>
+          <button class="icon-settings display-settings">
+            <i class="ri-settings-3-line"></i>
+            <span class="sr-only">Settings</span>
+          </button>
+        </div>
+      </div>
+      <div class="autocomplete">
+      </div>
+
+<h1>
+
+    <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L1" title="View Source" class="icon-action" rel="help">
+      <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+      <span class="sr-only">View Source</span>
+    </a>
+
+  <span translate="no">Reality2.Types</span> 
+  <small class="app-vsn" translate="no">(Reality2.AI v0.1.0)</small>
+
+</h1>
+
+
+  <section id="moduledoc">
+<p>This is a Sentant definition template.  Follow this guide to define a Sentant Template or a specific Sentant.</p><ul><li>NOTE: This is a work in progress and is subject to change.</li><li>Version: 0.0.1</li><li>Date: 2023.11.18</li></ul><p>  <strong>Author</strong></p><ul><li>Dr. Roy C. Davies</li><li><a href="https://roycdavies.github.io/">roycdavies.github.io</a></li></ul>
+  </section>
+
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-types summary">
+  <h2>
+    <a href="#types">Types</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:action/0" translate="no">action()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The action definition of an automation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:author/0" translate="no">author()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A description of who made or owns the Sentant.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:automation/0" translate="no">automation()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A sentant automation definition.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:input_event/0" translate="no">input_event()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>An event definition sent to a Sentant.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:plugin/0" translate="no">plugin()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Plugins are used to add functionality to Sentants beyond the built-in actions.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:sentant/0" translate="no">sentant()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The definition of a Sentant.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:status/0" translate="no">status()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The current status of this Sentant on this node.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:stored_state/0" translate="no">stored_state()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A stored state of an Automation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:swarm/0" translate="no">swarm()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A group of Sentant Templates that work together to achieve a common goal.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:transition/0" translate="no">transition()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>An automation transition action definition.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:uuid/0" translate="no">uuid()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A universal ID.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="types" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h1>
+    <div class="types-list">
+<section class="detail" id="t:action/0">
+
+  <div class="detail-header">
+    <a href="#t:action/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">action()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L95" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> action() :: %{plugin: <a href="#t:plugin/0">plugin</a>(), command: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), parameters: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()}</pre>
+
+      </div>
+
+<p>The action definition of an automation.</p><h3 id="t:action/0-yaml" class="section-heading">
+  <a href="#t:action/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml">action:
+  # Optional plugin to use for this action
+  plugin: !plugin
+
+  # The command to execute
+  command: !str
+
+  # The parameters of the command in JSON format
+  parameters: { !str: !json }</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:author/0">
+
+  <div class="detail-header">
+    <a href="#t:author/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">author()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L34" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> author() :: %{id: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), name: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), email: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()}</pre>
+
+      </div>
+
+<p>A description of who made or owns the Sentant.</p><h3 id="t:author/0-yaml" class="section-heading">
+  <a href="#t:author/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml">author:
+  # The author's ID
+  id: !guid
+
+  # The author's name
+  name: !str
+
+  # The author's email
+  email: !str</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:automation/0">
+
+  <div class="detail-header">
+    <a href="#t:automation/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">automation()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L169" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> automation() :: %{
+  name: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  description: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  transitions: [<a href="#t:transition/0">transition</a>()]
+}</pre>
+
+      </div>
+
+<p>A sentant automation definition.</p><p>Each Sentant has a default Automation that determines it's current status, such as active and shadow, and which is preprogrammed to handle the <code class="inline">init, join_cluster, leave_cluster, connect, disconnect, go_shadow, go_active, shadows, active</code> and <code class="inline">transfer</code> events, and change the Sentant state accordingly.
+To access the current state of that default Automation, use the automation name &quot;_&quot; (underscore).</p><h3 id="t:automation/0-yaml" class="section-heading">
+  <a href="#t:automation/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml">automation:
+  # The name of the automation (must be unique within the Sentant)
+  name: !str
+
+  # The description of the automation
+  description: !str
+
+  # The transitions of this automation
+  transitions: [ !transition ]</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:input_event/0">
+
+  <div class="detail-header">
+    <a href="#t:input_event/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">input_event()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L53" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> input_event() :: %{event: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), parameters: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()}</pre>
+
+      </div>
+
+<p>An event definition sent to a Sentant.</p><h3 id="t:input_event/0-yaml" class="section-heading">
+  <a href="#t:input_event/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml">input_event:
+  # The name of the event (to match the transition event)
+  event: !str
+
+  # The parameters of the event in JSON format
+  parameters: { !str: !json }</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:plugin/0">
+
+  <div class="detail-header">
+    <a href="#t:plugin/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">plugin()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L74" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> plugin() :: %{name: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), version: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()}</pre>
+
+      </div>
+
+<p>Plugins are used to add functionality to Sentants beyond the built-in actions.</p><p>The name is used to specify exactly how the plugin works and is defined
+separately in a plugin definition file.</p><h3 id="t:plugin/0-yaml" class="section-heading">
+  <a href="#t:plugin/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml">plugin:
+  # The name of the plugin in reverse domain notation, eg: ai.reality2.storage
+  name: !str
+
+  # The version of the plugin, eg: &quot;0.1.0&quot;
+  version: !str</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:sentant/0">
+
+  <div class="detail-header">
+    <a href="#t:sentant/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">sentant()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L250" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> sentant() :: %{
+  id: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  name: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  version: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  class: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  data: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  binary: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  tags: [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()],
+  keywords: [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()],
+  description: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  author: <a href="#t:author/0">author</a>(),
+  automations: [<a href="#t:automation/0">automation</a>()],
+  states: [<a href="#t:stored_state/0">stored_state</a>()],
+  status: <a href="#t:status/0">status</a>()
+}</pre>
+
+      </div>
+
+<p>The definition of a Sentant.</p><h3 id="t:sentant/0-yaml" class="section-heading">
+  <a href="#t:sentant/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml">sentant:
+  # The guid of the Sentant - for a Sentant Template, this is left empty
+  # Loading a Sentant with an empty guid will cause a new Sentant to be created
+  # If a guid is provided, the Sentant will be loaded and checked for uniqueness before being allowed
+  # to function
+  id: !guid
+
+  # The name of the Sentant - best to keep short and simple as it will become part of the pathing.
+  # Avoid using spaces or special characters.
+  # The dot '.' character has a special meaning in the pathing, so cannot be used in the name.
+  # The name is case insensitive, so &quot;MySentant&quot; and &quot;mysentant&quot; are the same.
+  # New Sentants with the same name on a Node will have a unique 6 digit hexcode hash appended to the
+  # end of the name to ensure uniqueness on the Node
+  name: !str
+
+  # The version of the Sentant, eg: &quot;0.1.0&quot;.  When used for a Sentant Template, this is the minimum
+  # version of Sentant that can be used with this template.
+  # When used for a specific Sentant, this is the version of the Sentant.
+  version: !str
+
+  # The class of the Sentant - in reverse domain notation, eg: ai.reality2.sentant.default
+  class: !str
+
+  # The initial (immutable) data of the Sentant in key/value pairs of JSON formatted data
+  data: { !str: !json }
+
+  # The initial (immutable) binary data of the Sentant in key/value pairs of binary data, eg images,
+  # audio, video, etc
+  binary: { !str: !binary }
+
+  # A list of strings that may be used to group Sentants together in a Node
+  groups: [ !str ]
+
+  # A list of strings that may be used to search for Sentants in a Node
+  tags: [ !str ]
+
+  # The description of the Sentant
+  description: !str
+
+  # The author of the Sentant
+  author: !author
+
+  # Sentant automations
+  automations: [ !automation ]
+
+  # Current stored states of the Sentant (empty if Sentant Template)
+  states: [ !stored_state ]
+
+  # The status of the Sentant
+  status: !str</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:status/0">
+
+  <div class="detail-header">
+    <a href="#t:status/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">status()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L308" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> status() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+
+      </div>
+
+<p>The current status of this Sentant on this node.</p><h3 id="t:status/0-yaml" class="section-heading">
+  <a href="#t:status/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml"> &quot;active&quot; | &quot;shadow&quot; | &quot;inactive&quot; | &quot;unchecked&quot; | &quot;unknown&quot;</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:stored_state/0">
+
+  <div class="detail-header">
+    <a href="#t:stored_state/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">stored_state()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L188" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> stored_state() :: %{name: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), state: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()}</pre>
+
+      </div>
+
+<p>A stored state of an Automation.</p><h3 id="t:stored_state/0-yaml" class="section-heading">
+  <a href="#t:stored_state/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml">stored_state:
+  # The name of the automation
+  name: !str
+
+  # The state of the automation
+  state: !str</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:swarm/0">
+
+  <div class="detail-header">
+    <a href="#t:swarm/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">swarm()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L291" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> swarm() :: %{
+  name: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  class: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  description: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  author: <a href="#t:author/0">author</a>(),
+  version: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  sentants: [<a href="#t:sentant/0">sentant</a>()]
+}</pre>
+
+      </div>
+
+<p>A group of Sentant Templates that work together to achieve a common goal.</p><h3 id="t:swarm/0-yaml" class="section-heading">
+  <a href="#t:swarm/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml">swarm:
+  # The name of the swarm
+  name: !str
+
+  # The class of the swarm - in reverse domain notation, eg: ai.reality2.swarm.default
+  class: !str
+
+  # The description of the swarm
+  description: !str
+
+  # The author of the swarm
+  author: !author
+
+  # The version of the swarm, eg: &quot;0.1.0&quot;
+  version: !str
+
+  # The Sentant Templates that make up the swarm
+  sentants: [ !sentant ]</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:transition/0">
+
+  <div class="detail-header">
+    <a href="#t:transition/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">transition()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L143" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> transition() :: %{
+  from: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  event: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  to: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  actions: [<a href="#t:action/0">action</a>()]
+}</pre>
+
+      </div>
+
+<p>An automation transition action definition.</p><p>When an event is sent to a Sentant, the parameters are sent to the first action, and the result of that action is sent to the next action, and so on.</p><p>Paremeters passed in may be passed on to the next action, or may be modified, or new parameters may be added.
+Note that all automations start in the &quot;start&quot; state, and the first event sent is the &quot;init&quot; event.
+There are some events that are reserved for the Node and Sentant system, and these are:</p><p><strong> State Changing Events </strong></p><ul><li>init - sent when the Sentant is first created (as above)</li><li>join_cluster - sent when the Node joins a cluster</li><li>leave_cluster - sent when the Node leaves a cluster</li><li>connect - sent when the Node the Sentant is on connects to another Node or Cluster (this is different from joining a cluster)</li><li>disconnect - sent when the Node the Sentant is on disconnects from another Node or Cluster (this is different from leaving a cluster)</li><li>go_shadow - sent when the Sentant is moved to shadow status</li><li>go_active - sent when the Sentant is moved to active status</li></ul><p><strong> Query Events </strong></p><ul><li>get_shadows - returns a list of the paths or IP address and path to all (known) shadow Sentants</li><li>get_active - returns the path or IP address and path to the currently active Sentant</li><li>get_states - returns the current states of the Sentant</li></ul><p><strong> Other Events </strong></p><ul><li>do_transfer - transfer control of the Sentant to one of the shadow Sentants (thus becoming a shadow Sentant itself and sending a go_shadow event)</li></ul><h3 id="t:transition/0-yaml" class="section-heading">
+  <a href="#t:transition/0-yaml" class="hover-link">
+    <i class="ri-link-m" aria-hidden="true"></i>
+  </a>
+  <span class="text">YAML</span>
+</h3>
+<pre><code class="yaml">transition:
+  # State to match (* = any)
+  from: !str
+
+  # Event to match
+  event: !str
+
+  # New state to transition to (* = no change)
+  to: !str
+
+  # The actions to perform when transition occurs
+  actions: [ !action ]</code></pre>
+  </section>
+</section>
+<section class="detail" id="t:uuid/0">
+
+  <div class="detail-header">
+    <a href="#t:uuid/0" class="detail-link" title="Link to this opaque">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this opaque</span>
+    </a>
+    <h1 class="signature" translate="no">uuid()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/reality2/_sentant_yaml.ex#L16" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+      <span class="note">(opaque)</span>
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@opaque</span> uuid()</pre>
+
+      </div>
+
+<p>A universal ID.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+      <footer class="footer">
+        <p>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+              Search HexDocs
+            </button>
+
+              <a href="Reality2.AI.epub" title="ePub version">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.31.0) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+      </footer>
+    </div>
+  </div>
+</main>
+</div>
+
+
+  </body>
+</html>

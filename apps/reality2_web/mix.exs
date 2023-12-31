@@ -14,7 +14,16 @@ defmodule Reality2Web.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      description: "Reality2 Web Application"
+      description: "Reality2 Web Application",
+
+      name: "Reality2.Web",
+      source_url: "https://github.com/roycdavies/reality2",
+      homepage_url: "https://reality2.ai",
+      docs: [
+        main: "Reality2Web",
+        output: "../../docs/reality2_web",
+        format: :html,
+      ]
     ]
   end
 

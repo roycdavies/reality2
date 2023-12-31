@@ -11,9 +11,9 @@ defmodule AiReality2Vars do
   mix new apps/ai_reality2_vars --sup
   ```
 
-  The app name should match the node name, ie `ai_reality2_vars` for the node `ai.reality2.vars`, which is then called AiReality2Vars as the App Alias used inside the code.
+  The app name should match the plugin name, ie `ai_reality2_vars` for the plugin `ai.reality2.vars`, which is then called AiReality2Vars as the App Alias used inside the code.
 
-  By convention, we are using a reverse domain name for the node name, ie `ai.reality2.vars` is the plugin name for the `ai.reality2.vars` app.
+  By convention, we are using a reverse domain name hence: `ai.reality2.vars`.
 
   The plugin app must have `create`, `delete`, `whereis` and `sendto` functions in the `lib/<app_name>/main.ex` file, which are called to create and delete instances of the app for each Sentant,
   return a process ID for communication, and send a command and parameters to the App for the given Sentant.
