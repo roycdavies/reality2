@@ -45,10 +45,7 @@ defmodule Reality2.Automation do
   def handle_call(:state, _from, {name, id, automation_map, state}) do
     {:reply, {name, state}, {name, id, automation_map, state}}
   end
-  def handle_call(%{plugin: plugin_name, command: command}, _from, {name, id, automation_map, state}) do
-    IO.puts("Automation.handle_call: args = #{inspect(plugin_name)}, #{inspect(command)}")
-    {:reply, :ok, {name, id, automation_map, state}}
-  end
+
   def handle_call(_, _, {name, id, automation_map, state}) do
     {:reply, {:error, :unknown_command}, {name, id, automation_map, state}}
   end
@@ -88,8 +85,12 @@ defmodule Reality2.Automation do
 
   # Useful for sending events in the future using Process.send_after
   @impl true
-  def handle_info(args, {name, id, automation_map, state}) do
-    handle_cast(args, {name, id, automation_map, state})
+  def handle_info({:send, name_or_id, details}, {name, id, automation_map, state}) do
+    Reality2.Sentants.sendto(name_or_id, details)
+    {:noreply, {name, id, automation_map, state}}
+  end
+  def handle_info(_, {name, id, automation_map, state}) do
+    {:noreply, {name, id, automation_map, state}}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -119,6 +120,7 @@ defmodule Reality2.Automation do
   # Check the Event Map to see if it matches the current event, and do appropiate actions and state change if it does
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp check_event(id, transition_map, event, parameters, passthrough, state) do
+    sentant_name = Reality2.Metadata.get(:SentantNames, id)
     case Map.get(transition_map, "event") do
       nil ->
         {:no_match, state}
@@ -127,11 +129,11 @@ defmodule Reality2.Automation do
           nil ->
             {:no_match, state}
           "*" ->
-            IO.puts("#{inspect(state)} + #{inspect(event)} -> #{inspect(state)}")
+            IO.puts("#{sentant_name}: #{inspect(state)} + #{inspect(event)} -> #{inspect(state)}")
             do_actions(id, transition_map, parameters, passthrough)
             {:ok, state}
           to ->
-            IO.puts("#{inspect(state)} + #{inspect(event)} -> #{inspect(to)}")
+            IO.puts("#{sentant_name}: #{inspect(state)} + #{inspect(event)} -> #{inspect(to)}")
             do_actions(id, transition_map, parameters, passthrough)
             {:ok, to}
         end
@@ -162,17 +164,25 @@ defmodule Reality2.Automation do
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Do a single Action
+  # An Action might be like:
+  # %{  "command" => "send",
+  #     "parameters" =>
+  #         %{  "delay" => 1000,
+  #             "event" => "turn_on",
+  #             "to" => "Light Bulb"
+  #         }
+  # }
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  defp do_action(id, action_map, acc, _parameters, _passthrough) do
+  defp do_action(id, action_map, acc, parameters, passthrough) do
     # IO.puts("Automation.do_action: action_map = #{inspect(action_map)}")
     action_parameters = case Map.get(action_map, "parameters") do
       nil -> %{}
-      the_parameters -> the_parameters
+      params -> params
     end
 
     case Map.get(action_map, "plugin") do
       nil ->
-        do_inbuilt_action(Map.get(action_map, "command"), id, action_map, action_parameters, acc)
+        do_inbuilt_action(Map.get(action_map, "command"), id, action_map, action_parameters, acc, parameters, passthrough)
       plugin ->
         do_plugin_action(plugin, id, action_map, action_parameters, acc)
     end
@@ -200,14 +210,60 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Do an Inbuilt Action
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  defp do_inbuilt_action(action, _id, _action_map, _action_parameters, _acc) do
-    IO.puts("Automation.do_inbuilt_action: action = #{inspect(action)}")
+  defp do_inbuilt_action(action, id, action_map, action_parameters, acc, parameters, passthrough) do
+    # IO.puts("Automation.do_inbuilt_action: action = #{inspect(action)}")
+    # IO.puts("Automation.do_inbuilt_action: id = #{inspect(id)}")
+    # IO.puts("Automation.do_inbuilt_action: action_map = #{inspect(action_map)}")
+    # IO.puts("Automation.do_inbuilt_action: action_parameters = #{inspect(action_parameters)}")
     case action do
-      "send" ->
-        IO.puts("Automation.do_inbuilt_action: send not implemented yet")
+      "send" -> send(id, action_map, action_parameters, acc, parameters, passthrough)
       _ ->
         IO.puts("Automation.do_inbuilt_action: unknown action")
     end
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Private Functions
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Send
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  defp send(id, _action_map, action_parameters, _acc, parameters, passthrough) do
+
+    name_or_id = case Map.get(action_parameters, "to") do
+      nil ->
+          %{id: id}     # No "to" field, so send to self.
+      to_value ->
+        case Reality2.Metadata.get(:SentantNames, to_value) do
+          nil ->
+            %{name: to_value}     # Not an Name for a Sentant on this Node, so send to the Sentant with that ID.
+          to_id ->
+            %{to_id: to_id}       # Must be a name.
+        end
+    end
+
+    event = Map.get(action_parameters, "event")
+
+    # Make sure there is no timer for this event already in process.  If so, cancel it before doing the new one.
+    case Reality2.Metadata.get(String.to_atom(id <> "|timers"), event) do
+      nil -> :ok
+      timer ->
+        Process.cancel_timer(timer)
+    end
+
+    # Send the event either immediately or after a delay.
+    case Map.get(action_parameters, "delay") do
+      nil ->
+        Reality2.Sentants.sendto(name_or_id, %{event: event, parameters: parameters, passthrough: passthrough})
+      delay ->
+        timer = Process.send_after(self(), {:send, name_or_id, %{event: event, parameters: parameters, passthrough: passthrough}}, delay)
+        Reality2.Metadata.set(String.to_atom(id <> "|timers"), event, timer)
+    end
+
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

@@ -50,7 +50,10 @@ defmodule Reality2.Plugins do
           case DynamicSupervisor.start_child(pid, Reality2.Plugin.child_spec(plugin_map)) do
             {:ok, _pid} ->
               {:ok}
+            {:error, :already_started} ->
+              GenServer.call(pid, {:reinit, plugin_map})
             {:error, reason} ->
+              IO.puts("Error starting child: #{inspect(reason)}")
               {:error, reason}
           end
       end

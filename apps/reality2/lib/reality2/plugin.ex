@@ -26,29 +26,25 @@ defmodule Reality2.Plugin do
 
     @impl true
     def init({name, id, plugin_map}) do
-      # if the plugin is internal, then start it
+      # # if the plugin is internal, then start it
 
-      # In the definition file, the plugins have '.' between sections of the name, but in the code, we use '_' between sections
-      app_name_atom = name
-      |> String.split(".")
-      |> Enum.join("_")
-      |> String.downcase
-      |> String.to_atom
+      # # In the definition file, the plugins have '.' between sections of the name, but in the code, we use '_' between sections
+      # app_name_atom = app_name_underscore_atom(name)
 
-      # Check that there is an App with the name of the plugin
-      case Enum.any?(Application.loaded_applications(), fn({app_name, _, _}) -> app_name == app_name_atom end) do
-        true ->
-          # Run the 'create' function in the App referenced to by the plugin name, in the module named Main
-          # This should be defined to set up the plugin.  Each Sentant will get its own instance of the plugin.
-          name
-          |> String.split(".")
-          |> Enum.map(&String.capitalize/1)
-          |> Enum.join("")
-          |> Module.concat(String.to_atom("Main"))
-          |> apply(:create, [id <> "|" <> name])
-        false ->
-          {:error, :not_found}
-      end
+      # # Check that there is an App with the name of the plugin
+      # case Enum.any?(Application.loaded_applications(), fn({app_name, _, _}) -> app_name == app_name_atom end) do
+      #   true ->
+      #     # Run the 'create' function in the App referenced to by the plugin name, in the module named Main
+      #     # This should be defined to set up the plugin.  Each Sentant will get its own instance of the plugin.
+      #     name
+      #     |> app_main_module
+      #     |> apply(:create, [id])
+      #   false ->
+      #     # Strictly speaking, not OK, but we don't want to stop the Sentant from starting.
+      #     :ok
+      # end
+
+      init_plugin({name, id})
 
       {:ok, {name, id, plugin_map, %{}}}
     end
@@ -64,23 +60,19 @@ defmodule Reality2.Plugin do
     # Synchronous Calls
     # -----------------------------------------------------------------------------------------------------------------------------------------
     @impl true
-    # def handle_call(%{plugin: "ai.reality2.vars", command: command}, _from, {name, id, plugin_map, state}) do
-    #   # If plugin is internal, then find the App and sent the call there
-    #   answer = GenServer.call(String.to_atom(id <> "|data"), command)
-    #   {:reply, answer, {name, id, plugin_map, state}}
-    # end
     def handle_call(command, _from, {name, id, plugin_map, state}) do
       # IO.puts("Plugin.handle_call: args = #{inspect(command)} #{inspect(name)}, #{inspect(id)}, #{inspect(plugin_map)}, #{inspect(state)}")
 
       case Map.get(plugin_map, "type") do
         "internal" ->
           # Internal Plugin
-          case Process.whereis(String.to_atom(id <> "|" <> name)) do
-            nil ->
-              {:reply, {:error, :existence}, {name, id, plugin_map, state}}
-            pid ->
-              answer = GenServer.call(pid, command)
+          case Reality2.sendto(id, name, command) do
+            {:ok, answer} ->
               {:reply, {:ok, answer}, {name, id, plugin_map, state}}
+            :ok ->
+              {:reply, :ok, {name, id, plugin_map, state}}
+            {:error, error} ->
+              {:reply, {:error, error}, {name, id, plugin_map, state}}
           end
         _ ->
           # External Plugin
@@ -102,14 +94,14 @@ defmodule Reality2.Plugin do
       delete(id, name)
       {:noreply, {name, id, plugin_map, state}}
     end
+    def handle_cast({:reinit, new_plugin_map}, {name, id, _plugin_map, state}) do
+      init_plugin({name, id})
+      {:noreply, {name, id, new_plugin_map, state}}
+    end
     def handle_cast(command, {name, id, plugin_map, state}) do
       case Map.get(plugin_map, "type") do
         "internal" ->
-          # Internal Plugin
-          case Process.whereis(String.to_atom(id <> "|" <> name)) do
-            nil -> :ok
-            pid -> GenServer.cast(pid, command)
-          end
+          Reality2.sendto(id, name, command)
         _ ->
           # External Plugin
           :ok
@@ -133,11 +125,7 @@ defmodule Reality2.Plugin do
     # -----------------------------------------------------------------------------------------------------------------------------------------
     defp delete(id, name) do
 
-      app_name_atom = name
-      |> String.split(".")
-      |> Enum.join("_")
-      |> String.downcase
-      |> String.to_atom
+      app_name_atom = app_name_underscore_atom(name)
 
       # Check that there is an App with the name of the plugin
       case Enum.any?(Application.loaded_applications(), fn({app_name, _, _}) -> app_name == app_name_atom end) do
@@ -145,11 +133,8 @@ defmodule Reality2.Plugin do
           # Run the 'delete' function in the App referenced to by the plugin name, in the module named Main
           # This should be defined to set up the plugin.
           name
-          |> String.split(".")
-          |> Enum.map(&String.capitalize/1)
-          |> Enum.join("")
-          |> Module.concat(String.to_atom("Main"))
-          |> apply(:delete, [id <> "|" <> name])
+          |> app_main_module
+          |> apply(:delete, [id])
         false ->
           {:error, :not_found}
       end
@@ -162,5 +147,42 @@ defmodule Reality2.Plugin do
     # Helper Functions
     # -----------------------------------------------------------------------------------------------------------------------------------------
 
+    # Return a module name for the App name, Main module,  with '.' removed and each section capitalised
+    defp app_main_module(name) do
+      name
+      |> String.split(".")
+      |> Enum.map(&String.capitalize/1)
+      |> Enum.join("")
+      |> Module.concat(String.to_atom("Main"))
+    end
+
+    # Return an atom for the App name with '.' replaced by '_' and lower case
+    defp app_name_underscore_atom(name) do
+      name
+      |> String.split(".")
+      |> Enum.join("_")
+      |> String.downcase
+      |> String.to_atom
+    end
+
+    defp init_plugin({name, id}) do
+      # if the plugin is internal, then start it
+
+      # In the definition file, the plugins have '.' between sections of the name, but in the code, we use '_' between sections
+      app_name_atom = app_name_underscore_atom(name)
+
+      # Check that there is an App with the name of the plugin
+      case Enum.any?(Application.loaded_applications(), fn({app_name, _, _}) -> app_name == app_name_atom end) do
+        true ->
+          # Run the 'create' function in the App referenced to by the plugin name, in the module named Main
+          # This should be defined to set up the plugin.  Each Sentant will get its own instance of the plugin.
+          name
+          |> app_main_module
+          |> apply(:create, [id])
+        false ->
+          # Strictly speaking, not OK, but we don't want to stop the Sentant from starting.
+          :ok
+      end
+    end
     # -----------------------------------------------------------------------------------------------------------------------------------------
   end

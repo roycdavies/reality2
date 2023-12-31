@@ -92,18 +92,31 @@ defmodule Reality2.Sentants do
       {:ok, name} ->
         case sentant_id(sentant_map) do
           {:ok, _, id} ->
-            case DynamicSupervisor.start_child(
-              {:via, PartitionSupervisor, {Reality2.Sentants, choose_supervisor()}},
-              {Reality2.Sentant, {name, id, sentant_map}}
-            ) do
-                {:ok, _pid} ->
-                  Reality2.Metadata.set :SentantNames, id, name
-                  Reality2.Metadata.set :SentantIDs, name, id
+            case Reality2.Metadata.get(:SentantIDs, name) do
+              nil ->
+                case DynamicSupervisor.start_child(
+                  {:via, PartitionSupervisor, {Reality2.Sentants, choose_supervisor()}},
+                  {Reality2.Sentant, {name, id, sentant_map}}
+                ) do
+                    {:ok, _pid} ->
+                      Reality2.Metadata.set :SentantNames, id, name
+                      Reality2.Metadata.set :SentantIDs, name, id
 
-                  add_automations_to_sentant(id, sentant_map)
-                  add_plugins_to_sentant(id, sentant_map)
-                  {:ok, id}
-                error -> error
+                      add_automations_to_sentant(id, sentant_map)
+                      add_plugins_to_sentant(id, sentant_map)
+                      {:ok, id}
+                    error -> error
+                end
+              existing_id ->
+                # Remove automations from Sentant
+                terminate_all_children(String.to_atom(existing_id <> "|automations"))
+                # Remove plugins from Sentant
+                remove_plugins_from_sentant(existing_id)
+
+                # Add the updated automations and plugins to the Sentant
+                add_automations_to_sentant(existing_id, sentant_map)
+                add_plugins_to_sentant(existing_id, sentant_map)
+                {:ok, existing_id}
             end
           error -> error
         end
@@ -134,6 +147,14 @@ defmodule Reality2.Sentants do
         # IO.puts("Adding plugins to sentant: " <> inspect(plugins))
         Enum.each(plugins, fn plugin_map -> Reality2.Plugins.create(id, plugin_map) end)
     end
+  end
+
+  defp terminate_all_children(supervisor) do
+    children = DynamicSupervisor.which_children(supervisor)
+
+    Enum.each(children, fn {_, child_pid, _, _} ->
+      DynamicSupervisor.terminate_child(supervisor, child_pid)
+    end)
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -259,7 +280,7 @@ defmodule Reality2.Sentants do
 
 
   defp remove_plugins_from_sentant(id) do
-    # Get the children of the plugis supervisor
+    # Get the children of the plugins supervisor
 
     String.to_atom(id <> "|plugins")
     |> Supervisor.which_children()
@@ -273,8 +294,6 @@ defmodule Reality2.Sentants do
           GenServer.cast(pid, :delete)
       end
     end)
-
-    # For each of these, call the delete function on the associated App
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -301,7 +320,7 @@ defmodule Reality2.Sentants do
 
   - Example
   ```elixir
-  Reality2.Sentants.sendto(%{:name => "my_sentant"}, %{event: "turn_on"})
+  Reality2.Sentants.sendto(%{:name => "my_sentant"}, %{event: "turn_on", delay: 1000})
   ```
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -321,6 +340,7 @@ defmodule Reality2.Sentants do
         {:error, :id}
       pid ->
         GenServer.cast(pid, message_map)
+        {:ok}
       end
   end
 
@@ -349,6 +369,7 @@ defmodule Reality2.Sentants do
   def sendto_all(message_map) do
     sentants = get_all_sentant_comms()
     Enum.each(sentants, fn pid -> GenServer.cast(pid, message_map) end)
+
     {:ok, length(sentants)}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------

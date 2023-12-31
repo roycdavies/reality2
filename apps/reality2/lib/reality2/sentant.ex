@@ -23,7 +23,8 @@ use Supervisor, restart: :transient
     children = [
       {Reality2.Automations, {name, id, sentant_map}},
       {Reality2.Plugins, {name, id, sentant_map}},
-      {Reality2.Sentant.Comms, {name, id, sentant_map}}
+      {Reality2.Sentant.Comms, {name, id, sentant_map}},
+      %{id: id <> "|timers", start: {Reality2.Metadata, :start_link, [String.to_atom(id <> "|timers")]}}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

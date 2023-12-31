@@ -15,8 +15,12 @@ defmodule AiReality2Vars.MixProject do
       aliases: aliases(),
       deps: deps(),
       description: "Reality2 Vars Plugin",
+
+      name: "Plugin: ai.reality2.vars",
       docs: [
-        main: "AiReality2Vars", output: "doc/", format: :html
+        main: "AiReality2Vars",
+        output: "doc/",
+        format: :html,
       ]
     ]
   end

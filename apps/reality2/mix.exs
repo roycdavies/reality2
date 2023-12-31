@@ -15,6 +15,8 @@ defmodule Reality2.MixProject do
       aliases: aliases(),
       deps: deps(),
       description: "Reality2 Sentant Application",
+
+      name: "Reality2",
       docs: [
         main: "Reality2", output: "doc/", format: :html
       ]
