@@ -44,6 +44,26 @@ defmodule Reality2 do
     sentant:
       name: Light Switch
       description: This is a test sentant.
+      plugins:
+        - name: com.openai.api
+          url: https://api.openai.com/v1/chat/completions
+          headers:
+            - key: "Content-Type"
+              value: "application/json"
+            - key: "Authorization"
+              value: "Bearer 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"
+          data:
+            - model: "gpt-3.5-turbo-1106"
+              messages:
+                - role: "user"
+                  content: {{message}}
+
+          output:
+            - key: "choices"
+              value: "choices.0.message.content"
+              event: "chatgpt_response"
+
+          version: 0.1.0
       automations:
         - name: switch
           description: This is a test automation.
@@ -83,6 +103,15 @@ defmodule Reality2 do
                   parameters:
                     to: light_bulb
                     event: turn_off
+            - from: "*"
+              event: chatgpt
+              to: ready
+              actions:
+                - plugin: com.openai.api
+                  command: send
+                  parameters:
+                    message: What is the square root of pi?
+                    event: chatgpt_response
     """
 
     {:ok, id} = Reality2.Sentants.create(sentant_definition)
@@ -105,6 +134,54 @@ defmodule Reality2 do
     IO.puts("Metadata = #{inspect(metadata)}")
 
     {:ok, id}
+  end
+
+  def test_explugin() do
+    sentant_definition = """
+    sentant:
+      name: Ask Question
+      description: This is a test sentant for ChatGPT Plugin
+      plugins:
+        - name: com.openai.api
+          url: https://api.openai.com/v1/chat/completions
+          headers:
+            - key: "Content-Type"
+              value: "application/json"
+            - key: "Authorization"
+              value: "Bearer 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"
+          body:
+            - model: "gpt-3.5-turbo-1106"
+              messages:
+                - role: "user"
+                  content: __message__
+
+          output:
+            - key: "choices"
+              value: "choices.0.message.content"
+              event: "chatgpt_response"
+
+          version: 0.1.0
+      automations:
+        - name: switch
+          description: This is a test automation.
+          transitions:
+            - from: start
+              event: init
+              to: ready
+            - from: "*"
+              event: chatgpt
+              to: ready
+              actions:
+                - plugin: com.openai.api
+                  command: send
+                  parameters:
+                    message: What is the square root of pi?
+    """
+
+    {:ok, id} = Reality2.Sentants.create(sentant_definition)
+    Reality2.Sentants.sendto(%{:name => "Ask Question"}, %{event: "chatgpt", parameters: %{message: "What is the square root of pi?"}})
+    {:ok, id}
+
   end
 
   @doc false

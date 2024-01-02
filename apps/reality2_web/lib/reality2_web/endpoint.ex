@@ -1,5 +1,6 @@
 defmodule Reality2Web.Endpoint do
-  use Phoenix.Endpoint, otp_app: :reality2_web
+@moduledoc false
+use Phoenix.Endpoint, otp_app: :reality2_web
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.

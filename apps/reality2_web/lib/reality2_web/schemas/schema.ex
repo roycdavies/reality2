@@ -1,4 +1,12 @@
 defmodule Reality2Web.Schema do
+@moduledoc """
+  Reality2 GraphQL Schema
+
+  **Author**
+  - Dr. Roy C. Davies
+  - [roycdavies.github.io](https://roycdavies.github.io/)
+"""
+
   use Absinthe.Schema
 
   import_types Reality2Web.Schema.Types.Custom.JSON
@@ -6,6 +14,9 @@ defmodule Reality2Web.Schema do
   import_types Absinthe.Type.Custom
   import_types Reality2Web.Schema.Sentant
 
+  @desc """
+  The Reality2 GraphQL queries
+  """
   query do
     import_fields :sentant_queries
   end

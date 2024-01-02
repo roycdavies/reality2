@@ -1,6 +1,5 @@
 # ******************************************************************************************************************************************************
 # The Schema describes the core data model of Sentants, Nodes and Clusters
-
 # ******************************************************************************************************************************************************
 schema {
     query: Query                                                            # The query root of the schema
@@ -78,6 +77,7 @@ type Action {
 # A Transition is the link between two states of an automation
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 type Transition {
+    plugin: Plugin                                                          # The plugin that will execute the transition (if not given, is on the sentant)
     from: String!                                                           # The state the transition is coming from
     event: String!                                                          # The event that triggers the transition
     to: String!                                                             # The state the transition is going to
@@ -91,7 +91,6 @@ type Transition {
 # An Automation is a state machine that can be executed on a Sentant
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 type Automation {
-    uuid: UUID!                                                             # The UUID of the automation
     name: String!                                                           # The name of the automation
     transitions: [Transition]!                                              # The transitions on the automation
     state: String!                                                          # The current state of the automation
@@ -101,10 +100,19 @@ type Automation {
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# A Sentant is an Sentient Digital Agent
+# A Plugin is a piece of code that can be executed on a Sentant
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+type Plugin {
+    name: String!                                                           # The name of the plugin in reverse domain notation
+    data: JSON!                                                             # The data related to the plugin
+}
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# A Sentant is a Sentient Digital Agent
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 type Sentant {
-    uuid: UUID!                                                             # The UUID of the sentant
+    id: UUID!                                                               # The UUID of the sentant
     name: String!                                                           # The name of the sentant
     owner: User!                                                            # The owner of the sentant
     data: JSON!                                                             # The data on the sentant
@@ -119,7 +127,7 @@ type Sentant {
 # A Node is a physical or virtual machine that can host Sentants
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 type Node {
-    uuid: UUID!                                                             # The UUID of the node
+    id: UUID!                                                               # The UUID of the node
     name: String!                                                           # The name of the node
     owner: User!                                                            # The owner of the node
     sentants: [Sentant]!                                                    # All the sentants on the node
@@ -133,7 +141,7 @@ type Node {
 # A Cluster is a group of Nodes
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 type Cluster {
-    uuid: UUID!                                                             # The UUID of the cluster
+    id: UUID!                                                               # The UUID of the cluster
     name: String!                                                           # The name of the cluster
     nodes: [Node]!                                                          # All the nodes in the cluster
     sentants: [Sentant]!                                                    # All the sentants on the nodes in the cluster

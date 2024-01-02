@@ -16,7 +16,7 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @doc false
   def start_link({_sentant_name, id, _sentant_map}, automation_map) do
-    case Map.get(automation_map, "name") do
+    case Helpers.Map.get(automation_map, "name") do
       nil ->
         {:error, :definition}
       automation_name ->
@@ -58,13 +58,13 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @impl true
   def handle_cast(args, {name, id, automation_map, state}) do
-    parameters = Map.get(args, :parameters, %{})
-    passthrough = Map.get(args, :passthrough, %{})
+    parameters = Helpers.Map.get(args, :parameters, %{})
+    passthrough = Helpers.Map.get(args, :passthrough, %{})
 
-    case Map.get(args, :event) do
+    case Helpers.Map.get(args, :event) do
       nil -> {:noreply, {name, id, automation_map, state}}
       event ->
-        case Map.get(automation_map, "transitions") do
+        case Helpers.Map.get(automation_map, "transitions") do
           nil ->
             {:noreply, {name, automation_map, state}}
           transitions ->
@@ -104,7 +104,7 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp check_transition(id, transition_map, event, parameters, passthrough, state) do
     # IO.puts("Automation.check_transition: args = #{inspect(transition_map)}, #{inspect(event)}, #{inspect(state)}")
-    case Map.get(transition_map, "from") do
+    case Helpers.Map.get(transition_map, "from") do
       nil ->
         {:no_match, state}
       "*" -> check_event(id, transition_map, event, parameters, passthrough, state)
@@ -121,11 +121,11 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp check_event(id, transition_map, event, parameters, passthrough, state) do
     sentant_name = Reality2.Metadata.get(:SentantNames, id)
-    case Map.get(transition_map, "event") do
+    case Helpers.Map.get(transition_map, "event") do
       nil ->
         {:no_match, state}
       ^event ->
-        case Map.get(transition_map, "to") do
+        case Helpers.Map.get(transition_map, "to") do
           nil ->
             {:no_match, state}
           "*" ->
@@ -149,7 +149,7 @@ defmodule Reality2.Automation do
   # Do the Actions in the Transition Map when the Transition triggers
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp do_actions(id, transition_map, parameters, passthrough) do
-    case Map.get(transition_map, "actions") do
+    case Helpers.Map.get(transition_map, "actions") do
       nil ->
         :ok
       actions ->
@@ -175,14 +175,14 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp do_action(id, action_map, acc, parameters, passthrough) do
     # IO.puts("Automation.do_action: action_map = #{inspect(action_map)}")
-    action_parameters = case Map.get(action_map, "parameters") do
+    action_parameters = case Helpers.Map.get(action_map, "parameters") do
       nil -> %{}
       params -> params
     end
 
-    case Map.get(action_map, "plugin") do
+    case Helpers.Map.get(action_map, "plugin") do
       nil ->
-        do_inbuilt_action(Map.get(action_map, "command"), id, action_map, action_parameters, acc, parameters, passthrough)
+        do_inbuilt_action(Helpers.Map.get(action_map, "command"), id, action_map, action_parameters, acc, parameters, passthrough)
       plugin ->
         do_plugin_action(plugin, id, action_map, action_parameters, acc)
     end
@@ -200,7 +200,7 @@ defmodule Reality2.Automation do
         {:error, :no_plugin}
       pid ->
         # Call the plugin on the Sentant, which in turn will call the appropriate internal App
-        GenServer.call(pid, %{command: Map.get(action_map, "command"), parameters: action_parameters})
+        GenServer.call(pid, %{command: Helpers.Map.get(action_map, "command"), parameters: action_parameters})
     end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp send(id, _action_map, action_parameters, _acc, parameters, passthrough) do
 
-    name_or_id = case Map.get(action_parameters, "to") do
+    name_or_id = case Helpers.Map.get(action_parameters, "to") do
       nil ->
           %{id: id}     # No "to" field, so send to self.
       to_value ->
@@ -246,7 +246,7 @@ defmodule Reality2.Automation do
         end
     end
 
-    event = Map.get(action_parameters, "event")
+    event = Helpers.Map.get(action_parameters, "event")
 
     # Make sure there is no timer for this event already in process.  If so, cancel it before doing the new one.
     case Reality2.Metadata.get(String.to_atom(id <> "|timers"), event) do
@@ -256,7 +256,7 @@ defmodule Reality2.Automation do
     end
 
     # Send the event either immediately or after a delay.
-    case Map.get(action_parameters, "delay") do
+    case Helpers.Map.get(action_parameters, "delay") do
       nil ->
         Reality2.Sentants.sendto(name_or_id, %{event: event, parameters: parameters, passthrough: passthrough})
       delay ->

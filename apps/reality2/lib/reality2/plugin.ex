@@ -16,7 +16,7 @@ defmodule Reality2.Plugin do
     # -----------------------------------------------------------------------------------------------------------------------------------------
     @doc false
     def start_link({_sentant_name, id, _sentant_map}, plugin_map) do
-      case Map.get(plugin_map, "name") do
+      case Helpers.Map.get(plugin_map, "name") do
         nil ->
           {:error, :definition}
         plugin_name ->
@@ -63,7 +63,7 @@ defmodule Reality2.Plugin do
     def handle_call(command, _from, {name, id, plugin_map, state}) do
       # IO.puts("Plugin.handle_call: args = #{inspect(command)} #{inspect(name)}, #{inspect(id)}, #{inspect(plugin_map)}, #{inspect(state)}")
 
-      case Map.get(plugin_map, "type") do
+      case Helpers.Map.get(plugin_map, "type") do
         "internal" ->
           # Internal Plugin
           case sendto(id, name, command) do
@@ -76,11 +76,45 @@ defmodule Reality2.Plugin do
           end
         _ ->
           # External Plugin
+          # IO.puts("Plugin.handle_call: args = #{inspect(command, pretty: true)} | #{inspect(name)} | #{inspect(id)} | #{inspect(plugin_map, pretty: true)} | #{inspect(state, pretty: true)}")
+          # Get the parameters
+          parameters = Helpers.Map.get(command, "parameters", %{})
+          # Get the headers
+          headers = replace_variable_in_map(Helpers.Map.get(plugin_map, "headers", %{}), parameters)
+          # Get the url
+          url = Helpers.Map.get(plugin_map, "url")
+          # Get the body
+          body = replace_variable_in_map(Helpers.Map.get(plugin_map, "body", %{}), parameters)
+          # Get the method
+          method = Helpers.Map.get(plugin_map, "method", "GET")
+
+
           {:reply, {:error, :external_not_implemented}, {name, id, plugin_map, state}}
       end
     end
     def handle_call(_, _, state) do
       {:reply, {:error, :unknown_command}, state}
+    end
+
+    def replace_variable_in_map(data, variables) when is_map(data) do
+      Enum.map(data, fn {k, v} ->
+        cond do
+          is_binary(v) -> {k, replace_string(variables, v)}
+          true -> {k, replace_variable_in_map(v, variables)}
+        end
+      end)
+      |> Map.new
+    end
+    def replace_variable_in_map(data, variables) when is_list(data), do: Enum.map(data, fn x -> replace_variable_in_map(x, variables) end)
+    def replace_variable_in_map(data, variables) when is_binary(data), do: replace_string(variables, data)
+    def replace_variable_in_map(data, _), do: data
+
+    defp replace_string(map, string) do
+      case Regex.named_captures(~r/^__(?<content>[^_]+)__$/, string) do
+        %{"content" => content} ->
+          Helpers.Map.get(map, content, string)
+        _ -> string
+      end
     end
     # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -103,11 +137,12 @@ defmodule Reality2.Plugin do
     end
     # Time to send a command to the plugin.
     def handle_cast(command, {name, id, plugin_map, state}) do
-      case Map.get(plugin_map, "type") do
+      case Helpers.Map.get(plugin_map, "type") do
         "internal" ->
           sendto(id, name, command)
         _ ->
           # External Plugin
+          IO.puts("Plugin.handle_cast: args = #{inspect(command)} #{inspect(name)}, #{inspect(id)}, #{inspect(plugin_map)}, #{inspect(state)}")
           :ok
       end
       {:noreply, {name, id, plugin_map, state}}

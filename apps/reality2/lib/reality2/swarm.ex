@@ -40,18 +40,18 @@ defmodule Reality2.Swarm do
 
   defp create_from_map(definition_map) do
 
-    case Map.get(definition_map, "swarm") do
+    case Helpers.Map.get(definition_map, "swarm") do
       nil ->
         {:error, :definition}
       swarms_array ->
-        case Map.get(swarms_array, "sentants") do
+        case Helpers.Map.get(swarms_array, "sentants") do
           nil ->
             {:error, :definition}
           sentants ->
             Enum.map(sentants, fn sentant_map ->
               case Reality2.Sentants.create(sentant_map) do
                 {:ok, id} ->
-                  {Map.get(sentant_map, "name", ""), id}
+                  {Helpers.Map.get(sentant_map, "name", ""), id}
                 {:error, reason} ->
                   {:error, reason}
               end

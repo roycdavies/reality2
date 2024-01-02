@@ -1,21 +1,22 @@
 defmodule Reality2Web do
-  @moduledoc """
-  The entrypoint for defining your web interface, such
-  as controllers, components, channels, and so on.
+@moduledoc false
 
-  This can be used in your application as:
+# The entrypoint for defining your web interface, such
+# as controllers, components, channels, and so on.
 
-      use Reality2Web, :controller
-      use Reality2Web, :html
+# This can be used in your application as:
 
-  The definitions below will be executed for every controller,
-  component, etc, so keep them short and clean, focused
-  on imports, uses and aliases.
+#     use Reality2Web, :controller
+#     use Reality2Web, :html
 
-  Do NOT define functions inside the quoted expressions
-  below. Instead, define additional modules and import
-  those modules here.
-  """
+# The definitions below will be executed for every controller,
+# component, etc, so keep them short and clean, focused
+# on imports, uses and aliases.
+
+# Do NOT define functions inside the quoted expressions
+# below. Instead, define additional modules and import
+# those modules here.
+
 
   def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
 

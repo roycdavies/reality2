@@ -134,7 +134,7 @@ defmodule AiReality2Vars.Main do
       nil ->
         {:error, :existence}
       pid ->
-        case Map.get(command_and_parameters, :command) do
+        case AiReality2Vars.Map.get(command_and_parameters, :command) do
           "set" ->
             GenServer.cast(pid, command_and_parameters)
           "delete" ->

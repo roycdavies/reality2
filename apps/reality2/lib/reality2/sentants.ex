@@ -99,6 +99,8 @@ defmodule Reality2.Sentants do
 
     case sentant_name(sentant_map) do
       {:ok, name} ->
+        IO.puts("Creating Sentant: " <> inspect(sentant_map))
+        # TODO: Check what happens if sentant with same ID is sent in again.
         case sentant_id(sentant_map) do
           {:ok, _, id} ->
             case Reality2.Metadata.get(:SentantIDs, name) do
@@ -135,7 +137,7 @@ defmodule Reality2.Sentants do
   end
 
   defp add_automations_to_sentant(id, sentant_map) do
-    case Map.get(sentant_map, "automations") do
+    case Helpers.Map.get(sentant_map, "automations") do
       nil ->
         :ok
       automations ->
@@ -149,7 +151,7 @@ defmodule Reality2.Sentants do
     Reality2.Plugins.create(id, %{"name" => "ai.reality2.vars", "type" => "internal"})
     Reality2.Plugins.create(id, %{"name" => "ai.reality2.geospatial", "type" => "internal"})
 
-    case Map.get(sentant_map, "plugins") do
+    case Helpers.Map.get(sentant_map, "plugins") do
       nil ->
         :ok
       plugins ->
@@ -449,9 +451,9 @@ defmodule Reality2.Sentants do
 
   defp add_defaults(definition_map) do
     definition_map
-    |> Map.put_new("description", "This is a new Sentant.")
+    |> Map.put_new("description", "")
     |> Map.put_new("version", "0.1.0")
-    |> Map.put_new("author", %{id: "", name: "", email: ""})
+    |> Map.put_new("author", %{"id" => "", "name" => "", "email" => ""})
     |> Map.put_new("class", "ai.reality2.default")
     |> Map.put_new("data", %{})
     |> Map.put_new("binary", %{})

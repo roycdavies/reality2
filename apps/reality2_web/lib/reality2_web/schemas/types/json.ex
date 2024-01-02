@@ -1,8 +1,8 @@
 defmodule Reality2Web.Schema.Types.Custom.JSON do
-  @moduledoc """
-  The Json scalar type allows arbitrary JSON values to be passed in and out.
-  Requires `{ :jason, "~> 1.1" }` package: https://github.com/michalmuskala/jason
-  """
+  @moduledoc false
+  # The Json scalar type allows arbitrary JSON values to be passed in and out.
+  # Requires `{ :jason, "~> 1.1" }` package: https://github.com/michalmuskala/jason
+
   use Absinthe.Schema.Notation
 
   scalar :json, name: "Json" do

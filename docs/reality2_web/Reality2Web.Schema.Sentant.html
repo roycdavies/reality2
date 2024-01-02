@@ -14,7 +14,7 @@
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
     <script src="dist/handlebars.templates-43PMFBC7.js"></script>
-    <script src="dist/sidebar_items-E9FC0FD8.js"></script>
+    <script src="dist/sidebar_items-BBF773B0.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -125,7 +125,79 @@ Pages
 </h1>
 
 
+  <section id="moduledoc">
+<p>  Sentant Schema</p><p>  Type definitions for the Sentant GraphQL schema are at: <a href="../reality2/Reality2.Types.html">Reality2.Types</a></p><p>  <strong>Author</strong></p><ul><li>Dr. Roy C. Davies</li><li><a href="https://roycdavies.github.io/">roycdavies.github.io</a></li></ul>
+  </section>
 
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#sentant/0" translate="no">sentant()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Sentant Type</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+    <div class="functions-list">
+<section class="detail" id="sentant/0">
+
+  <div class="detail-header">
+    <a href="#sentant/0" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">sentant()</h1>
+
+      <a href="https://github.com/roycdavies/reality2/blob/main/lib/reality2_web/schemas/schema_sentant.ex#L67" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+<p>Sentant Type</p><pre><code class="graphql">  type Sentant {
+      id: UUID!                                   # The UUID of the sentant
+      name: String!                               # The name of the sentant
+      owner: User!                                # The owner of the sentant
+      data: JSON!                                 # The data on the sentant
+      automations: [Automation]!                  # The automations on the sentant
+      plugins: [Plugin]!                          # The plugins used by the sentant
+      node: Node                                  # The node the sentant is on
+  }</code></pre>
+  </section>
+</section>
+
+    </div>
+  </section>
 
       <footer class="footer">
         <p>

@@ -1,4 +1,6 @@
 defmodule Reality2Web.Router do
+@moduledoc false
+
   use Reality2Web, :router
 
   pipeline :browser do

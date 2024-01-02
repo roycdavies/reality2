@@ -71,7 +71,7 @@ defmodule Reality2.Metadata do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def handle_call({:set, key, value}, _from, state),    do: {:reply, :ok, Map.put(state, key, value)}
   def handle_call({:delete, key}, _from, state),        do: {:reply, :ok, Map.delete(state, key)}
-  def handle_call({:get, key}, _from, state),           do: {:reply, Map.get(state, key, nil), state}
+  def handle_call({:get, key}, _from, state),           do: {:reply, Helpers.Map.get(state, key, nil), state}
   def handle_call({:all}, _from, state),                do: {:reply, state, state}
   # -----------------------------------------------------------------------------------------------------------------------------------------
 

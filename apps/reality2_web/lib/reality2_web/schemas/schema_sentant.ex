@@ -1,21 +1,88 @@
 defmodule Reality2Web.Schema.Sentant do
+@moduledoc """
+  Sentant Schema
+
+  Type definitions for the Sentant GraphQL schema are at: [Reality2.Types](../reality2/Reality2.Types.html)
+
+  **Author**
+  - Dr. Roy C. Davies
+  - [roycdavies.github.io](https://roycdavies.github.io/)
+"""
   use Absinthe.Schema.Notation
 
   require Reality2Web.Schema.Enums
 
-  # alias Reality2engine.Sentant
   alias Reality2Web.SentantResolver
+
+  object :plugin_command do
+    field :name, non_null(:string),             description: "Plugin command name"
+    field :description, :string,                description: "Plugin command description"
+    field :parameters, :json,                   description: "Plugin command parameters"
+  end
+
+  object :plugin do
+    field :name, non_null(:string),             description: "Plugin name"
+    field :description, :string,                description: "Plugin description"
+    field :version, non_null(:string),          description: "Plugin version"
+    field :commands, list_of(:plugin_command),  description: "Plugin commands"
+  end
+
+  object :action do
+    field :plugin, :string,                     description: "Action plugin"
+    field :command, non_null(:string),          description: "Action command"
+    field :parameters, :json,                   description: "Action parameters"
+  end
+
+  object :transition do
+    field :from, non_null(:string),             description: "Transition from"
+    field :event, non_null(:string),            description: "Transition event"
+    field :to, non_null(:string),               description: "Transition to"
+    field :actions, list_of(:action),           description: "Transition actions"
+  end
+
+  object :automation do
+    field :name, non_null(:string),             description: "Automation name"
+    field :description, :string,                description: "Automation description"
+    field :transitions, list_of(:transition),   description: "Automation transitions"
+  end
 
   # ------------------------------------------------------------------------------------------------------
   # Sentant Schema definition
   # ------------------------------------------------------------------------------------------------------
-  object :sentant do
-    field :uuid, non_null(:uuid4),    description: "Sentant unique GUID"
-    field :name, non_null(:string),   description: "Sentant name"
-    field :data, :json,               description: "Sentant data"
-    field :automations, :json,        description: "Sentant automations"
+  @doc """
+  Sentant Type
+
+  ```graphql
+    type Sentant {
+        id: UUID!                                   # The UUID of the sentant
+        name: String!                               # The name of the sentant
+        owner: User!                                # The owner of the sentant
+        data: JSON!                                 # The data on the sentant
+        automations: [Automation]!                  # The automations on the sentant
+        plugins: [Plugin]!                          # The plugins used by the sentant
+        node: Node                                  # The node the sentant is on
+    }
+  ```
+  """
+  def sentant do
+
   end
-    # ------------------------------------------------------------------------------------------------------
+  object :sentant do
+    field :id, non_null(:uuid4),                description: "Sentant ID"
+    field :name, non_null(:string),             description: "Sentant name"
+    field :description, :string,                description: "Sentant description"
+    field :automations, list_of(:automation),   description: "Sentant automations"
+    field :plugins, list_of(:plugin),           description: "Sentant plugins"
+  end
+  # ------------------------------------------------------------------------------------------------------
+
+
+
+  object :swarm do
+    field :name, non_null(:string),             description: "Swarm name"
+    field :description, :string,                description: "Swarm description"
+    field :sentants, list_of(:sentant),         description: "Swarm sentants"
+  end
 
 
 
@@ -23,10 +90,6 @@ defmodule Reality2Web.Schema.Sentant do
   # Queries
   # ------------------------------------------------------------------------------------------------------
   object :sentant_queries do
-    # New Sentant
-    # Load Sentant
-    # Unload Sentant
-
     # ----------------------------------------------------------------------------------------------------
     @desc "Get all the sentants"
     # ----------------------------------------------------------------------------------------------------
@@ -42,41 +105,28 @@ defmodule Reality2Web.Schema.Sentant do
   # Mutations
   # ------------------------------------------------------------------------------------------------------
   object :sentant_mutations do
-    # New Sentant
-    # Load Sentant
-    # Unload Sentant
-
     # ----------------------------------------------------------------------------------------------------
-    @desc "Create a new sentant"
+    @desc "Load a sentant"
     # ----------------------------------------------------------------------------------------------------
-    field :sentant_create, non_null(:sentant) do
-      arg :uuid, :uuid4
-      arg :name, non_null(:string)
-      arg :data, :json
-      arg :automations, :json
-      # resolve(&SentantResolver.create_sentant/3)
-      {:ok, %{}}
-    end
-
-    # ----------------------------------------------------------------------------------------------------
-    @desc "Update a sentant"
-    # ----------------------------------------------------------------------------------------------------
-    field :sentant_update, non_null(:sentant) do
-      arg :id, non_null(:uuid4)
-      arg :name, :string
-      arg :data, :json
-      arg :automations, :json
-      # resolve(&SentantResolver.update_sentant/3)
-      {:ok, %{}}
+    field :sentant_load, non_null(:sentant) do
+      arg :yaml_definition, non_null(:string)
+      resolve(&SentantResolver.load_sentant/3)
     end
 
     # ----------------------------------------------------------------------------------------------------
     @desc "Delete a sentant"
     # ----------------------------------------------------------------------------------------------------
-    field :sentant_delete, non_null(:sentant) do
+    field :sentant_unload, non_null(:sentant) do
       arg :id, non_null(:uuid4)
-      # resolve(&SentantResolver.delete_sentant/3)
-      {:ok, %{}}
+      resolve(&SentantResolver.unload_sentant/3)
+    end
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Load a swarm of sentants"
+    # ----------------------------------------------------------------------------------------------------
+    field :swarm_load, non_null(:swarm) do
+      arg :yaml_definition, non_null(:string)
+      resolve(&SentantResolver.load_swarm/3)
     end
   end
   # ------------------------------------------------------------------------------------------------------

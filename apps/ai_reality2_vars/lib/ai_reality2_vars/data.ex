@@ -33,8 +33,8 @@ defmodule AiReality2Vars.Data do
   # GenServer callbacks
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @doc false
-  def handle_call(%{command: "get", parameters: %{key: key}}, _from, state),                        do: {:reply, Map.get(state, key, nil), state}
-  def handle_call(%{command: "get", parameters: %{"key" => key}}, _from, state),                    do: {:reply, Map.get(state, key, nil), state}
+  def handle_call(%{command: "get", parameters: %{key: key}}, _from, state),                        do: {:reply, AiReality2Vars.Map.get(state, key, nil), state}
+  def handle_call(%{command: "get", parameters: %{"key" => key}}, _from, state),                    do: {:reply, AiReality2Vars.Map.get(state, key, nil), state}
   def handle_call(%{command: "all"}, _from, state),                                                 do: {:reply, state, state}
   def handle_call(_, _from, state),                                                                 do: {:reply, {:error, :unknown_command}, state}
 

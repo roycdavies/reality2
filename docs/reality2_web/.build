@@ -1,16 +1,6 @@
 404.html
-Reality2Web.Endpoint.html
-Reality2Web.ErrorJSON.html
-Reality2Web.Reality2Controller.html
-Reality2Web.Router.html
-Reality2Web.Schema.Enums.html
 Reality2Web.Schema.Sentant.html
-Reality2Web.Schema.Types.Custom.JSON.html
-Reality2Web.Schema.Types.Custom.UUID4.html
 Reality2Web.Schema.html
-Reality2Web.SentantResolver.html
-Reality2Web.Telemetry.html
-Reality2Web.html
 api-reference.html
 dist/handlebars.runtime-NWIB6V2M.js
 dist/handlebars.templates-43PMFBC7.js
@@ -39,7 +29,7 @@ dist/merriweather-latin-ext-300-normal-K6L27CZ5.woff2
 dist/merriweather-vietnamese-300-italic-EHHNZPUO.woff2
 dist/merriweather-vietnamese-300-normal-U376L4Z4.woff2
 dist/remixicon-NKANDIL5.woff2
-dist/search_data-AB3550C9.js
-dist/sidebar_items-E9FC0FD8.js
+dist/search_data-C76C83A5.js
+dist/sidebar_items-BBF773B0.js
 index.html
 search.html

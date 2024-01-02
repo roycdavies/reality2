@@ -1,4 +1,6 @@
 defmodule Reality2Web.Reality2Controller do
+@moduledoc false
+
   use Reality2Web, :controller
 
   def index(conn, _params) do

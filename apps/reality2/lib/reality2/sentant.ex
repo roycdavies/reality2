@@ -15,7 +15,8 @@ use Supervisor, restart: :transient
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @doc false
   def start_link({name, id, sentant_map}) do
-    Supervisor.start_link(__MODULE__, {name, id, sentant_map}, name: String.to_atom(id))
+    new_sentant_map = Map.merge(sentant_map, %{"id" => id, "name" => name})
+    Supervisor.start_link(__MODULE__, {name, id, new_sentant_map}, name: String.to_atom(id))
   end
 
   @impl true
