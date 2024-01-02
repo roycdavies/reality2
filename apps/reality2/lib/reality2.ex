@@ -145,10 +145,8 @@ defmodule Reality2 do
         - name: com.openai.api
           url: https://api.openai.com/v1/chat/completions
           headers:
-            - key: "Content-Type"
-              value: "application/json"
-            - key: "Authorization"
-              value: "Bearer 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"
+            - "Content-Type": "application/json"
+            - "Authorization": "Bearer #{System.get_env("OPENAI_API_KEY")}"
           body:
             - model: "gpt-3.5-turbo-1106"
               messages:
@@ -177,7 +175,7 @@ defmodule Reality2 do
                   parameters:
                     message: What is the square root of pi?
     """
-
+    IO.puts("Sentant Definition = #{inspect(sentant_definition)}")
     {:ok, id} = Reality2.Sentants.create(sentant_definition)
     Reality2.Sentants.sendto(%{:name => "Ask Question"}, %{event: "chatgpt", parameters: %{message: "What is the square root of pi?"}})
     {:ok, id}

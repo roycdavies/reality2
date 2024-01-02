@@ -80,14 +80,21 @@ defmodule Reality2.Plugin do
           # Get the parameters
           parameters = Helpers.Map.get(command, "parameters", %{})
           # Get the headers
-          headers = replace_variable_in_map(Helpers.Map.get(plugin_map, "headers", %{}), parameters)
+          headers = Enum.map(replace_variable_in_map(Helpers.Map.get(plugin_map, "headers", %{}), parameters), &Map.to_list/1) |> List.flatten
+          IO.puts("Plugin.handle_call: headers = #{inspect(headers)}")
           # Get the url
-          url = Helpers.Map.get(plugin_map, "url")
+          uri = URI.parse(Helpers.Map.get(plugin_map, "url"))
+          IO.puts("Plugin.handle_call: uri = #{inspect(uri)}")
           # Get the body
-          body = replace_variable_in_map(Helpers.Map.get(plugin_map, "body", %{}), parameters)
+          body = Jason.encode!(replace_variable_in_map(Helpers.Map.get(plugin_map, "body", %{}), parameters))
           # Get the method
-          method = Helpers.Map.get(plugin_map, "method", "GET")
+          method = Helpers.Map.get(plugin_map, "method", "POST")
 
+          {:ok, conn} = Mint.HTTP.connect(:http, uri.host, uri.port, ssl: false)
+          {:ok, conn} = Mint.HTTP.request(conn, method, (if uri.path == nil, do: "/", else: uri.path) <> (if uri.query == nil, do: "", else: uri.query), headers, body)
+          {:ok, response} = Mint.HTTP.stream(conn, 1000)
+
+          IO.puts("Plugin.handle_call: response = #{inspect(response)}")
 
           {:reply, {:error, :external_not_implemented}, {name, id, plugin_map, state}}
       end
@@ -205,8 +212,8 @@ defmodule Reality2.Plugin do
       |> String.to_atom
     end
 
+    # if the plugin is internal, then create its instance in the App
     defp init_plugin({name, id}) do
-      # if the plugin is internal, then start it
 
       # In the definition file, the plugins have '.' between sections of the name, but in the code, we use '_' between sections
       app_name_atom = app_name_underscore_atom(name)

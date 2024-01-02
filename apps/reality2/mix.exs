@@ -32,7 +32,7 @@ defmodule Reality2.MixProject do
   def application do
     [
       mod: {Reality2.Application, []},
-      extra_applications: [:logger, :runtime_tools, :os_mon, :gun]
+      extra_applications: [:logger, :runtime_tools, :os_mon] #, :gun]
     ]
   end
 
@@ -54,7 +54,9 @@ defmodule Reality2.MixProject do
       {:makeup_elixir, ">= 0.0.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.31", only: :dev, runtime: false},
       {:uuid, "~> 1.1"},
-      {:gun, "~> 2.0"},
+      # {:gun, "~> 2.0"},
+      {:castore, "~> 1.0"},
+      {:mint, "~> 1.0"},
       {:ai_reality2_vars, in_umbrella: true}
     ]
   end

@@ -1,1 +1,13 @@
-MIX_ENV=test iex -S mix phx.server 
+#!/bin/bash
+
+# Define the path to the file containing the API key
+api_key_file="../OPENAI_API_KEY.txt"
+
+# Read the API key from the file
+api_key=$(cat "$api_key_file")
+
+# Set the environment variable
+export OPENAI_API_KEY="$api_key"
+
+# Start your Elixir application
+MIX_ENV=test iex -S mix phx.server
