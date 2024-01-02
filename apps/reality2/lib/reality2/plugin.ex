@@ -81,20 +81,25 @@ defmodule Reality2.Plugin do
           parameters = Helpers.Map.get(command, "parameters", %{})
           # Get the headers
           headers = Enum.map(replace_variable_in_map(Helpers.Map.get(plugin_map, "headers", %{}), parameters), &Map.to_list/1) |> List.flatten
-          IO.puts("Plugin.handle_call: headers = #{inspect(headers)}")
+          # IO.puts("Plugin.handle_call: headers = #{inspect(headers)}")
           # Get the url
           uri = URI.parse(Helpers.Map.get(plugin_map, "url"))
-          IO.puts("Plugin.handle_call: uri = #{inspect(uri)}")
+          # IO.puts("Plugin.handle_call: uri = #{inspect(uri)}")
+          path = (if uri.path == nil, do: "/", else: uri.path) <> (if uri.query == nil, do: "", else: uri.query)
+          IO.puts("Plugin.handle_call: path = #{inspect(path)}")
           # Get the body
-          body = Jason.encode!(replace_variable_in_map(Helpers.Map.get(plugin_map, "body", %{}), parameters))
+          body_map = plugin_map
+          |> Helpers.Map.get("body", %{})
+          |> List.flatten
+          |> replace_variable_in_map(parameters)
+          IO.puts("Plugin.handle_call: body_map = #{inspect(body_map)}")
+
+          body = Jason.encode!(body_map)
+          IO.puts("Plugin.handle_call: body = #{inspect(body)}")
           # Get the method
           method = Helpers.Map.get(plugin_map, "method", "POST")
 
-          {:ok, conn} = Mint.HTTP.connect(:http, uri.host, uri.port, ssl: false)
-          {:ok, conn} = Mint.HTTP.request(conn, method, (if uri.path == nil, do: "/", else: uri.path) <> (if uri.query == nil, do: "", else: uri.query), headers, body)
-          {:ok, response} = Mint.HTTP.stream(conn, 1000)
-
-          IO.puts("Plugin.handle_call: response = #{inspect(response)}")
+          # IO.puts("Plugin.handle_call: response = #{inspect(response)}")
 
           {:reply, {:error, :external_not_implemented}, {name, id, plugin_map, state}}
       end

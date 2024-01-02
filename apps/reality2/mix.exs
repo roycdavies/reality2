@@ -55,8 +55,8 @@ defmodule Reality2.MixProject do
       {:ex_doc, "~> 0.31", only: :dev, runtime: false},
       {:uuid, "~> 1.1"},
       # {:gun, "~> 2.0"},
-      {:castore, "~> 1.0"},
-      {:mint, "~> 1.0"},
+      {:tesla, "~> 1.4"},
+      {:hackney, "~> 1.17"},
       {:ai_reality2_vars, in_umbrella: true}
     ]
   end
