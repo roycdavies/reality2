@@ -22,8 +22,8 @@ use Supervisor, restart: :transient
   @impl true
   def init({name, id, sentant_map}) do
     children = [
-      {Reality2.Automations, {name, id, sentant_map}},
       {Reality2.Plugins, {name, id, sentant_map}},
+      {Reality2.Automations, {name, id, sentant_map}},
       {Reality2.Sentant.Comms, {name, id, sentant_map}},
       %{id: id <> "|timers", start: {Reality2.Metadata, :start_link, [String.to_atom(id <> "|timers")]}}
     ]

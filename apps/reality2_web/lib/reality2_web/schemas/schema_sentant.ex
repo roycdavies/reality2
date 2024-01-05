@@ -14,17 +14,20 @@ defmodule Reality2Web.Schema.Sentant do
 
   alias Reality2Web.SentantResolver
 
-  object :plugin_command do
-    field :name, non_null(:string),             description: "Plugin command name"
-    field :description, :string,                description: "Plugin command description"
-    field :parameters, :json,                   description: "Plugin command parameters"
+  object :plugin_output do
+    field :key, :string,                        description: "Plugin output key"
+    field :value, :string,                      description: "Plugin output json path to interpret response, eg choices.0.message.content"
+    field :event, :string,                      description: "Plugin output event sent when response received"
   end
 
   object :plugin do
     field :name, non_null(:string),             description: "Plugin name"
     field :description, :string,                description: "Plugin description"
     field :version, non_null(:string),          description: "Plugin version"
-    field :commands, list_of(:plugin_command),  description: "Plugin commands"
+    field :url, non_null(:string),              description: "URL to plugin API"
+    field :headers, :json,                      description: "Plugin headers"
+    field :body, :json,                         description: "Plugin body"
+    field :output, non_null(:plugin_output),    description: "Plugin output"
   end
 
   object :action do

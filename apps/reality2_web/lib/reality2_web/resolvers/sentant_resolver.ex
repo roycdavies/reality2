@@ -12,6 +12,7 @@ defmodule Reality2Web.SentantResolver do
         {:error, :yaml_definition}
       yaml_definition ->
         yaml_decoded = URI.decode(yaml_definition)
+        IO.puts("yaml_decoded: #{inspect(yaml_decoded, pretty: true)}")
         case Reality2.Sentants.create(yaml_decoded) do
           {:ok, sentantid} ->
             case Reality2.Sentants.read(%{id: sentantid}, :definition) do

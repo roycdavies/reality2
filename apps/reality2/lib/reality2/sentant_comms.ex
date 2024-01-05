@@ -50,6 +50,7 @@ defmodule Reality2.Sentant.Comms do
           # Ignore
           :ok
         pid ->
+          IO.puts("Sending to: " <> inspect(pid) <> inspect(command_and_parameters))
           GenServer.call(pid, command_and_parameters)
       end
     end)
@@ -79,6 +80,7 @@ defmodule Reality2.Sentant.Comms do
           # Ignore
           :ok
         pid ->
+          IO.puts("Sending to: " <> inspect(pid) <> inspect(command_and_parameters))
           GenServer.cast(pid, command_and_parameters)
       end
     end)

@@ -26,9 +26,7 @@ defmodule Reality2.Automation do
 
   @impl true
   def init({name, id, automation_map}) do
-    # IO.puts("Automation.init: args = #{inspect(automation_map)}")
-
-    {:ok, {name, id, automation_map, "start"}}
+    {:ok, {name, id, automation_map, "start", :queue.new()}}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -42,12 +40,12 @@ defmodule Reality2.Automation do
   # Synchronous Calls
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @impl true
-  def handle_call(:state, _from, {name, id, automation_map, state}) do
-    {:reply, {name, state}, {name, id, automation_map, state}}
+  def handle_call(:state, _from, {name, id, automation_map, state, event_queue}) do
+    {:reply, {name, state}, {name, id, automation_map, state, event_queue}}
   end
 
-  def handle_call(_, _, {name, id, automation_map, state}) do
-    {:reply, {:error, :unknown_command}, {name, id, automation_map, state}}
+  def handle_call(_, _, {name, id, automation_map, state, event_queue}) do
+    {:reply, {:error, :unknown_command}, {name, id, automation_map, state, event_queue}}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -57,16 +55,17 @@ defmodule Reality2.Automation do
   # Asynchronous Casts
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @impl true
-  def handle_cast(args, {name, id, automation_map, state}) do
+  def handle_cast(args, {name, id, automation_map, state, event_queue}) do
     parameters = Helpers.Map.get(args, :parameters, %{})
+    IO.puts("Automation.handle_cast: #{inspect(parameters)}")
     passthrough = Helpers.Map.get(args, :passthrough, %{})
 
     case Helpers.Map.get(args, :event) do
-      nil -> {:noreply, {name, id, automation_map, state}}
+      nil -> {:noreply, {name, id, automation_map, state, event_queue}}
       event ->
         case Helpers.Map.get(automation_map, "transitions") do
           nil ->
-            {:noreply, {name, automation_map, state}}
+            {:noreply, {name, automation_map, state, event_queue}}
           transitions ->
             new_state = transitions
             |> Enum.reduce_while(state, fn transition_map, acc_state ->
@@ -78,19 +77,25 @@ defmodule Reality2.Automation do
               end
             end)
 
-            {:noreply, {name, id, automation_map, new_state}}
+            {:noreply, {name, id, automation_map, {new_state, event_queue}}}
         end
     end
   end
 
   # Useful for sending events in the future using Process.send_after
   @impl true
-  def handle_info({:send, name_or_id, details}, {name, id, automation_map, state}) do
+  def handle_info({:send, name_or_id, details}, {name, id, automation_map, state, event_queue}) do
     Reality2.Sentants.sendto(name_or_id, details)
-    {:noreply, {name, id, automation_map, state}}
+    {:noreply, {name, id, automation_map, state, event_queue}}
+  end
+  def handle_info({:tick}, ({name, id, automation_map, state, event_queue})) do
+    # Pop next event from queue, if there is one
+    # If there was an event, action it.
+    # Send a tick event to self, to trigger the next event (using the timer store to ensure we don't get cascading ticks)
+    {:noreply, {name, id, automation_map, state, event_queue}}
   end
   def handle_info(_, {name, id, automation_map, state}) do
-    {:noreply, {name, id, automation_map, state}}
+    {:noreply, {name, id, automation_map, state, event_queue}}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -103,7 +108,6 @@ defmodule Reality2.Automation do
   # Check the Transition Map to see if it matches the current state and event
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp check_transition(id, transition_map, event, parameters, passthrough, state) do
-    # IO.puts("Automation.check_transition: args = #{inspect(transition_map)}, #{inspect(event)}, #{inspect(state)}")
     case Helpers.Map.get(transition_map, "from") do
       nil ->
         {:no_match, state}
@@ -153,7 +157,7 @@ defmodule Reality2.Automation do
       nil ->
         :ok
       actions ->
-        Enum.reduce(actions, :ok, fn action_map, acc ->
+        Enum.reduce(actions, %{}, fn action_map, acc ->
           do_action(id, action_map, acc, parameters, passthrough)
         end)
     end
@@ -174,7 +178,6 @@ defmodule Reality2.Automation do
   # }
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp do_action(id, action_map, acc, parameters, passthrough) do
-    # IO.puts("Automation.do_action: action_map = #{inspect(action_map)}")
     action_parameters = case Helpers.Map.get(action_map, "parameters") do
       nil -> %{}
       params -> params
@@ -184,7 +187,7 @@ defmodule Reality2.Automation do
       nil ->
         do_inbuilt_action(Helpers.Map.get(action_map, "command"), id, action_map, action_parameters, acc, parameters, passthrough)
       plugin ->
-        do_plugin_action(plugin, id, action_map, action_parameters, acc)
+        do_plugin_action(plugin, id, action_map, action_parameters, acc, parameters, passthrough)
     end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -194,13 +197,31 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Do a Plugin Action
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  defp do_plugin_action(plugin, id, action_map, action_parameters, _acc) do
-    case Process.whereis(String.to_atom(id <> "|plugin|" <> plugin)) do
+  defp do_plugin_action(plugin, id, action_map, action_parameters, _acc, parameters, passthrough) do
+
+    # The parameters for the plugin are the action parameters merged with the parameters passed to the Sentant
+    joint_parameters = Map.merge(action_parameters, parameters)
+    IO.puts("action_parameters: #{inspect(action_parameters)}")
+    IO.puts("parameters: #{inspect(parameters)}")
+    IO.puts("joint_parameters: #{inspect(joint_parameters)}")
+
+    # When the sentant begins, there is a small possibiity that the plugin has not yet started.
+    case test_and_wait(String.to_atom(id <> "|plugin|" <> plugin), 5) do
       nil ->
         {:error, :no_plugin}
       pid ->
-        # Call the plugin on the Sentant, which in turn will call the appropriate internal App
-        GenServer.call(pid, %{command: Helpers.Map.get(action_map, "command"), parameters: action_parameters})
+        # Call the plugin on the Sentant, which in turn will call the appropriate internal App or extrnal plugin
+        GenServer.call(pid, %{command: Helpers.Map.get(action_map, "command"), parameters: joint_parameters})
+    end
+  end
+
+  defp test_and_wait(name, 0), do: nil
+  defp test_and_wait(name, count) do
+    case Process.whereis(name) do
+      nil ->
+        Process.sleep(100)
+        test_and_wait(name, count - 1)
+      pid -> pid
     end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -211,12 +232,9 @@ defmodule Reality2.Automation do
   # Do an Inbuilt Action
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp do_inbuilt_action(action, id, action_map, action_parameters, acc, parameters, passthrough) do
-    # IO.puts("Automation.do_inbuilt_action: action = #{inspect(action)}")
-    # IO.puts("Automation.do_inbuilt_action: id = #{inspect(id)}")
-    # IO.puts("Automation.do_inbuilt_action: action_map = #{inspect(action_map)}")
-    # IO.puts("Automation.do_inbuilt_action: action_parameters = #{inspect(action_parameters)}")
     case action do
       "send" -> send(id, action_map, action_parameters, acc, parameters, passthrough)
+      "print" -> print(id, action_map, action_parameters, acc, parameters, passthrough)
       _ ->
         IO.puts("Automation.do_inbuilt_action: unknown action")
     end
@@ -264,6 +282,15 @@ defmodule Reality2.Automation do
         Reality2.Metadata.set(String.to_atom(id <> "|timers"), event, timer)
     end
 
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  defp print(id, _action_map, action_parameters, _acc, parameters, passthrough) do
+    IO.puts("Received: #{inspect(parameters, pretty: true)} from #{inspect(id)}")
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

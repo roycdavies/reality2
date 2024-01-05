@@ -26,24 +26,7 @@ defmodule Reality2.Plugin do
 
     @impl true
     def init({name, id, plugin_map}) do
-      # # if the plugin is internal, then start it
-
-      # # In the definition file, the plugins have '.' between sections of the name, but in the code, we use '_' between sections
-      # app_name_atom = app_name_underscore_atom(name)
-
-      # # Check that there is an App with the name of the plugin
-      # case Enum.any?(Application.loaded_applications(), fn({app_name, _, _}) -> app_name == app_name_atom end) do
-      #   true ->
-      #     # Run the 'create' function in the App referenced to by the plugin name, in the module named Main
-      #     # This should be defined to set up the plugin.  Each Sentant will get its own instance of the plugin.
-      #     name
-      #     |> app_main_module
-      #     |> apply(:create, [id])
-      #   false ->
-      #     # Strictly speaking, not OK, but we don't want to stop the Sentant from starting.
-      #     :ok
-      # end
-
+      # If the plugin is internal, then start it
       init_plugin({name, id})
 
       {:ok, {name, id, plugin_map, %{}}}
@@ -66,6 +49,7 @@ defmodule Reality2.Plugin do
       case Helpers.Map.get(plugin_map, "type") do
         "internal" ->
           # Internal Plugin
+
           case sendto(id, name, command) do
             {:ok, answer} ->
               {:reply, {:ok, answer}, {name, id, plugin_map, state}}
@@ -76,39 +60,60 @@ defmodule Reality2.Plugin do
           end
         _ ->
           # External Plugin
-          # IO.puts("Plugin.handle_call: args = #{inspect(command, pretty: true)} | #{inspect(name)} | #{inspect(id)} | #{inspect(plugin_map, pretty: true)} | #{inspect(state, pretty: true)}")
+
           # Get the parameters
           parameters = Helpers.Map.get(command, "parameters", %{})
+
           # Get the headers
-          headers = Enum.map(replace_variable_in_map(Helpers.Map.get(plugin_map, "headers", %{}), parameters), &Map.to_list/1) |> List.flatten
-          # IO.puts("Plugin.handle_call: headers = #{inspect(headers)}")
-          # Get the url
-          uri = URI.parse(Helpers.Map.get(plugin_map, "url"))
-          # IO.puts("Plugin.handle_call: uri = #{inspect(uri)}")
-          path = (if uri.path == nil, do: "/", else: uri.path) <> (if uri.query == nil, do: "", else: uri.query)
-          IO.puts("Plugin.handle_call: path = #{inspect(path)}")
-          # Get the body
-          body_map = plugin_map
-          |> Helpers.Map.get("body", %{})
-          |> List.flatten
+          headers = plugin_map
+          |> Helpers.Map.get("headers", %{})
           |> replace_variable_in_map(parameters)
-          IO.puts("Plugin.handle_call: body_map = #{inspect(body_map)}")
+          |> Map.to_list
 
-          body = Jason.encode!(body_map)
-          IO.puts("Plugin.handle_call: body = #{inspect(body)}")
+          # Get the body
+          body = plugin_map
+          |> Helpers.Map.get("body", %{})
+          |> replace_variable_in_map(parameters)
+          |> Jason.encode!
+
           # Get the method
-          method = Helpers.Map.get(plugin_map, "method", "POST")
+          method = Helpers.Map.get(plugin_map, "method", :post)
 
-          # IO.puts("Plugin.handle_call: response = #{inspect(response)}")
+          # Get the url
+          case Helpers.Map.get(plugin_map, "url") do
+            nil -> {:reply, {:error, :url}, {name, id, plugin_map, state}}
+            url ->
+              case Finch.build(method, url, headers, body) |> Finch.request(Reality2.HTTPClient) do
+                {:error, reason} -> {:reply, {:error, reason}, {name, id, plugin_map, state}}
+                {:ok, result} ->
+                  %Finch.Response{body: body} = result
+                  body_json = Jason.decode!(body)
 
-          {:reply, {:error, :external_not_implemented}, {name, id, plugin_map, state}}
+                  output = Helpers.Map.get(plugin_map, "output", %{})
+                  output_pattern = Helpers.Map.get(output, "value", "")
+
+                  case Helpers.Json.get_value(body_json, output_pattern) do
+                    {:error, reason} -> {:reply, {:error, reason}, {name, id, plugin_map, state}}
+                    {:ok, answer} ->
+                      case Helpers.Map.get(output, "event") do
+                        nil -> :ok
+                        event ->
+                          # Send the event to the Sentant
+                          output_key = Helpers.Map.get(output, "key", "result")
+                          Reality2.Sentants.sendto(%{id: id}, %{event: event, parameters: %{output_key => answer}})
+                      end
+                      {:reply, {:ok, answer}, {name, id, plugin_map, state}}
+                  end
+              end
+          end
       end
     end
     def handle_call(_, _, state) do
+      IO.puts("Unknown Command")
       {:reply, {:error, :unknown_command}, state}
     end
 
-    def replace_variable_in_map(data, variables) when is_map(data) do
+    defp replace_variable_in_map(data, variables) when is_map(data) do
       Enum.map(data, fn {k, v} ->
         cond do
           is_binary(v) -> {k, replace_string(variables, v)}
@@ -117,9 +122,9 @@ defmodule Reality2.Plugin do
       end)
       |> Map.new
     end
-    def replace_variable_in_map(data, variables) when is_list(data), do: Enum.map(data, fn x -> replace_variable_in_map(x, variables) end)
-    def replace_variable_in_map(data, variables) when is_binary(data), do: replace_string(variables, data)
-    def replace_variable_in_map(data, _), do: data
+    defp replace_variable_in_map(data, variables) when is_list(data), do: Enum.map(data, fn x -> replace_variable_in_map(x, variables) end)
+    defp replace_variable_in_map(data, variables) when is_binary(data), do: replace_string(variables, data)
+    defp replace_variable_in_map(data, _), do: data
 
     defp replace_string(map, string) do
       case Regex.named_captures(~r/^__(?<content>[^_]+)__$/, string) do
@@ -128,6 +133,12 @@ defmodule Reality2.Plugin do
         _ -> string
       end
     end
+
+    defp convert_key_value_to_map([]), do: %{}
+    defp convert_key_value_to_map([%{"key" => key, "value" => value} | rest]) do
+      Map.merge(convert_key_value_to_map(rest), %{key => value})
+    end
+    defp convert_key_value_to_map([_ | rest]), do: convert_key_value_to_map(rest)
     # -----------------------------------------------------------------------------------------------------------------------------------------
 
 

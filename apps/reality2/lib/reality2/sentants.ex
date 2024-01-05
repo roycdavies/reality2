@@ -99,7 +99,7 @@ defmodule Reality2.Sentants do
 
     case sentant_name(sentant_map) do
       {:ok, name} ->
-        IO.puts("Creating Sentant: " <> inspect(sentant_map))
+        IO.puts("Creating Sentant: " <> inspect(sentant_map, pretty: true))
         # TODO: Check what happens if sentant with same ID is sent in again.
         case sentant_id(sentant_map) do
           {:ok, _, id} ->
@@ -113,8 +113,8 @@ defmodule Reality2.Sentants do
                       Reality2.Metadata.set :SentantNames, id, name
                       Reality2.Metadata.set :SentantIDs, name, id
 
-                      add_automations_to_sentant(id, sentant_map)
                       add_plugins_to_sentant(id, sentant_map)
+                      add_automations_to_sentant(id, sentant_map)
                       {:ok, id}
                     error -> error
                 end
@@ -125,8 +125,8 @@ defmodule Reality2.Sentants do
                 remove_plugins_from_sentant(existing_id)
 
                 # Add the updated automations and plugins to the Sentant
-                add_automations_to_sentant(existing_id, sentant_map)
                 add_plugins_to_sentant(existing_id, sentant_map)
+                add_automations_to_sentant(existing_id, sentant_map)
                 {:ok, existing_id}
             end
           error -> error
@@ -350,6 +350,7 @@ defmodule Reality2.Sentants do
       nil ->
         {:error, :id}
       pid ->
+        IO.puts("Sending message to Sentant: " <> inspect(message_map, pretty: true))
         GenServer.cast(pid, message_map)
         {:ok}
       end
