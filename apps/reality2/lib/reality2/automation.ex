@@ -26,7 +26,7 @@ defmodule Reality2.Automation do
 
   @impl true
   def init({name, id, automation_map}) do
-    {:ok, {name, id, automation_map, "start", :queue.new()}}
+    {:ok, {name, id, automation_map, "start"}}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -40,12 +40,12 @@ defmodule Reality2.Automation do
   # Synchronous Calls
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @impl true
-  def handle_call(:state, _from, {name, id, automation_map, state, event_queue}) do
-    {:reply, {name, state}, {name, id, automation_map, state, event_queue}}
+  def handle_call(:state, _from, {name, id, automation_map, state}) do
+    {:reply, {name, state}, {name, id, automation_map, state}}
   end
 
-  def handle_call(_, _, {name, id, automation_map, state, event_queue}) do
-    {:reply, {:error, :unknown_command}, {name, id, automation_map, state, event_queue}}
+  def handle_call(_, _, {name, id, automation_map, state}) do
+    {:reply, {:error, :unknown_command}, {name, id, automation_map, state}}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -55,47 +55,41 @@ defmodule Reality2.Automation do
   # Asynchronous Casts
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @impl true
-  def handle_cast(args, {name, id, automation_map, state, event_queue}) do
+  def handle_cast(args, {name, id, automation_map, state}) do
     parameters = Helpers.Map.get(args, :parameters, %{})
-    IO.puts("Automation.handle_cast: #{inspect(parameters)}")
     passthrough = Helpers.Map.get(args, :passthrough, %{})
 
     case Helpers.Map.get(args, :event) do
-      nil -> {:noreply, {name, id, automation_map, state, event_queue}}
+      nil -> {:noreply, {name, id, automation_map, state}}
       event ->
         case Helpers.Map.get(automation_map, "transitions") do
           nil ->
-            {:noreply, {name, automation_map, state, event_queue}}
+            {:noreply, {name, automation_map, state}}
           transitions ->
-            new_state = transitions
-            |> Enum.reduce_while(state, fn transition_map, acc_state ->
-              case check_transition(id, transition_map, event, parameters, passthrough, acc_state) do
-                {:no_match, the_state} ->
-                  {:cont, the_state}
-                {:ok, the_state} ->
-                  {:halt, the_state}
-              end
-            end)
-
-            {:noreply, {name, id, automation_map, {new_state, event_queue}}}
+            new_state =
+              Enum.reduce_while(transitions, state,
+                fn transition_map, acc_state ->
+                  case check_transition(id, transition_map, event, parameters, passthrough, acc_state) do
+                    {:no_match, the_state} ->
+                      {:cont, the_state}
+                    {:ok, the_state} ->
+                      {:halt, the_state}
+                  end
+                end
+              )
+            {:noreply, {name, id, automation_map, new_state}}
         end
     end
   end
 
-  # Useful for sending events in the future using Process.send_after
+  # Used for sending events in the future using Process.send_after
   @impl true
-  def handle_info({:send, name_or_id, details}, {name, id, automation_map, state, event_queue}) do
+  def handle_info({:send, name_or_id, details}, {name, id, automation_map, state}) do
     Reality2.Sentants.sendto(name_or_id, details)
-    {:noreply, {name, id, automation_map, state, event_queue}}
-  end
-  def handle_info({:tick}, ({name, id, automation_map, state, event_queue})) do
-    # Pop next event from queue, if there is one
-    # If there was an event, action it.
-    # Send a tick event to self, to trigger the next event (using the timer store to ensure we don't get cascading ticks)
-    {:noreply, {name, id, automation_map, state, event_queue}}
+    {:noreply, {name, id, automation_map, state}}
   end
   def handle_info(_, {name, id, automation_map, state}) do
-    {:noreply, {name, id, automation_map, state, event_queue}}
+    {:noreply, {name, id, automation_map, state}}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -201,9 +195,6 @@ defmodule Reality2.Automation do
 
     # The parameters for the plugin are the action parameters merged with the parameters passed to the Sentant
     joint_parameters = Map.merge(action_parameters, parameters)
-    IO.puts("action_parameters: #{inspect(action_parameters)}")
-    IO.puts("parameters: #{inspect(parameters)}")
-    IO.puts("joint_parameters: #{inspect(joint_parameters)}")
 
     # When the sentant begins, there is a small possibiity that the plugin has not yet started.
     case test_and_wait(String.to_atom(id <> "|plugin|" <> plugin), 5) do
@@ -211,11 +202,11 @@ defmodule Reality2.Automation do
         {:error, :no_plugin}
       pid ->
         # Call the plugin on the Sentant, which in turn will call the appropriate internal App or extrnal plugin
-        GenServer.call(pid, %{command: Helpers.Map.get(action_map, "command"), parameters: joint_parameters})
+        GenServer.call(pid, %{command: Helpers.Map.get(action_map, "command"), parameters: joint_parameters, passthrough: passthrough})
     end
   end
 
-  defp test_and_wait(name, 0), do: nil
+  defp test_and_wait(_, 0), do: nil
   defp test_and_wait(name, count) do
     case Process.whereis(name) do
       nil ->
@@ -289,8 +280,8 @@ defmodule Reality2.Automation do
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  defp print(id, _action_map, action_parameters, _acc, parameters, passthrough) do
-    IO.puts("Received: #{inspect(parameters, pretty: true)} from #{inspect(id)}")
+  defp print(id, _action_map, _action_parameters, _acc, parameters, passthrough) do
+    IO.puts("Received: #{inspect(parameters, pretty: true)} from #{inspect(id)}, passthrough = #{inspect(passthrough)}")
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

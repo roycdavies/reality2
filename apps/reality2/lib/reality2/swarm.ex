@@ -31,7 +31,7 @@ defmodule Reality2.Swarm do
     |> YamlElixir.read_from_string()
     |> case do
       {:ok, definition_map} ->
-        create_from_map(definition_map)
+        %{sentants: create_from_map(definition_map), name: Helpers.Map.get(definition_map, "name", ""), description: Helpers.Map.get(definition_map, "description", "")}
       _ ->
         {:error, :definition}
     end

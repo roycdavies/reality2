@@ -81,11 +81,15 @@ defmodule Reality2Web.Schema.Sentant do
 
 
 
+  # ------------------------------------------------------------------------------------------------------
+  # A Swarm of Sentants
+  # ------------------------------------------------------------------------------------------------------
   object :swarm do
     field :name, non_null(:string),             description: "Swarm name"
     field :description, :string,                description: "Swarm description"
     field :sentants, list_of(:sentant),         description: "Swarm sentants"
   end
+  # ------------------------------------------------------------------------------------------------------
 
 
 

@@ -188,7 +188,7 @@ sentant:
 """
     IO.puts("Sentant Definition = #{inspect(sentant_definition)}")
     {:ok, id} = Reality2.Sentants.create(sentant_definition)
-    Reality2.Sentants.sendto(%{:name => "Ask Question"}, %{"event" => "chatgpt", "message" => "What is the square root of pi?"})
+    Reality2.Sentants.sendto(%{:name => "Ask Question"}, %{"event" => "chatgpt", "parameters" => %{"message" => "What is the square root of pi?"}, "passthrough" => %{"answer" => 42}})
     {:ok, id}
 
   end

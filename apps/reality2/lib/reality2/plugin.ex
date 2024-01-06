@@ -64,6 +64,9 @@ defmodule Reality2.Plugin do
           # Get the parameters
           parameters = Helpers.Map.get(command, "parameters", %{})
 
+          # Get any passthrough
+          passthrough = Helpers.Map.get(command, "passthrough", %{})
+
           # Get the headers
           headers = plugin_map
           |> Helpers.Map.get("headers", %{})
@@ -100,7 +103,7 @@ defmodule Reality2.Plugin do
                         event ->
                           # Send the event to the Sentant
                           output_key = Helpers.Map.get(output, "key", "result")
-                          Reality2.Sentants.sendto(%{id: id}, %{event: event, parameters: %{output_key => answer}})
+                          Reality2.Sentants.sendto(%{id: id}, %{event: event, parameters: %{output_key => answer}, passthrough: passthrough})
                       end
                       {:reply, {:ok, answer}, {name, id, plugin_map, state}}
                   end
@@ -133,12 +136,6 @@ defmodule Reality2.Plugin do
         _ -> string
       end
     end
-
-    defp convert_key_value_to_map([]), do: %{}
-    defp convert_key_value_to_map([%{"key" => key, "value" => value} | rest]) do
-      Map.merge(convert_key_value_to_map(rest), %{key => value})
-    end
-    defp convert_key_value_to_map([_ | rest]), do: convert_key_value_to_map(rest)
     # -----------------------------------------------------------------------------------------------------------------------------------------
 
 
