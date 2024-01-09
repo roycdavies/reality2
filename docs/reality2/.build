@@ -1,4 +1,8 @@
 404.html
+Helpers.Json.html
+Helpers.Map.html
+Helpers.Types.html
+Helpers.html
 Reality2.Sentants.html
 Reality2.Swarm.html
 Reality2.Types.html
@@ -32,8 +36,8 @@ dist/merriweather-latin-ext-300-normal-K6L27CZ5.woff2
 dist/merriweather-vietnamese-300-italic-EHHNZPUO.woff2
 dist/merriweather-vietnamese-300-normal-U376L4Z4.woff2
 dist/remixicon-NKANDIL5.woff2
-dist/search_data-7FF3D48A.js
-dist/sidebar_items-2E5E77E0.js
+dist/search_data-3852DDC2.js
+dist/sidebar_items-94A3B8CE.js
 index.html
 readme.html
 search.html

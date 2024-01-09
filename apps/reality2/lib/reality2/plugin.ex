@@ -63,15 +63,17 @@ defmodule Reality2.Plugin do
 
           # Get the parameters
           parameters = Helpers.Map.get(command, "parameters", %{})
+          # IO.puts("Plugin.handle_call: parameters = #{inspect(parameters)}")
 
           # Get any passthrough
           passthrough = Helpers.Map.get(command, "passthrough", %{})
+          # IO.puts("Plugin.handle_call: passthrough = #{inspect(passthrough)}")
 
           # Get the headers
           headers = plugin_map
           |> Helpers.Map.get("headers", %{})
           |> replace_variable_in_map(parameters)
-          |> Map.to_list
+          |> Map.to_list()
 
           # Get the body
           body = plugin_map
@@ -103,7 +105,12 @@ defmodule Reality2.Plugin do
                         event ->
                           # Send the event to the Sentant
                           output_key = Helpers.Map.get(output, "key", "result")
-                          Reality2.Sentants.sendto(%{id: id}, %{event: event, parameters: %{output_key => answer}, passthrough: passthrough})
+                          # IO.puts("Plugin.handle_call: output_key = #{inspect(output_key)}")
+                          # IO.puts("Plugin.handle_call: parameters = #{inspect(parameters)}")
+                          # IO.puts("Plugin.handle_call: passthrough = #{inspect(passthrough)}")
+                          # IO.puts("Plugin.handle_call: answer = #{inspect(answer)}")
+                          # IO.puts("Plugin.handle_call: MERGED = #{inspect(Map.merge(parameters, %{output_key => answer}))}")
+                          Reality2.Sentants.sendto(%{id: id}, %{event: event, parameters: Map.merge(parameters, %{output_key => answer}), passthrough: passthrough})
                       end
                       {:reply, {:ok, answer}, {name, id, plugin_map, state}}
                   end
@@ -114,27 +121,6 @@ defmodule Reality2.Plugin do
     def handle_call(_, _, state) do
       IO.puts("Unknown Command")
       {:reply, {:error, :unknown_command}, state}
-    end
-
-    defp replace_variable_in_map(data, variables) when is_map(data) do
-      Enum.map(data, fn {k, v} ->
-        cond do
-          is_binary(v) -> {k, replace_string(variables, v)}
-          true -> {k, replace_variable_in_map(v, variables)}
-        end
-      end)
-      |> Map.new
-    end
-    defp replace_variable_in_map(data, variables) when is_list(data), do: Enum.map(data, fn x -> replace_variable_in_map(x, variables) end)
-    defp replace_variable_in_map(data, variables) when is_binary(data), do: replace_string(variables, data)
-    defp replace_variable_in_map(data, _), do: data
-
-    defp replace_string(map, string) do
-      case Regex.named_captures(~r/^__(?<content>[^_]+)__$/, string) do
-        %{"content" => content} ->
-          Helpers.Map.get(map, content, string)
-        _ -> string
-      end
     end
     # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -169,8 +155,8 @@ defmodule Reality2.Plugin do
     end
     # Ignore anything else.
     def handle_cast(_, state), do: {:noreply, state}
-
-    # Useful for sending events in the future using Process.send_after
+    # -----------------------------------------------------------------------------------------------------------------------------------------
+    # Used for sending events in the future using Process.send_after
     @impl true
     def handle_info(command, {name, id, plugin_map, state}) do
       handle_cast(command, {name, id, plugin_map, state})
@@ -245,6 +231,7 @@ defmodule Reality2.Plugin do
       end
     end
 
+    # Send a command to the plugin
     def sendto(sentant_id, plugin_name, command_and_parameters) do
       try do
         plugin_name
@@ -258,6 +245,28 @@ defmodule Reality2.Plugin do
         end
       rescue _ ->
         {:error, :plugin}
+      end
+    end
+
+    # Find places where a string contains a variable (starts with __ and ends with __), and replace it with the value from the variables map
+    defp replace_variable_in_map(data, variables) when is_map(data) do
+      Enum.map(data, fn {k, v} ->
+        cond do
+          is_binary(v) -> {k, replace_string(variables, v)}
+          true -> {k, replace_variable_in_map(v, variables)}
+        end
+      end)
+      |> Map.new
+    end
+    defp replace_variable_in_map(data, variables) when is_list(data), do: Enum.map(data, fn x -> replace_variable_in_map(x, variables) end)
+    defp replace_variable_in_map(data, variables) when is_binary(data), do: replace_string(variables, data)
+    defp replace_variable_in_map(data, _), do: data
+
+    defp replace_string(map, string) do
+      case Regex.named_captures(~r/^__(?<content>.+?)__$/, string) do
+        %{"content" => content} ->
+          Helpers.Map.get(map, content, string)
+        _ -> string
       end
     end
     # -----------------------------------------------------------------------------------------------------------------------------------------

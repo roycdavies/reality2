@@ -34,6 +34,7 @@ defmodule Reality2Web.Router do
   if Mix.env == :dev do
     forward "/graphiql", Absinthe.Plug.GraphiQL,
     schema: Reality2Web.Schema,
+    socket: Reality2Web.UserSocket,
     # interface: :simple,
     # interface: :advanced,
     interface: :playground,

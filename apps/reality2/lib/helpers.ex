@@ -2,6 +2,7 @@ defmodule Helpers do
 
   defmodule Map do
 
+    # Gets a value from a map, using a string or an atom as the key, or if not found, returns a default value.
     def get(map, key, default \\ nil)
 
     def get(map, key, default) when is_binary(key) do
@@ -30,6 +31,7 @@ defmodule Helpers do
   end
 
 
+  # Takes a map representing a JSON object along with a path, and returns the value at that path.
   defmodule Json do
     def get_value(data, path) do
       get_values(data, String.split(path, "."))
@@ -54,6 +56,22 @@ defmodule Helpers do
           nil -> {:error, :not_found}
           value -> get_values(value, tail)
         end
+      end
+    end
+  end
+
+  defmodule Types do
+    def validate(map, the_type) do
+      required_keys = Map.keys(the_type)
+      case Enum.all?(required_keys, fn key -> Map.has_key?(map, key) end) do
+        true ->
+          # All required keys are present
+          # Check the types
+          # Enum.all?(required_keys, fn key -> validate_type(map, key, the_type) end)
+          true
+        false ->
+          # Not all required keys are present
+          false
       end
     end
   end

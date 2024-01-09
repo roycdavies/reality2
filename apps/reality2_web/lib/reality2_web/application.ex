@@ -12,7 +12,9 @@ defmodule Reality2Web.Application do
       # Start a worker by calling: Reality2Web.Worker.start_link(arg)
       # {Reality2Web.Worker, arg},
       # Start to serve requests, typically the last entry
-      Reality2Web.Endpoint
+      {Phoenix.PubSub, name: Reality2Web.PubSub},
+      Reality2Web.Endpoint,
+      {Absinthe.Subscription, Reality2Web.Endpoint}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

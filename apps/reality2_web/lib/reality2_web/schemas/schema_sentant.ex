@@ -135,6 +135,16 @@ defmodule Reality2Web.Schema.Sentant do
       arg :yaml_definition, non_null(:string)
       resolve(&SentantResolver.load_swarm/3)
     end
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Send a amessage enent and parameters to a sentant"
+    # ----------------------------------------------------------------------------------------------------
+    field :sentant_send, non_null(:sentant) do
+      arg :id, non_null(:uuid4)
+      arg :event, non_null(:string)
+      arg :parameters, :json
+      resolve(&SentantResolver.send_event/3)
+    end
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -143,8 +153,16 @@ defmodule Reality2Web.Schema.Sentant do
   # ------------------------------------------------------------------------------------------------------
   # Subscriptions
   # ------------------------------------------------------------------------------------------------------
-  # object :sentant_subscriptions do
-  #
-  # end
+  object :sentant_subscriptions do
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Subscribe to sentant events"
+    # ----------------------------------------------------------------------------------------------------
+    field :sentant_event, non_null(:sentant) do
+      arg :id, non_null(:uuid4)
+      resolve(&SentantResolver.subscribe_event/3)
+    end
+
+  end
   # ------------------------------------------------------------------------------------------------------
 end

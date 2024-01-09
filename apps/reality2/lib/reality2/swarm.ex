@@ -24,41 +24,70 @@ defmodule Reality2.Swarm do
   - Parameters
     - `swarm_definition` - A map containing the definition of the Swarm, or a string containing the YAML definition of the Swarm.
   """
-  def create(swarm_definition)
-  def create(swarm_map) when is_map(swarm_map), do: create_from_map(swarm_map)
-  def create(definition) when is_binary(definition) do
-    definition
-    |> YamlElixir.read_from_string()
-    |> case do
+  def create(swarm_definition) do
+    case convert_input(swarm_definition) do
       {:ok, definition_map} ->
-        %{sentants: create_from_map(definition_map), name: Helpers.Map.get(definition_map, "name", ""), description: Helpers.Map.get(definition_map, "description", "")}
+        # IO.puts("Swarm.create: definition_map = #{inspect(definition_map, pretty: true)}")
+        create_from_map(definition_map)
       _ ->
         {:error, :definition}
     end
   end
-  def create(_), do: {:error, :definition}
-
+  # -----------------------------------------------------------------------------------------------------------------------------------------
   defp create_from_map(definition_map) do
 
     case Helpers.Map.get(definition_map, "swarm") do
       nil ->
         {:error, :definition}
       swarms_array ->
+        name = Helpers.Map.get(swarms_array, "name", "")
+        description = Helpers.Map.get(swarms_array, "description", "")
         case Helpers.Map.get(swarms_array, "sentants") do
           nil ->
-            {:error, :definition}
+            %{name: name, description: description, sentants: []}
           sentants ->
-            Enum.map(sentants, fn sentant_map ->
-              case Reality2.Sentants.create(sentant_map) do
-                {:ok, id} ->
-                  {Helpers.Map.get(sentant_map, "name", ""), id}
-                {:error, reason} ->
-                  {:error, reason}
-              end
-            end)
+            case is_list(sentants) do
+              true ->
+                sentant_ids = Enum.map(sentants, fn sentant_map ->
+                  # IO.puts("Swarm.create_from_map: sentant_map = #{inspect(sentant_map, pretty: true)}")
+                  case Reality2.Sentants.create(sentant_map) do
+                    {:ok, id} ->
+                      id
+                    {:error, reason} ->
+                      {:error, reason}
+                  end
+                end)
+                |> Enum.filter(fn x ->
+                  case x do
+                    {:error, _reason} -> false
+                    _ -> true
+                  end
+                end)
+                %{name: name, description: description, sentants: sentant_ids}
+              false -> %{name: name, description: description, sentants: []}
+            end
         end
     end
-
   end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Convert an input String in either JSON, TOML or YAML format to a map.
+  defp convert_input(definition) when is_map(definition), do: {:ok, definition}
+  defp convert_input(definition) when is_binary(definition) do
+    case Jason.decode(definition) do
+      {:ok, definition_map} ->
+        {:ok, definition_map}
+      _ ->
+        case YamlElixir.read_from_string(definition) do
+          {:ok, definition_map} ->
+            {:ok, definition_map}
+          _ -> case Toml.decode(definition) do
+            {:ok, definition_map} ->
+              {:ok, definition_map}
+            _ -> {:error, :definition}
+          end
+        end
+    end
+  end
+  defp convert_input(_), do: {:error, :definition}
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

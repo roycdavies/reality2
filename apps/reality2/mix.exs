@@ -54,7 +54,7 @@ defmodule Reality2.MixProject do
       {:makeup_elixir, ">= 0.0.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.31", only: :dev, runtime: false},
       {:uuid, "~> 1.1"},
-      # {:gun, "~> 2.0"},
+      {:toml, "~> 0.7"},
       {:finch, "~> 0.16"},
       {:ai_reality2_vars, in_umbrella: true}
     ]

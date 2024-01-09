@@ -25,4 +25,8 @@ defmodule Reality2Web.Schema do
     import_fields :sentant_mutations
   end
 
+  subscription do
+    import_fields :sentant_subscriptions
+  end
+
 end

@@ -105,7 +105,7 @@ defmodule Reality2 do
                     event: turn_off
             - from: "*"
               event: chatgpt
-              to: ready
+              too: ready
               actions:
                 - plugin: com.openai.api
                   command: send
@@ -130,6 +130,11 @@ defmodule Reality2 do
     returned_definition = Reality2.Sentants.read(%{:id => id}, :definition)
     IO.puts("Returned Definition = #{inspect(returned_definition, pretty: true)}")
     metadata = sendto(id, "ai.reality2.vars", %{command: "all"})
+
+    {:ok, sentant_json} = returned_definition
+
+    validation_result = Reality2.Types.validate(sentant_json, Reality2.Types.sentant)
+    IO.puts("Validation Result = #{inspect(validation_result)}")
 
     IO.puts("Metadata = #{inspect(metadata)}")
 
@@ -157,7 +162,7 @@ sentant:
           - role: "user"
             content: __message__
       output:
-        key: choices
+        key: chatgpt_says
         value: "choices.0.message.content"
         event: chatgpt_response
   automations:
@@ -184,11 +189,19 @@ sentant:
           event: chatgpt_response
           to: ready
           actions:
+            - command: set
+              parameters:
+                key: answer
+                value: "The answer is: __chatgpt_says__ or __default__"
+            - command: set
+              parameters:
+                key: answer2
+                value: "__default__"
             - command: print
 """
     IO.puts("Sentant Definition = #{inspect(sentant_definition)}")
     {:ok, id} = Reality2.Sentants.create(sentant_definition)
-    Reality2.Sentants.sendto(%{:name => "Ask Question"}, %{"event" => "chatgpt", "parameters" => %{"message" => "What is the square root of pi?"}, "passthrough" => %{"answer" => 42}})
+    Reality2.Sentants.sendto(%{:name => "Ask Question"}, %{"event" => "chatgpt", "parameters" => %{"message" => "What is the square root of pi?", "default" => 10.3}, "passthrough" => %{"answer" => 42}})
     {:ok, id}
 
   end
@@ -318,10 +331,11 @@ sentant:
                 to: off
 
     """
-    [switch, bulb] = Reality2.Swarm.create(swarm_definition)
+    result = Reality2.Swarm.create(swarm_definition)
+    IO.puts("Swarm.create: result = #{inspect(result)}")
 
-    {_, switch_id} = switch
-    {_, bulb_id} = bulb
+    [switch_id, bulb_id] = result[:sentants]
+
     Reality2.Sentants.sendto(%{:id => switch_id}, %{event: "turn_on"})
 
     switch_state = Reality2.Sentants.read(%{:id => switch_id}, :state)
@@ -339,10 +353,16 @@ sentant:
     Process.sleep(10000)
     Reality2.Sentants.sendto(%{:id => switch_id}, %{event: "stop"})
 
-    Process.sleep(1000)
-    [switch, bulb] = Reality2.Swarm.create(swarm_definition2)
+    #Process.sleep(1000)
+    #Reality2.Swarm.create(swarm_definition2)
+  end
 
-    [switch, bulb]
+
+  def test_type_validation() do
+    sentant_transition = %{"from" => "start", "to" => "ready", "actions" => [%{"command" => "set", "parameters" => %{"key" => "switch", "value" => 0}}]}
+
+    validation_result = Reality2.Types.validate(sentant_transition, Reality2.Types.transition)
+    IO.puts("Validation Result = #{inspect(validation_result)}")
   end
 
   # -----------------------------------------------------------------------------------------------------------------------------------------

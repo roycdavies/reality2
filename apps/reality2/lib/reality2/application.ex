@@ -10,7 +10,7 @@ defmodule Reality2.Application do
     children = [
       # Reality2.Repo,
       # {DNSCluster, query: Application.get_env(:reality2, :dns_cluster_query) || :ignore},
-      # {Phoenix.PubSub, name: Reality2.PubSub},
+      {Phoenix.PubSub, name: Reality2.PubSub},
       {PartitionSupervisor, child_spec: DynamicSupervisor, name: Reality2.Sentants},
       %{id: :SentantNames, start: {Reality2.Metadata, :start_link, [:SentantNames]}},
       %{id: :SentantIDs, start: {Reality2.Metadata, :start_link, [:SentantIDs]}},

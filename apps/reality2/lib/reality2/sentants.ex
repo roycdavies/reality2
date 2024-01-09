@@ -79,18 +79,13 @@ defmodule Reality2.Sentants do
   - `{:error, :definition}` if the definition is invalid.
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  def create(definition_map) when is_map(definition_map), do: create_from_map(definition_map)
-  def create(definition) when is_binary(definition) do
-    definition
-    |> YamlElixir.read_from_string()
-    |> case do
-      {:ok, definition_map} ->
-        create_from_map(definition_map)
-       _ ->
-        {:error, :definition}
+  def create(sentant_definition) do
+    IO.puts("Creating Sentant: " <> inspect(sentant_definition, pretty: true))
+    case convert_input(sentant_definition) do
+      {:ok, definition_map} -> create_from_map(definition_map)
+       _ -> {:error, :definition}
     end
   end
-  def create(_), do: {:error, :definition}
 
   defp create_from_map(definition_map) do
     sentant_map = definition_map
@@ -100,7 +95,6 @@ defmodule Reality2.Sentants do
     case sentant_name(sentant_map) do
       {:ok, name} ->
         IO.puts("Creating Sentant: " <> inspect(sentant_map, pretty: true))
-        # TODO: Check what happens if sentant with same ID is sent in again.
         case sentant_id(sentant_map) do
           {:ok, _, id} ->
             case Reality2.Metadata.get(:SentantIDs, name) do
@@ -133,7 +127,6 @@ defmodule Reality2.Sentants do
         end
       error -> error
     end
-
   end
 
   defp add_automations_to_sentant(id, sentant_map) do
@@ -141,8 +134,13 @@ defmodule Reality2.Sentants do
       nil ->
         :ok
       automations ->
-        # IO.puts("Adding automations to sentant: " <> inspect(automations))
-        Enum.each(automations, fn automation_map -> Reality2.Automations.create(id, automation_map) end)
+        case is_list(automations) do
+          true ->
+            # IO.puts("Adding automations to sentant: " <> inspect(automations))
+            Enum.each(automations, fn automation_map -> Reality2.Automations.create(id, automation_map) end)
+          false ->
+            :ok
+        end
     end
   end
 
@@ -155,8 +153,13 @@ defmodule Reality2.Sentants do
       nil ->
         :ok
       plugins ->
-        # IO.puts("Adding plugins to sentant: " <> inspect(plugins))
-        Enum.each(plugins, fn plugin_map -> Reality2.Plugins.create(id, plugin_map) end)
+        case is_list(plugins) do
+          true ->
+            # IO.puts("Adding plugins to sentant: " <> inspect(plugins))
+            Enum.each(plugins, fn plugin_map -> Reality2.Plugins.create(id, plugin_map) end)
+          false ->
+            :ok
+        end
     end
   end
 
@@ -216,6 +219,7 @@ defmodule Reality2.Sentants do
   end
 
   def read(%{:id => uuid}, command) do
+    IO.puts("Reading Sentant: " <> inspect(uuid, pretty: true))
     case Process.whereis(String.to_atom(uuid <> "|comms")) do
       nil ->
         {:error, :id}
@@ -464,5 +468,25 @@ defmodule Reality2.Sentants do
     |> Map.put_new("states", [])
     |> Map.put_new("status", "unchecked")
   end
+
+  # Convert an input String in either JSON, TOML or YAML format to a map.
+  defp convert_input(definition) when is_map(definition), do: {:ok, definition}
+  defp convert_input(definition) when is_binary(definition) do
+    case Jason.decode(definition) do
+      {:ok, definition_map} ->
+        {:ok, definition_map}
+      _ ->
+        case YamlElixir.read_from_string(definition) do
+          {:ok, definition_map} ->
+            {:ok, definition_map}
+          _ -> case Toml.decode(definition) do
+            {:ok, definition_map} ->
+              {:ok, definition_map}
+            _ -> {:error, :definition}
+          end
+        end
+    end
+  end
+  defp convert_input(_), do: {:error, :definition}
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

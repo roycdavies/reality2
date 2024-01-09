@@ -102,30 +102,68 @@ defmodule Reality2Web.SentantResolver do
 
         # Create the Swarm
         result = case Reality2.Swarm.create(yaml_decoded) do
+          {:error, reason} -> {:error, reason}
           swarm ->
             name = Helpers.Map.get(swarm, "name", "")
             description = Helpers.Map.get(swarm, "description", "")
-            sentant_names_and_ids = Helpers.Map.get(swarm, "sentants", [])
+            sentant_ids = Helpers.Map.get(swarm, "sentants", [])
 
             # Create a list of the sentants' details
-            sentants = Enum.map(sentant_names_and_ids, fn {_name, id} ->
+            sentants = Enum.map(sentant_ids, fn id ->
               case Reality2.Sentants.read(%{id: id}, :definition) do
                 {:ok, sentant} ->
                   convert_map_keys(sentant)
-                {:error, reason} ->
+                {:error, _reason} ->
                   # Something went wrong
                   false
               end
             end) |> Enum.filter(fn x -> x end)
+
             %{name: name, description: description, sentants: sentants}
-          {:error, reason} ->
-            # Something went wrong
-            {:error, reason}
         end
 
         # Return the result
         IO.puts("Result: " <> inspect(result))
         {:ok, result}
+    end
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Send an event to a Sentant
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  def send_event(_root, args, _info) do
+    # Get the Sentant ID
+    case Map.get(args, :id) do
+      nil ->
+        {:error, :id}
+      sentantid ->
+        # Get the event
+        case Map.get(args, :event) do
+          nil ->
+            {:error, :event}
+          event ->
+            # Get the parameters
+            parameters = Map.get(args, :parameters, %{})
+            # Send the event to the Sentant
+            case Reality2.Sentants.send_event(sentantid, event, parameters) do
+              {:ok, _} ->
+                # Send back the sentant details
+                case Reality2.Sentants.read(%{id: sentantid}, :definition) do
+                  {:ok, sentant} ->
+                    # Send back the sentant details
+                    {:ok, convert_map_keys(sentant)}
+                  {:error, reason} ->
+                    # Something went wrong
+                    {:error, reason}
+                end
+              {:error, reason} ->
+                # Something went wrong
+                {:error, reason}
+            end
+        end
     end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
