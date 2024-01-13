@@ -1,0 +1,1031 @@
+[
+    {
+        "id": "1a2f5269b1078a40",
+        "type": "tab",
+        "label": "Ask ChatGPT a Question",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "845fc0d6c01a7d33",
+        "type": "subflow",
+        "name": "SentantEvent",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 100,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "1cf16961f071a946"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1460,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "59f16defd6c6aac4",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99",
+        "status": {
+            "x": 1460,
+            "y": 160,
+            "wires": [
+                {
+                    "id": "de70d7b235219484",
+                    "port": 0
+                },
+                {
+                    "id": "5c942cd10c61a838",
+                    "port": 0
+                }
+            ]
+        }
+    },
+    {
+        "id": "0642542a5da9d32f",
+        "type": "subflow",
+        "name": "SentantLoad",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 180,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "38f07274ef222c8f"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 860,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "74a31d76bf068544",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 860,
+                "y": 200,
+                "wires": [
+                    {
+                        "id": "74a31d76bf068544",
+                        "port": 1
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "home_dir",
+                "type": "str",
+                "value": "/home/roycdavies/Development/Reality2"
+            }
+        ],
+        "meta": {},
+        "color": "#DDAA99",
+        "status": {
+            "x": 1280,
+            "y": 160,
+            "wires": [
+                {
+                    "id": "f39bdd54a89898c1",
+                    "port": 0
+                },
+                {
+                    "id": "1735c09b18546eca",
+                    "port": 0
+                }
+            ]
+        }
+    },
+    {
+        "id": "800b653b02783641",
+        "type": "subflow",
+        "name": "SentantSend",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 160,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "8237109d521cf0e8"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 940,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "a62d20d2ed170d13",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 940,
+                "y": 140,
+                "wires": [
+                    {
+                        "id": "a62d20d2ed170d13",
+                        "port": 1
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99",
+        "status": {
+            "x": 1260,
+            "y": 120,
+            "wires": [
+                {
+                    "id": "e37f5314d4b4b659",
+                    "port": 0
+                },
+                {
+                    "id": "e05a51ca169c4aff",
+                    "port": 0
+                }
+            ]
+        }
+    },
+    {
+        "id": "b0f951c25b9c0e67",
+        "type": "graphql-server",
+        "name": "reality2",
+        "endpoint": "http://localhost:8080/reality2",
+        "token": ""
+    },
+    {
+        "id": "a3768b013fb512e4",
+        "type": "ui_tab",
+        "name": "Load Sentant",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "99c98b1c1a491728",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-dark",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "Arial,Arial,Helvetica,sans-serif",
+                "reset": false
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#097479",
+                    "value": "#097479",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#097479",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#0eb8c0",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#555555",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#eeeeee",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#097479",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#333333",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "Reality2 Sentant Test",
+            "hideToolbar": "true",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 40,
+                "sy": 40,
+                "gx": 6,
+                "gy": 6,
+                "cx": 10,
+                "cy": 10,
+                "px": 10,
+                "py": 10
+            }
+        }
+    },
+    {
+        "id": "42ada8608d4fe9d1",
+        "type": "ui_group",
+        "name": "Reality2",
+        "tab": "a3768b013fb512e4",
+        "order": 1,
+        "disp": true,
+        "width": "10",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "3a6f6ce74a5a5468",
+        "type": "websocket-client",
+        "path": "ws://localhost:8080/reality2/websocket",
+        "tls": "",
+        "wholemsg": "false",
+        "hb": "30",
+        "subprotocol": ""
+    },
+    {
+        "id": "4db9013399b3fbed",
+        "type": "websocket out",
+        "z": "845fc0d6c01a7d33",
+        "name": "Reality2 Websocket",
+        "server": "",
+        "client": "3a6f6ce74a5a5468",
+        "x": 470,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "5407a74e7952c088",
+        "type": "websocket in",
+        "z": "845fc0d6c01a7d33",
+        "name": "Reality2 Websocket",
+        "server": "",
+        "client": "3a6f6ce74a5a5468",
+        "x": 650,
+        "y": 100,
+        "wires": [
+            [
+                "6433426779d4ce5d"
+            ]
+        ]
+    },
+    {
+        "id": "6433426779d4ce5d",
+        "type": "json",
+        "z": "845fc0d6c01a7d33",
+        "name": "Convert JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 840,
+        "y": 100,
+        "wires": [
+            [
+                "59f16defd6c6aac4"
+            ]
+        ]
+    },
+    {
+        "id": "59f16defd6c6aac4",
+        "type": "function",
+        "z": "845fc0d6c01a7d33",
+        "name": "Interpret Response",
+        "func": "// Get the data and sentantID\nlet data = msg.payload;\nlet sentantid = global.get(\"sentantid\");\n\n// This gets called during the join, subscription and subsequent return of the message from ChatGPT.\n// The data.ref field helps determine which stage of the process we are in.\nif (data.ref == \"join\")\n{\n    // The join command was set in the Subscribe Button - this is the next command for the Subscription\n    let the_message = {\n        \"topic\": \"__absinthe__:control\",\n        \"event\": \"doc\",\n        \"payload\": {\n            \"query\": \"subscription {sentantEvent(id: \\\"\" + sentantid + \"\\\", event: \\\"chatgpt_response\\\") { event parameters sentant { id } } }\"\n        },\n        \"ref\": \"subscribe\"\n    };\n    return({payload: the_message});\n}\nelse if (data.ref == \"subscribe\")\n{\n    // If we have successfully subscribed, stop further messages.\n    return(null); \n}\nelse\n{\n    // A result from Chat GPT has arrived.\n    return { payload: { chatgpt_says: data.payload.result.data.sentantEvent.parameters.chatgpt_says }};\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 100,
+        "wires": [
+            [
+                "4db9013399b3fbed",
+                "de70d7b235219484"
+            ]
+        ]
+    },
+    {
+        "id": "1cf16961f071a946",
+        "type": "template",
+        "z": "845fc0d6c01a7d33",
+        "name": "Join Message",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\n    \"__\": \"This is what Phoenix Server requires for WebSockets\",\n    \"topic\": \"__absinthe__:control\",\n    \"event\": \"phx_join\",\n    \"payload\": {},\n    \"ref\": \"join\"\n}",
+        "output": "str",
+        "x": 260,
+        "y": 100,
+        "wires": [
+            [
+                "4db9013399b3fbed"
+            ]
+        ]
+    },
+    {
+        "id": "de70d7b235219484",
+        "type": "function",
+        "z": "845fc0d6c01a7d33",
+        "name": "Set Status",
+        "func": "if (msg.payload.ref)\n{\n    if (msg.payload.ref == \"subscribe\")\n    {\n        msg.payload = ({ fill: \"green\", text: \"Subscribed\"});\n    }\n    else\n    {\n        msg.payload = {}\n    }\n}\nelse if(msg.payload.chatgpt_says)\n{\n    msg.payload = ({ fill: \"green\", text: \"Answer Received\"});\n}\nelse\n{\n    msg.payload = {}\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1290,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4be947640fcb4a82",
+        "type": "catch",
+        "z": "845fc0d6c01a7d33",
+        "name": "",
+        "scope": null,
+        "uncaught": false,
+        "x": 1020,
+        "y": 220,
+        "wires": [
+            [
+                "5c942cd10c61a838",
+                "f5e14a9af1d1d1e5"
+            ]
+        ]
+    },
+    {
+        "id": "5c942cd10c61a838",
+        "type": "function",
+        "z": "845fc0d6c01a7d33",
+        "name": "Trap Errors",
+        "func": "if (msg.error)\n{\n    msg.payload = ({ fill: \"red\", text: \"Websocket Error\" });\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1290,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f5e14a9af1d1d1e5",
+        "type": "debug",
+        "z": "845fc0d6c01a7d33",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1280,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "74a31d76bf068544",
+        "type": "graphql",
+        "z": "0642542a5da9d32f",
+        "name": "GraphQL - SentantLoad",
+        "graphql": "b0f951c25b9c0e67",
+        "format": "handlebars",
+        "template": "mutation SentantLoad ($definition: String!) {\n  sentantLoad(yamlDefinition: $definition) {\n    id\n    name\n  }\n}",
+        "syntax": "plain",
+        "token": "",
+        "showDebug": false,
+        "x": 670,
+        "y": 160,
+        "wires": [
+            [
+                "f39bdd54a89898c1"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "93b721c37663f919",
+        "type": "file in",
+        "z": "0642542a5da9d32f",
+        "name": "Read ChatGPT Question YAML File",
+        "filename": "variables.yaml_filename",
+        "filenameType": "msg",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 1160,
+        "y": 60,
+        "wires": [
+            [
+                "366cbcb3705b914c"
+            ]
+        ]
+    },
+    {
+        "id": "366cbcb3705b914c",
+        "type": "function",
+        "z": "0642542a5da9d32f",
+        "name": "Insert OpenAI API Key into file",
+        "func": "// Get the openai API key\nlet apiKey = flow.get(\"openai_api_key\");\n\n// Replace the text __openai_api_key__ in the file with the actual API key\nlet updatedContent = msg.payload.replace(/__openai_api_key__/g, apiKey);\n\n// Set this in the variables\nreturn {\"variables\": {\"definition\": updatedContent}};",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 160,
+        "wires": [
+            [
+                "74a31d76bf068544"
+            ]
+        ]
+    },
+    {
+        "id": "1c5c3310ccedbafc",
+        "type": "file in",
+        "z": "0642542a5da9d32f",
+        "name": "Read OPENAI_API_KEY from file",
+        "filename": "variables.openai_api_filename",
+        "filenameType": "msg",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 620,
+        "y": 60,
+        "wires": [
+            [
+                "cb310f24b4c2aba2"
+            ]
+        ]
+    },
+    {
+        "id": "cb310f24b4c2aba2",
+        "type": "change",
+        "z": "0642542a5da9d32f",
+        "name": "Set OPENAI_API_KEY",
+        "rules": [
+            {
+                "t": "set",
+                "p": "openai_api_key",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 890,
+        "y": 60,
+        "wires": [
+            [
+                "93b721c37663f919"
+            ]
+        ]
+    },
+    {
+        "id": "38f07274ef222c8f",
+        "type": "function",
+        "z": "0642542a5da9d32f",
+        "name": "Set up filenames",
+        "func": "msg.variables = {\n    openai_api_filename: env.get(\"home_dir\") + \"/OPENAI_API_KEY.txt\",\n    yaml_filename: env.get(\"home_dir\") + \"/Reality2/python/chatgpt_question.yaml\"\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 60,
+        "wires": [
+            [
+                "1c5c3310ccedbafc"
+            ]
+        ]
+    },
+    {
+        "id": "f39bdd54a89898c1",
+        "type": "function",
+        "z": "0642542a5da9d32f",
+        "name": "Set Status",
+        "func": "if (msg.payload.graphql)\n{\n    if (msg.payload.graphql.sentantLoad.id)\n    {\n        msg.payload = ({ fill: \"green\", text: \"Sentant ID: \" + msg.payload.graphql.sentantLoad.id });\n    }\n    else\n    {\n        msg.payload = ({ fill: \"red\", text: \"Problem with sentantLoad.\" });\n    }\n}\nelse\n{\n    msg.payload = ({ fill: \"red\", text: \"Problem with sentantLoad.\" });\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a30b59c0c9dcebd0",
+        "type": "catch",
+        "z": "0642542a5da9d32f",
+        "name": "",
+        "scope": null,
+        "uncaught": false,
+        "x": 660,
+        "y": 320,
+        "wires": [
+            [
+                "1735c09b18546eca",
+                "bc9f9adb473072f2"
+            ]
+        ]
+    },
+    {
+        "id": "bc9f9adb473072f2",
+        "type": "debug",
+        "z": "0642542a5da9d32f",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1040,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "1735c09b18546eca",
+        "type": "function",
+        "z": "0642542a5da9d32f",
+        "name": "Trap Errors",
+        "func": "if (msg.error)\n{\n    msg.payload = ({ fill: \"red\", text: \"Filename Error\" });\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a62d20d2ed170d13",
+        "type": "graphql",
+        "z": "800b653b02783641",
+        "name": "GraphQL - SentantSend",
+        "graphql": "b0f951c25b9c0e67",
+        "format": "handlebars",
+        "template": "mutation SentantSend ($sentantid: UUID4!, $event: String!, $parameters: Json) {\n  sentantSend(event: $event, id: $sentantid, parameters: $parameters) {\n    id\n  }\n}",
+        "syntax": "mustache",
+        "token": "",
+        "showDebug": false,
+        "x": 730,
+        "y": 100,
+        "wires": [
+            [
+                "e37f5314d4b4b659"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "8237109d521cf0e8",
+        "type": "function",
+        "z": "800b653b02783641",
+        "name": "Get values from Interface",
+        "func": "let sentantid = global.get(\"sentantid\");\nlet question = global.get(\"question\");\n\nif(sentantid) {\n    msg.variables = {\n        \"sentantid\": sentantid,\n        \"event\": \"chatgpt\",\n        \"parameters\": \"\\{\\\"message\\\":\\\"\" + question + \"\\\"\\}\"\n    }\n}\nelse\n{\n    node.log(\"SentantID Error\")\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nif (context.get(\"errors\") === undefined) {\n    context.set(\"errors\", [])\n}",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 100,
+        "wires": [
+            [
+                "a62d20d2ed170d13"
+            ]
+        ]
+    },
+    {
+        "id": "e37f5314d4b4b659",
+        "type": "function",
+        "z": "800b653b02783641",
+        "name": "Set Status",
+        "func": "if (msg.payload.graphql)\n{\n    if (msg.payload.graphql.sentantSend.id)\n    {\n        msg.payload = ({ fill: \"green\", text: \"Question Sent\" });\n    }\n    else\n    {\n        msg.payload = ({ fill: \"red\", text: \"Problem with sentantSend.\" });\n    }\n}\nelse\n{\n    msg.payload = ({ fill: \"red\", text: \"Problem with sentantSend.\" });\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1110,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "65b87a14b01907df",
+        "type": "debug",
+        "z": "800b653b02783641",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1080,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "e05a51ca169c4aff",
+        "type": "function",
+        "z": "800b653b02783641",
+        "name": "Trap Errors",
+        "func": "if (msg.error)\n{\n    msg.payload = ({ fill: \"red\", text: \"Filename Error\" });\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1110,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "01bd99f03552f70c",
+        "type": "catch",
+        "z": "800b653b02783641",
+        "name": "",
+        "scope": null,
+        "uncaught": false,
+        "x": 880,
+        "y": 220,
+        "wires": [
+            [
+                "e05a51ca169c4aff",
+                "65b87a14b01907df"
+            ]
+        ]
+    },
+    {
+        "id": "a81e199e0f6658d6",
+        "type": "ui_text",
+        "z": "1a2f5269b1078a40",
+        "group": "42ada8608d4fe9d1",
+        "order": 6,
+        "width": "10",
+        "height": "1",
+        "name": "Title",
+        "label": "ChatGPT Says",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "className": "",
+        "style": true,
+        "font": "Arial,Arial,Helvetica,sans-serif",
+        "fontSize": "20",
+        "color": "#ffffff",
+        "x": 1030,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "5a49ee3f8756eff8",
+        "type": "ui_button",
+        "z": "1a2f5269b1078a40",
+        "name": "Create Button",
+        "group": "42ada8608d4fe9d1",
+        "order": 2,
+        "width": "5",
+        "height": "2",
+        "passthru": false,
+        "label": "1. Create ChatGPT Sentant",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "grey",
+        "className": "",
+        "icon": "fa-upload",
+        "payload": "{}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "str",
+        "x": 240,
+        "y": 160,
+        "wires": [
+            [
+                "58ee052ce507a10b"
+            ]
+        ]
+    },
+    {
+        "id": "ed648a1b696a564e",
+        "type": "ui_button",
+        "z": "1a2f5269b1078a40",
+        "name": "Send Question Button",
+        "group": "42ada8608d4fe9d1",
+        "order": 3,
+        "width": "10",
+        "height": "2",
+        "passthru": false,
+        "label": "3. Send message to ChatGPT via Sentant",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "fa-send",
+        "payload": "{}",
+        "payloadType": "json",
+        "topic": "",
+        "topicType": "str",
+        "x": 260,
+        "y": 640,
+        "wires": [
+            [
+                "d72760760ddf9abb"
+            ]
+        ]
+    },
+    {
+        "id": "549e1c40d62c51df",
+        "type": "ui_text",
+        "z": "1a2f5269b1078a40",
+        "group": "42ada8608d4fe9d1",
+        "order": 5,
+        "width": "10",
+        "height": "2",
+        "name": "SentantID Output",
+        "label": "Sentant ID",
+        "format": "{{msg.payload.graphql.sentantLoad.id}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 1030,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "156735a72414e73e",
+        "type": "change",
+        "z": "1a2f5269b1078a40",
+        "name": "Set SentantID Parameter",
+        "rules": [
+            {
+                "t": "set",
+                "p": "sentantid",
+                "pt": "global",
+                "to": "payload.graphql.sentantLoad.id",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1010,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2dd0d292367d5eab",
+        "type": "ui_text_input",
+        "z": "1a2f5269b1078a40",
+        "name": "Question Field",
+        "label": "Question",
+        "tooltip": "",
+        "group": "42ada8608d4fe9d1",
+        "order": 1,
+        "width": "10",
+        "height": "2",
+        "passthru": false,
+        "mode": "text",
+        "delay": "100",
+        "topic": "topic",
+        "sendOnBlur": false,
+        "className": "",
+        "topicType": "msg",
+        "x": 240,
+        "y": 320,
+        "wires": [
+            [
+                "e2cf1d43a0e50fd5"
+            ]
+        ]
+    },
+    {
+        "id": "e2cf1d43a0e50fd5",
+        "type": "change",
+        "z": "1a2f5269b1078a40",
+        "name": "Set Question Parameter",
+        "rules": [
+            {
+                "t": "set",
+                "p": "question",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1010,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8253846a598f04a4",
+        "type": "ui_button",
+        "z": "1a2f5269b1078a40",
+        "name": "Subscribe Button",
+        "group": "42ada8608d4fe9d1",
+        "order": 4,
+        "width": "5",
+        "height": "2",
+        "passthru": false,
+        "label": "2. Subscribe to Sentant",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "grey",
+        "className": "",
+        "icon": "fa-pencil",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "",
+        "topicType": "str",
+        "x": 250,
+        "y": 480,
+        "wires": [
+            [
+                "0ab650c8b4a14738"
+            ]
+        ],
+        "info": "The websocket on this implementation is defined by the platform."
+    },
+    {
+        "id": "34e85800bd2ab522",
+        "type": "ui_text",
+        "z": "1a2f5269b1078a40",
+        "group": "42ada8608d4fe9d1",
+        "order": 7,
+        "width": "10",
+        "height": "6",
+        "name": "ChatGPT Output",
+        "label": "",
+        "format": "{{msg.payload.chatgpt_says}}",
+        "layout": "col-center",
+        "className": "",
+        "style": true,
+        "font": "Arial,Arial,Helvetica,sans-serif",
+        "fontSize": "16",
+        "color": "#ffffff",
+        "x": 1030,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "0ab650c8b4a14738",
+        "type": "subflow:845fc0d6c01a7d33",
+        "z": "1a2f5269b1078a40",
+        "name": "Websocket - SentantEvent",
+        "x": 600,
+        "y": 480,
+        "wires": [
+            [
+                "34e85800bd2ab522"
+            ]
+        ]
+    },
+    {
+        "id": "58ee052ce507a10b",
+        "type": "subflow:0642542a5da9d32f",
+        "z": "1a2f5269b1078a40",
+        "name": "GraphQL - SentantLoad",
+        "x": 590,
+        "y": 160,
+        "wires": [
+            [
+                "549e1c40d62c51df",
+                "156735a72414e73e"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "d72760760ddf9abb",
+        "type": "subflow:800b653b02783641",
+        "z": "1a2f5269b1078a40",
+        "name": "GraphQL - SentantSend",
+        "x": 590,
+        "y": 640,
+        "wires": [
+            [],
+            []
+        ]
+    }
+]

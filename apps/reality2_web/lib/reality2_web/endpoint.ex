@@ -21,10 +21,10 @@ use Absinthe.Phoenix.Endpoint
   #
   # You should set gzip to true if you are running phx.digest
   # when deploying your static files in production.
-  # plug Plug.Static,
-  #   at: "/",
-  #   from: { :reality2_web, "priv/static/sites" },
-  #   gzip: false
+  plug Plug.Static,
+    at: "/",
+    from: { :reality2_web, "priv/static/sites" },
+    gzip: false
     # only: Reality2Web.static_paths()
 
   # Code reloading can be explicitly enabled under the

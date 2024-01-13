@@ -15,6 +15,36 @@ defmodule Reality2Web.SentantResolver do
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Get the details of a single Sentant by ID or name.
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  def get_sentant(_, args, _) do
+    case Map.get(args, :name) do
+      nil ->
+        case Map.get(args, :id) do
+          nil ->
+            {:error, :name_or_id}
+          name ->
+            case Reality2.Sentants.read(%{name: name}, :definition) do
+              {:ok, sentant} ->
+                {:ok, convert_map_keys(sentant)}
+              {:error, reason} ->
+                {:error, reason}
+            end
+        end
+      sentantid ->
+        case Reality2.Sentants.read(%{id: sentantid}, :definition) do
+          {:ok, sentant} ->
+            {:ok, convert_map_keys(sentant)}
+          {:error, reason} ->
+            {:error, reason}
+        end
+    end
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
   # Get all the Sentants on this Node.  TODO: Search criteria and privacy
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def all_sentants(_, _, _) do
