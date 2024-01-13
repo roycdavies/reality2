@@ -1,0 +1,71 @@
+# ------------------------------------------------------------------------------------------------------
+# A Sentant to illustrate how a plugin to an external API can be used.
+#
+# Author: Dr. Roy C. Davies
+# Date: 2024-01-13
+# Contant: http://roycdavies.github.io
+# ------------------------------------------------------------------------------------------------------
+
+sentant:
+  # ----------------------------------------------------------------------------------------------------
+  # Sentant details
+  # ----------------------------------------------------------------------------------------------------
+  name: Ask Question
+  description: This is a test sentant for ChatGPT Plugin
+
+
+
+  # ----------------------------------------------------------------------------------------------------
+  # Plugins (A list, so begin with a dash)
+  # ----------------------------------------------------------------------------------------------------
+  plugins:
+    - name: com.openai.api # This is the name of the plugin, used in the Automation below
+      url: https://api.openai.com/v1/chat/completions # This is the URL to the API endpoint
+      method: POST # This is the HTTP method to use
+      headers: # These are the headers to send (see ChatGPT API documentation)
+        "Content-Type": "application/json"
+        "Authorization": "Bearer __openai_api_key__" # This is a secret, so it is not shown here (replace before passing to Reality2)
+      body: # This is the body to send (see ChatGPT API documentation).  Note the __message__ placeholder.
+        model: "gpt-3.5-turbo-1106"
+        messages:
+          - role: "system"
+            content: "You are a helpful assistant."
+          - role: "user"
+            content: __message__
+      output: # This determines how to process the output from the API.  The value is a simplified JSON path expression.
+        key: chatgpt_says
+        value: "choices.0.message.content"
+        event: chatgpt_response
+  # ----------------------------------------------------------------------------------------------------
+
+
+
+  # ----------------------------------------------------------------------------------------------------
+  # Automations (Also a list, so begin with a dash)
+  # ----------------------------------------------------------------------------------------------------
+  automations:
+    - name: ChatGPT # This is the name of the automation.
+      description: This is a test automation. # This is the description of the automation.
+      transitions: # This is a list of transitions, so begin with a dash.
+        - from: start # The initial transition when the automation starts
+          event: init
+          to: ready
+        - from: "*" # The transition that initiaties the call to the plugin
+          event: chatgpt
+          to: ready
+          actions:
+            - plugin: com.openai.api
+              command: send
+              parameters: # The message below is the default, but is overridden by a message passed in.
+                message: "Translate this sentence into Swedish: Hello, my name is John."
+        - from: "*" # This transition deals with the answer from chatgpt and illustrates how to use the output.
+          event: chatgpt_response
+          to: ready
+          actions:
+            - command: set # Set the variable: answer
+              parameters:
+                key: answer
+                value: "The answer is: __chatgpt_says__"
+            - command: print # Prints to the console
+
+  # ----------------------------------------------------------------------------------------------------

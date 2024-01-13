@@ -27,45 +27,43 @@ defmodule Reality2.Swarm do
   def create(swarm_definition) do
     case convert_input(swarm_definition) do
       {:ok, definition_map} ->
-        # IO.puts("Swarm.create: definition_map = #{inspect(definition_map, pretty: true)}")
-        create_from_map(definition_map)
+        swarm_map = remove_swarm_parent_from_definition_map(definition_map)
+        case Reality2.Types.validate(swarm_map, Reality2.Types.swarm()) do
+          {:ok} ->
+            create_from_map(swarm_map)
+            {:error, {error_code, reason}} -> {:error, {error_code, "swarm." <> reason}}
+          end
       _ ->
         {:error, :definition}
     end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp create_from_map(definition_map) do
-
-    case Helpers.Map.get(definition_map, "swarm") do
+    name = Helpers.Map.get(definition_map, "name", "")
+    description = Helpers.Map.get(definition_map, "description", "")
+    case Helpers.Map.get(definition_map, "sentants") do
       nil ->
-        {:error, :definition}
-      swarms_array ->
-        name = Helpers.Map.get(swarms_array, "name", "")
-        description = Helpers.Map.get(swarms_array, "description", "")
-        case Helpers.Map.get(swarms_array, "sentants") do
-          nil ->
-            %{name: name, description: description, sentants: []}
-          sentants ->
-            case is_list(sentants) do
-              true ->
-                sentant_ids = Enum.map(sentants, fn sentant_map ->
-                  # IO.puts("Swarm.create_from_map: sentant_map = #{inspect(sentant_map, pretty: true)}")
-                  case Reality2.Sentants.create(sentant_map) do
-                    {:ok, id} ->
-                      id
-                    {:error, reason} ->
-                      {:error, reason}
-                  end
-                end)
-                |> Enum.filter(fn x ->
-                  case x do
-                    {:error, _reason} -> false
-                    _ -> true
-                  end
-                end)
-                %{name: name, description: description, sentants: sentant_ids}
-              false -> %{name: name, description: description, sentants: []}
-            end
+        {:ok, %{name: name, description: description, sentants: []}}
+      sentants ->
+        case is_list(sentants) do
+          true ->
+            sentant_ids = Enum.map(sentants, fn sentant_map ->
+              # IO.puts("Swarm.create_from_map: sentant_map = #{inspect(sentant_map, pretty: true)}")
+              case Reality2.Sentants.create(sentant_map) do
+                {:ok, id} ->
+                  id
+                {:error, reason} ->
+                  {:error, reason}
+              end
+            end)
+            |> Enum.filter(fn x ->
+              case x do
+                {:error, _reason} -> false
+                _ -> true
+              end
+            end)
+            {:ok, %{name: name, description: description, sentants: sentant_ids}}
+          false -> {:ok, %{name: name, description: description, sentants: []}}
         end
     end
   end
@@ -90,4 +88,8 @@ defmodule Reality2.Swarm do
   end
   defp convert_input(_), do: {:error, :definition}
   # -----------------------------------------------------------------------------------------------------------------------------------------
+
+  defp remove_swarm_parent_from_definition_map(%{"swarm" => swarm_map}), do: swarm_map
+  defp remove_swarm_parent_from_definition_map(%{swarm: swarm_map}), do: swarm_map
+  defp remove_swarm_parent_from_definition_map(swarm_map), do: swarm_map
 end

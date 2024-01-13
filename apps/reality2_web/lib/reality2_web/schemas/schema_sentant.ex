@@ -14,6 +14,12 @@ defmodule Reality2Web.Schema.Sentant do
 
   alias Reality2Web.SentantResolver
 
+  object :event_parameters do
+    field :sentant, non_null(:sentant),         description: "Sentant"
+    field :event, non_null(:string),            description: "Event name"
+    field :parameters, :json,                   description: "Event parameters"
+  end
+
   object :plugin_output do
     field :key, :string,                        description: "Plugin output key"
     field :value, :string,                      description: "Plugin output json path to interpret response, eg choices.0.message.content"
@@ -23,7 +29,7 @@ defmodule Reality2Web.Schema.Sentant do
   object :plugin do
     field :name, non_null(:string),             description: "Plugin name"
     field :description, :string,                description: "Plugin description"
-    field :version, non_null(:string),          description: "Plugin version"
+    field :version, :string,                    description: "Plugin version"
     field :url, non_null(:string),              description: "URL to plugin API"
     field :headers, :json,                      description: "Plugin headers"
     field :body, :json,                         description: "Plugin body"
@@ -137,7 +143,7 @@ defmodule Reality2Web.Schema.Sentant do
     end
 
     # ----------------------------------------------------------------------------------------------------
-    @desc "Send a amessage enent and parameters to a sentant"
+    @desc "Send a amessage event and parameters to a sentant"
     # ----------------------------------------------------------------------------------------------------
     field :sentant_send, non_null(:sentant) do
       arg :id, non_null(:uuid4)
@@ -158,9 +164,15 @@ defmodule Reality2Web.Schema.Sentant do
     # ----------------------------------------------------------------------------------------------------
     @desc "Subscribe to sentant events"
     # ----------------------------------------------------------------------------------------------------
-    field :sentant_event, non_null(:sentant) do
+    field :sentant_event, :event_parameters do
       arg :id, non_null(:uuid4)
-      resolve(&SentantResolver.subscribe_event/3)
+      arg :event, non_null(:string)
+
+      config fn %{id: sentantid, event: event}, _ ->
+        IO.puts("sentant_event sentantid: #{inspect(sentantid)}")
+        IO.puts("sentant_event event: #{inspect(event)}")
+        {:ok, topic: sentantid <> "|" <> event}
+      end
     end
 
   end

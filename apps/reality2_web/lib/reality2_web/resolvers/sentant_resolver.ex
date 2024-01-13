@@ -8,6 +8,8 @@ defmodule Reality2Web.SentantResolver do
 # - [roycdavies.github.io](https://roycdavies.github.io/)
 # *******************************************************************************************************************************************
 
+# alias Absinthe.PubSub
+
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Puplic Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -47,9 +49,8 @@ defmodule Reality2Web.SentantResolver do
                 # Something went wrong
                 {:error, reason}
             end
-          {:error, reason} ->
-            # Something went wrong
-            {:error, reason}
+          {:error, {error_code, reason}} -> {:error, Atom.to_string(error_code) <> ":" <> reason}
+          {:error, reason} -> {:error, reason}
         end
     end
   end
@@ -101,9 +102,10 @@ defmodule Reality2Web.SentantResolver do
         yaml_decoded = URI.decode(yaml_definition)
 
         # Create the Swarm
-        result = case Reality2.Swarm.create(yaml_decoded) do
+        case Reality2.Swarm.create(yaml_decoded) do
+          {:error, {error_code, reason}} -> {:error, Atom.to_string(error_code) <> ":" <> reason}
           {:error, reason} -> {:error, reason}
-          swarm ->
+          {:ok, swarm} ->
             name = Helpers.Map.get(swarm, "name", "")
             description = Helpers.Map.get(swarm, "description", "")
             sentant_ids = Helpers.Map.get(swarm, "sentants", [])
@@ -119,12 +121,8 @@ defmodule Reality2Web.SentantResolver do
               end
             end) |> Enum.filter(fn x -> x end)
 
-            %{name: name, description: description, sentants: sentants}
+            {:ok, %{name: name, description: description, sentants: sentants}}
         end
-
-        # Return the result
-        IO.puts("Result: " <> inspect(result))
-        {:ok, result}
     end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -148,7 +146,7 @@ defmodule Reality2Web.SentantResolver do
             # Get the parameters
             parameters = Map.get(args, :parameters, %{})
             # Send the event to the Sentant
-            case Reality2.Sentants.send_event(sentantid, event, parameters) do
+            case Reality2.Sentants.sendto(%{id: sentantid}, %{event: event, parameters: parameters}) do
               {:ok, _} ->
                 # Send back the sentant details
                 case Reality2.Sentants.read(%{id: sentantid}, :definition) do
@@ -166,6 +164,18 @@ defmodule Reality2Web.SentantResolver do
         end
     end
   end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # def subscribe_event(_root, args, _info) do
+
+  #   {:ok, topic} = PubSub.subscribe(Reality2Web.PubSub, "sentant_event")
+
+  #   {:ok, topic}
+  # end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 

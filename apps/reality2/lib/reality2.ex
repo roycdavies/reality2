@@ -48,20 +48,20 @@ defmodule Reality2 do
         - name: com.openai.api
           url: https://api.openai.com/v1/chat/completions
           headers:
-            - key: "Content-Type"
-              value: "application/json"
-            - key: "Authorization"
-              value: "Bearer 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"
-          data:
-            - model: "gpt-3.5-turbo-1106"
-              messages:
-                - role: "user"
-                  content: {{message}}
+            key: "Content-Type"
+            value: "application/json"
+            key: "Authorization"
+            value: "Bearer #{System.get_env("OPENAI_API_KEY")}"
+          body:
+            model: "gpt-3.5-turbo-1106"
+            messages:
+              - role: "user"
+                content: __message__
 
           output:
-            - key: "choices"
-              value: "choices.0.message.content"
-              event: "chatgpt_response"
+            key: "choices"
+            value: "choices.0.message.content"
+            event: "chatgpt_response"
 
           version: 0.1.0
       automations:
@@ -105,7 +105,7 @@ defmodule Reality2 do
                     event: turn_off
             - from: "*"
               event: chatgpt
-              too: ready
+              to: ready
               actions:
                 - plugin: com.openai.api
                   command: send
@@ -331,17 +331,23 @@ sentant:
                 to: off
 
     """
-    result = Reality2.Swarm.create(swarm_definition)
-    IO.puts("Swarm.create: result = #{inspect(result)}")
+    case Reality2.Swarm.create(swarm_definition) do
+      {:error, reason} ->
+        IO.puts("Swarm.create: ERROR = #{inspect(reason)}")
+      {:ok, result} ->
+        IO.puts("Swarm.create: result = #{inspect(result)}")
+        [switch_id, bulb_id] = result[:sentants]
 
-    [switch_id, bulb_id] = result[:sentants]
+        Reality2.Sentants.sendto(%{:id => switch_id}, %{event: "turn_on"})
 
-    Reality2.Sentants.sendto(%{:id => switch_id}, %{event: "turn_on"})
+        switch_state = Reality2.Sentants.read(%{:id => switch_id}, :state)
+        IO.puts("Switch State = #{inspect(switch_state)}")
+        bulb_state = Reality2.Sentants.read(%{:id => bulb_id}, :state)
+        IO.puts("Switch State = #{inspect(bulb_state)}")
 
-    switch_state = Reality2.Sentants.read(%{:id => switch_id}, :state)
-    IO.puts("Switch State = #{inspect(switch_state)}")
-    bulb_state = Reality2.Sentants.read(%{:id => bulb_id}, :state)
-    IO.puts("Switch State = #{inspect(bulb_state)}")
+        Process.sleep(10000)
+        Reality2.Sentants.sendto(%{:id => switch_id}, %{event: "stop"})
+    end
 
     # Reality2.Sentants.sendto(%{:name => "Light Switch"}, %{event: "turn_off"})
 
@@ -349,9 +355,6 @@ sentant:
     # IO.puts("Switch State = #{inspect(switch_state)}")
     # bulb_state = Reality2.Sentants.read(%{:id => bulb_id}, :state)
     # IO.puts("Switch State = #{inspect(bulb_state)}")
-
-    Process.sleep(10000)
-    Reality2.Sentants.sendto(%{:id => switch_id}, %{event: "stop"})
 
     #Process.sleep(1000)
     #Reality2.Swarm.create(swarm_definition2)
@@ -364,6 +367,41 @@ sentant:
     validation_result = Reality2.Types.validate(sentant_transition, Reality2.Types.transition)
     IO.puts("Validation Result = #{inspect(validation_result)}")
   end
+
+
+
+    @type test1 :: %{
+      name: String.t,
+      tester: [test2]
+    }
+    def test1, do: {%{"name" => "", "tester" => test2()}, ["name", "tester"]}
+
+    @type test2 :: %{
+      description: String.t,
+      more: test3
+    }
+    def test2, do: {%{"description" => "", "more" => [test3()]}, ["more"]}
+
+    @type test3 :: %{
+      anumber: Integer,
+      astring: String.t
+    }
+    def test3, do: {%{"anumber" => 0, "astring" => ""}, ["astring"]}
+
+    def test_validate() do
+
+      testdata1 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42, "astring" => "Hello World"}]}}
+      testdata2 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42}]}}
+      testdata3 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"number" => 42, "astring" => "Hello World"}]}}
+
+      result1 = Reality2.Types.validate(testdata1, test1())
+      result2 = Reality2.Types.validate(testdata2, test1())
+      result3 = Reality2.Types.validate(testdata3, test1())
+
+      IO.puts("Result 1 = #{inspect(result1)}")
+      IO.puts("Result 2 = #{inspect(result2)}")
+      IO.puts("Result 3 = #{inspect(result3)}")
+    end
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Public Functions

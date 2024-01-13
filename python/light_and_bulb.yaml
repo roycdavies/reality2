@@ -1,0 +1,58 @@
+    swarm:
+      sentants:
+        - name: Light Switch
+          description: This is a test sentant.
+          automations:
+          - name: switch
+            description: This is a test automation.
+            transitions:
+              - from: start
+                event: init
+                to: off
+              - from: off
+                event: turn_on
+                to: on
+                actions:
+                  - command: send
+                    parameters:
+                      to: Light Bulb
+                      event: turn_on
+                  - command: send
+                    parameters:
+                      event: turn_off
+                      delay: 2000
+              - from: on
+                event: turn_off
+                to: off
+                actions:
+                  - command: send
+                    parameters:
+                      to: Light Bulb
+                      event: turn_off
+                  - command: send
+                    parameters:
+                      event: turn_on
+                      delay: 2000
+              - from: "*"
+                event: stop
+                to: off
+                actions:
+                  - command: send
+                    parameters:
+                      to: Light Bulb
+                      event: turn_off
+        - name: Light Bulb
+          description: This is a light bulb sentant.
+          automations:
+          - name: bulb
+            description: This is a test automation.
+            transitions:
+              - from: start
+                event: init
+                to: ready
+              - from: "*"
+                event: turn_on
+                to: on
+              - from: "*"
+                event: turn_off
+                to: off

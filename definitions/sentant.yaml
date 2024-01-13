@@ -166,7 +166,7 @@ sentant:
   binary: { !str: !binary }
 
   # A list of strings that may be used to group Sentants together in a Node
-  groups: [ !str ]
+  keywords: [ !str ]
 
   # A list of strings that may be used to search for Sentants in a Node
   keywords: [ !str ]

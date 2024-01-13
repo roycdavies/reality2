@@ -28,6 +28,7 @@ defmodule Reality2Web.Router do
 
     forward "/", Absinthe.Plug,
     schema: Reality2Web.Schema,
+    socket: Reality2Web.UserSocket,
     init_opts: [json_codec: Jason]
   end
 
@@ -36,8 +37,8 @@ defmodule Reality2Web.Router do
     schema: Reality2Web.Schema,
     socket: Reality2Web.UserSocket,
     # interface: :simple,
-    # interface: :advanced,
-    interface: :playground,
+    interface: :advanced,
+    # interface: :playground,
     context: %{pubsub: Reality2Web.Endpoint}
   end
 

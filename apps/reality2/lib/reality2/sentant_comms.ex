@@ -81,6 +81,20 @@ defmodule Reality2.Sentant.Comms do
           :ok
         pid ->
           IO.puts("Sending to: " <> inspect(pid) <> inspect(command_and_parameters))
+
+          # Build the subscription data
+          event = Helpers.Map.get(command_and_parameters, "event", "")
+          subscription_data = %{
+            sentant: convert_key_strings_to_atoms(sentant_map),
+            event: event,
+            parameters: Helpers.Map.get(command_and_parameters, "parameters", %{})
+          }
+          # IO.puts("subscription_data: " <> inspect(subscription_data, pretty: true))
+
+          # Send off to any event subscriptions
+          Absinthe.Subscription.publish(Reality2Web.Endpoint, subscription_data, sentant_event: id <> "|" <> event)
+
+          # Send to each automation
           GenServer.cast(pid, command_and_parameters)
       end
     end)
@@ -103,6 +117,16 @@ defmodule Reality2.Sentant.Comms do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Helper Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
-
+  defp convert_key_strings_to_atoms(data) when is_map(data) do
+    Enum.reduce(data, %{}, fn {key, value}, acc ->
+      Map.put(acc, String.to_atom(key), convert_key_strings_to_atoms(value))
+    end)
+  end
+  defp convert_key_strings_to_atoms(data) when is_list(data) do
+    Enum.map(data, &convert_key_strings_to_atoms/1)
+  end
+  defp convert_key_strings_to_atoms(data) do
+    data
+  end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

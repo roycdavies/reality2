@@ -251,7 +251,7 @@ defmodule Reality2.Types do
     binary: { !str: !binary }
 
     # A list of strings that may be used to group Sentants together in a Node
-    groups: [ !str ]
+    keywords: [ !str ]
 
     # A list of strings that may be used to search for Sentants in a Node
     tags: [ !str ]
@@ -283,11 +283,12 @@ defmodule Reality2.Types do
     keywords: [String.t],
     description: String.t,
     author: author,
+    plugins: [plugin],
     automations: [automation],
     states: [stored_state],
     status: status
   }
-  def sentant, do: {%{"id" => uuid(), "name" => "", "version" => "", "class" => "", "data" => %{}, "binary" => %{}, "tags" => [], "keywords" => [], "description" => "", "author" => author(), "automations" => [automation()], "states" => [stored_state()], "status" => status()}, ["name"]}
+  def sentant, do: {%{"id" => uuid(), "name" => "", "version" => "", "class" => "", "data" => %{}, "binary" => %{}, "tags" => [], "keywords" => [], "description" => "", "author" => author(), "plugins" => [plugin()], "automations" => [automation()], "states" => [stored_state()], "status" => status()}, ["name"]}
 
   @typedoc """
   A group of Sentant Templates that work together to achieve a common goal.
@@ -325,35 +326,87 @@ defmodule Reality2.Types do
   def swarm, do: {%{"name" => "", "class" => "", "description" => "", "author" => author(), "version" => "", "sentants" => [sentant()]}, ["sentants"]}
 
 
-  # def validate(map, typedef), do: validate(map, typedef, "")
-  # defp validate(map, type_def, acc) when is_map(map) do
-  #   IO.puts("validate: map = #{inspect(map)}")
-  #   IO.puts("validate: type_def = #{inspect(type_def)}")
-  #   IO.puts("validate: acc = #{inspect(acc)}")
+  # -----------------------------------------------------------------------------------------------
+  # Validate a data against a type definition
+  # A type definition is a tuple of {type, required} where
+  #  type is a map of key/value pairs where the key is the name of the field, and
+  #  required is a list of keys that are required to be present
+  # Either returns {:ok} or {:error, {:missing_required, path}} or {:error, {:invalid_field, path}}
+  # where path is a dot seperated key-path to the field that is incorrect in the data, and indicates
+  # either which required field is missing, or which field is not in the type definition
+  # -----------------------------------------------------------------------------------------------
+  def validate(map, typedef), do: validate(map, typedef, "")
 
-  #   # Check that required keys are present
-  #   case type_def do
-  #     {format, required_keys} ->
-  #       case Enum.reduce_while(required_keys, acc, fn (key, new_acc) ->
-  #         case Helpers.Map.get(map, key) do
-  #           nil -> {:halt, {:error, new_acc <> "." <> key}}
-  #           value ->
-  #             cond do
-  #               is_map(value) -> validate(value, format, new_acc <> "." <> key)
-  #               is_list(value) && length(value) > 0 -> Enum.all?(value, fn x ->
-  #                 [sub | _] = format
-  #                 validate(x, sub, new_acc <> "." <> key)
-  #               end)
-  #               true -> true
-  #             end
-  #           end
-  #       end) do
-  #       end
-  #     _ -> {:error, :type_def}
-  #   end
-  # end
-  # defp validate(_, _, acc), do: {:error, acc}
+  defp validate(map, typedef, acc) do
+    case validate_required(map, typedef, acc) do
+      "" ->
+        case validate_existing(map, typedef, "") do
+          "" -> {:ok}
+          path -> {:error, {:invalid_field, String.trim(path, ".")}}
+        end
+      path -> {:error, {:missing_required, String.trim(path, ".")}}
+    end
+  end
+  # -----------------------------------------------------------------------------------------------
+  # Validate that the required fields are present in the data
+  # -----------------------------------------------------------------------------------------------
+  defp validate_required(data, typedef, acc) when is_list(data) do
+    [{type, required}] = typedef
+    Enum.reduce_while(data, acc, fn data_element, new_acc ->
+      case validate_required(data_element, {type, required}, "") do
+        "" -> {:cont, new_acc}
+        path -> {:halt, "#{new_acc}#{path}"}
+      end
+    end)
+  end
+  defp validate_required(data, typedef, acc) when is_map(data) do
+    {type, required} = typedef
+    Enum.reduce_while(required, acc, fn key, new_acc ->
+      case Helpers.Map.get(data, key) do
+        nil -> {:halt, "#{new_acc}.#{key}"}
+        data_child ->
+          subtype = Helpers.Map.get(type, key)
+          case validate_required(data_child, subtype, key) do
+            ^key -> {:cont, new_acc}
+            path -> {:halt, "#{new_acc}.#{path}"}
+          end
+      end
+    end)
+  end
+  defp validate_required(_, _, acc), do: acc
+  # -----------------------------------------------------------------------------------------------
+  # Validate that the fields given in the data exist in the type defintion, and no others
+  # -----------------------------------------------------------------------------------------------
+  defp validate_existing(data, [], acc) when is_list(data), do: acc
+  defp validate_existing(data, typedef, acc) when is_list(data) and is_list(typedef) do
+    [{type, required}] = typedef
+    Enum.reduce_while(data, acc, fn data_element, new_acc ->
+      case validate_existing(data_element, {type, required}, "") do
+        "" -> {:cont, new_acc}
+        path -> {:halt, "#{new_acc}#{path}"}
+      end
+    end)
+  end
+  defp validate_existing(data, %{}, acc) when is_map(data), do: acc
+  defp validate_existing(data, typedef, acc) when is_map(data) do
+    keys = Map.keys(data)
+    {type, required} = typedef
+    Enum.reduce_while(keys, acc, fn key, new_acc ->
+      case Helpers.Map.get(type, key) do
+        nil -> {:halt, "#{new_acc}.#{key}"}
+        subtype ->
+          data_child = Helpers.Map.get(data, key)
+          case validate_existing(data_child, subtype, key) do
+            ^key -> {:cont, new_acc}
+            path -> {:halt, "#{new_acc}.#{path}"}
+          end
+      end
+    end)
+  end
+  defp validate_existing(_, _, acc), do: acc
+  # -----------------------------------------------------------------------------------------------
 end
+
 
 defmodule YAML.Sentant_example do
 @moduledoc """

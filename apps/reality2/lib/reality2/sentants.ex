@@ -80,21 +80,23 @@ defmodule Reality2.Sentants do
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def create(sentant_definition) do
-    IO.puts("Creating Sentant: " <> inspect(sentant_definition, pretty: true))
     case convert_input(sentant_definition) do
-      {:ok, definition_map} -> create_from_map(definition_map)
-       _ -> {:error, :definition}
+      {:ok, definition_map} ->
+        sentant_map = remove_sentant_parent_from_definition_map(definition_map)
+        case Reality2.Types.validate(sentant_map, Reality2.Types.sentant()) do
+          {:ok} ->
+            create_from_map(add_defaults(sentant_map))
+          {:error, {error_code, reason}} -> {:error, {error_code, "sentant." <> reason}}
+        end
+      _ ->
+        {:error, :definition}
     end
   end
 
-  defp create_from_map(definition_map) do
-    sentant_map = definition_map
-    |> remove_sentant_parent_from_definition_map
-    |> add_defaults
-
+  defp create_from_map(sentant_map) do
     case sentant_name(sentant_map) do
       {:ok, name} ->
-        IO.puts("Creating Sentant: " <> inspect(sentant_map, pretty: true))
+        # IO.puts("Creating Sentant: #{inspect(sentant_map, pretty: true)}")
         case sentant_id(sentant_map) do
           {:ok, _, id} ->
             case Reality2.Metadata.get(:SentantIDs, name) do
@@ -219,7 +221,7 @@ defmodule Reality2.Sentants do
   end
 
   def read(%{:id => uuid}, command) do
-    IO.puts("Reading Sentant: " <> inspect(uuid, pretty: true))
+    # IO.puts("Reading Sentant: " <> inspect(uuid, pretty: true))
     case Process.whereis(String.to_atom(uuid <> "|comms")) do
       nil ->
         {:error, :id}
@@ -356,7 +358,7 @@ defmodule Reality2.Sentants do
       pid ->
         IO.puts("Sending message to Sentant: " <> inspect(message_map, pretty: true))
         GenServer.cast(pid, message_map)
-        {:ok}
+        {:ok, pid}
       end
   end
 
@@ -462,7 +464,7 @@ defmodule Reality2.Sentants do
     |> Map.put_new("class", "ai.reality2.default")
     |> Map.put_new("data", %{})
     |> Map.put_new("binary", %{})
-    |> Map.put_new("groups", [])
+    |> Map.put_new("keywords", [])
     |> Map.put_new("tags", [])
     |> Map.put_new("automations", [])
     |> Map.put_new("states", [])

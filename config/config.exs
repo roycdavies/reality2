@@ -25,7 +25,7 @@ config :reality2_web, Reality2Web.Endpoint,
     formats: [json: Reality2Web.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Reality2.PubSub,
+  pubsub_server: Reality2Web.PubSub,
   live_view: [signing_salt: "/es9VuWV"]
 
 # Configures Elixir's Logger

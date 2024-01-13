@@ -59,20 +59,4 @@ defmodule Helpers do
       end
     end
   end
-
-  defmodule Types do
-    def validate(map, the_type) do
-      required_keys = Map.keys(the_type)
-      case Enum.all?(required_keys, fn key -> Map.has_key?(map, key) end) do
-        true ->
-          # All required keys are present
-          # Check the types
-          # Enum.all?(required_keys, fn key -> validate_type(map, key, the_type) end)
-          true
-        false ->
-          # Not all required keys are present
-          false
-      end
-    end
-  end
 end

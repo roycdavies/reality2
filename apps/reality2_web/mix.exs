@@ -56,7 +56,7 @@ defmodule Reality2Web.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:absinthe, "~> 1.7"},
       {:absinthe_plug, "~> 1.5"},
-      {:phoenix_pubsub, "~> 2.1"},
+      {:phoenix_pubsub, "~> 2.0"},
       {:absinthe_phoenix, "~> 2.0"},
       {:ex_doc, "~> 0.27", only: :dev, runtime: false},
       {:uuid, "~> 1.1"},
