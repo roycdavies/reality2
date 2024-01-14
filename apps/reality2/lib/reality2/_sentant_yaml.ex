@@ -429,9 +429,14 @@ defmodule Reality2.Types do
             nil -> {:halt, "#{new_acc}.#{key}"}
             subtype ->
               data_child = Helpers.Map.get(data, key)
+              IO.puts("key: #{inspect(key)}")
               case validate_existing(data_child, subtype, key) do
-                ^key -> {:cont, new_acc}
-                path -> {:halt, "#{new_acc}.#{path}"}
+                ^key ->
+                  IO.puts("acc: #{inspect(acc)}")
+                  {:cont, new_acc}
+                path ->
+                  IO.puts("path: #{new_acc}.#{path}")
+                  {:halt, "#{new_acc}.#{path}"}
               end
           end
         end)
