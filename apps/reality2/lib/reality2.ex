@@ -372,7 +372,7 @@ sentant:
 
     @type test1 :: %{
       name: String.t,
-      tester: [test2]
+      tester: test2
     }
     def test1, do: {%{"name" => "", "tester" => test2()}, ["name", "tester"]}
 
@@ -388,19 +388,61 @@ sentant:
     }
     def test3, do: {%{"anumber" => 0, "astring" => ""}, ["astring"]}
 
+    @type test4 :: %{
+      names: [String.t],
+      something: test3
+    }
+    def test4, do: {%{"names" => [""], "something" => test3()}, ["names"]}
+
+    @type test5 :: %{
+      stuff: String.t,
+      something: test4
+    }
+    def test5, do: {%{"stuff" => "", "something" => test4()}, ["stuff"]}
+
+
     def test_validate() do
 
       testdata1 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42, "astring" => "Hello World"}]}}
       testdata2 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42}]}}
       testdata3 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"number" => 42, "astring" => "Hello World"}]}}
+      testdata4 = %{"name" => "Fred", "tester" => 23}
+      testdata5 = %{"names" => ["Fred", "John"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
+      testdata6 = %{"names" => ["Fred", "John"]}
+      testdata7 = %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}
+      testdata8 = %{"names" => ["Fred"], "something" => [%{"anumber" => 42, "astring" => "Hello World"}]}
+      testdata9 = %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
+      testdata10 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
+      testdata11 = %{"stuff" => "Hello World", "something" => %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
+      testdata12 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => "Hello World"}}
 
-      result1 = Reality2.Types.validate(testdata1, test1())
-      result2 = Reality2.Types.validate(testdata2, test1())
-      result3 = Reality2.Types.validate(testdata3, test1())
+
+      result1 = Reality2.Types.validate(testdata1, test1()) # Should be OK
+      result2 = Reality2.Types.validate(testdata2, test1()) # Should fail with {:error, {:missing_required, "tester.more.astring"}}
+      result3 = Reality2.Types.validate(testdata3, test1()) # Should fail with {:error, {:missing_existing, "tester.more.number"}}
+      result4 = Reality2.Types.validate(testdata4, test1()) # Should fail with {:error, {:wrong_type, "tester.{}"}}
+      result5 = Reality2.Types.validate(testdata5, test4()) # Should be OK
+      result6 = Reality2.Types.validate(testdata6, test4()) # Should be OK
+      result7 = Reality2.Types.validate(testdata7, test4()) # Should fail with {:error, {:wrong_type, "names.[]"}}
+      result8 = Reality2.Types.validate(testdata8, test4()) # Should fail with {:error, {:wrong_type, "something.[]"}}
+      result9 = Reality2.Types.validate(testdata9, test4()) # Should be OK
+      result10 = Reality2.Types.validate(testdata10, test5()) # Should be OK
+      result11 = Reality2.Types.validate(testdata11, test5()) # Should NOT be OK
+      result12 = Reality2.Types.validate(testdata12, test5()) # Should NOT be OK
 
       IO.puts("Result 1 = #{inspect(result1)}")
       IO.puts("Result 2 = #{inspect(result2)}")
       IO.puts("Result 3 = #{inspect(result3)}")
+      IO.puts("Result 4 = #{inspect(result4)}")
+      IO.puts("Result 5 = #{inspect(result5)}")
+      IO.puts("Result 6 = #{inspect(result6)}")
+      IO.puts("Result 7 = #{inspect(result7)}")
+      IO.puts("Result 8 = #{inspect(result8)}")
+      IO.puts("Result 9 = #{inspect(result9)}")
+      IO.puts("Result 10 = #{inspect(result10)}")
+      IO.puts("Result 11 = #{inspect(result11)}")
+      IO.puts("Result 12 = #{inspect(result12)}")
+
     end
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
