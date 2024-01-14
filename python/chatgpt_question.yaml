@@ -13,8 +13,6 @@ sentant:
   name: Ask Question
   description: This is a test sentant for ChatGPT Plugin
 
-
-
   # ----------------------------------------------------------------------------------------------------
   # Plugins (A list, so begin with a dash)
   # ----------------------------------------------------------------------------------------------------
@@ -22,23 +20,28 @@ sentant:
     - name: com.openai.api # This is the name of the plugin, used in the Automation below
       url: https://api.openai.com/v1/chat/completions # This is the URL to the API endpoint
       method: POST # This is the HTTP method to use
-      headers: # These are the headers to send (see ChatGPT API documentation)
+
+      # These are the headers to send (see ChatGPT API documentation)
+      headers:
         "Content-Type": "application/json"
-        "Authorization": "Bearer __openai_api_key__" # This is a secret, so it is not shown here (replace before passing to Reality2)
-      body: # This is the body to send (see ChatGPT API documentation).  Note the __message__ placeholder.
+        # This is a secret, so it is not shown here (replace before passing to Reality2)
+        "Authorization": "Bearer __openai_api_key__"
+
+      # This is the body to send (see ChatGPT API documentation).  Note the __message__ placeholder.
+      body:
         model: "gpt-3.5-turbo-1106"
         messages:
           - role: "system"
             content: "You are a helpful assistant."
           - role: "user"
             content: __message__
-      output: # This determines how to process the output from the API.  The value is a simplified JSON path expression.
+
+      # How to process the output from the API.  The value is a simplified JSON path expression.
+      output:
         key: chatgpt_says
         value: "choices.0.message.content"
         event: chatgpt_response
   # ----------------------------------------------------------------------------------------------------
-
-
 
   # ----------------------------------------------------------------------------------------------------
   # Automations (Also a list, so begin with a dash)
@@ -47,10 +50,14 @@ sentant:
     - name: ChatGPT # This is the name of the automation.
       description: This is a test automation. # This is the description of the automation.
       transitions: # This is a list of transitions, so begin with a dash.
-        - from: start # The initial transition when the automation starts
+
+          # The initial transition when the automation starts
+        - from: start
           event: init
           to: ready
-        - from: "*" # The transition that initiaties the call to the plugin
+
+          # The transition that initiaties the call to the plugin
+        - from: "*"
           event: chatgpt
           to: ready
           actions:
@@ -58,7 +65,9 @@ sentant:
               command: send
               parameters: # The message below is the default, but is overridden by a message passed in.
                 message: "Translate this sentence into Swedish: Hello, my name is John."
-        - from: "*" # This transition deals with the answer from chatgpt and illustrates how to use the output.
+
+          # Deals with the answer from chatgpt and illustrates how to use the output.
+        - from: "*"
           event: chatgpt_response
           to: ready
           actions:

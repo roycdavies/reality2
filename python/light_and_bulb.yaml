@@ -1,58 +1,77 @@
-    swarm:
-      sentants:
-        - name: Light Switch
-          description: This is a test sentant.
-          automations:
-          - name: switch
-            description: This is a test automation.
-            transitions:
-              - from: start
-                event: init
-                to: off
-              - from: off
-                event: turn_on
-                to: on
-                actions:
-                  - command: send
-                    parameters:
-                      to: Light Bulb
-                      event: turn_on
-                  - command: send
-                    parameters:
-                      event: turn_off
-                      delay: 2000
-              - from: on
-                event: turn_off
-                to: off
-                actions:
-                  - command: send
-                    parameters:
-                      to: Light Bulb
-                      event: turn_off
-                  - command: send
-                    parameters:
-                      event: turn_on
-                      delay: 2000
-              - from: "*"
-                event: stop
-                to: off
-                actions:
-                  - command: send
-                    parameters:
-                      to: Light Bulb
-                      event: turn_off
-        - name: Light Bulb
-          description: This is a light bulb sentant.
-          automations:
-          - name: bulb
-            description: This is a test automation.
-            transitions:
-              - from: start
-                event: init
-                to: ready
-              - from: "*"
-                event: turn_on
-                to: on
-              - from: "*"
-                event: turn_off
-                to: off
+# ------------------------------------------------------------------------------------------------------
+# A Swarm of Sentants to illustrate sending events between Sentants.
+#
+# Author: Dr. Roy C. Davies
+# Date: 2024-01-13
+# Contant: http://roycdavies.github.io
+# ------------------------------------------------------------------------------------------------------
+swarm:
+  sentants:
+
+    # --------------------------------------------------------------------------------------------------
+    # Light Switch Sentant
+    # --------------------------------------------------------------------------------------------------
+    - name: Light Switch
+      description: This is a test sentant.
+      automations:
+      - name: switch
+        description: This is a test automation.
+        transitions:
+          # Go to the off state on initialisation
+          - from: start
+            event: init
+            to: off
+
+          # turn_on event
+          - from: off
+            event: turn_on
+            to: on
+            actions:
+              # Send turn_on event to the Light Bulb Sentant
+              - command: send
+                parameters:
+                  to: Light Bulb
+                  event: turn_on
+
+              # Send turn_off to self after 2 seconds
+              - command: send
+                parameters:
+                  event: turn_off
+                  delay: 2000
+
+          # turn_off event
+          - from: on
+            event: turn_off
+            to: off
+            actions:
+              # Send turn_off event to the Light Bulb Sentant
+              - command: send
+                parameters:
+                  to: Light Bulb
+                  event: turn_off
+    # --------------------------------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------------------------------
+    # Light Bulb Sentant
+    # --------------------------------------------------------------------------------------------------
+    - name: Light Bulb
+      description: This is a light bulb sentant.
+      automations:
+      - name: bulb
+        description: This is a test automation.
+        transitions:
+          # Go to the off state on initialisation
+          - from: start
+            event: init
+            to: off
+
+          # turn_on event
+          - from: "*"
+            event: turn_on
+            to: on
+            
+          # turn_off event
+          - from: "*"
+            event: turn_off
+            to: off
+    # --------------------------------------------------------------------------------------------------

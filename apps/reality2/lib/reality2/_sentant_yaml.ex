@@ -351,6 +351,7 @@ defmodule Reality2.Types do
   # Validate that the required fields are present in the data
   # -----------------------------------------------------------------------------------------------
   defp validate_required(data, typedef, acc) when is_list(data) do
+    IO.puts("validate_required: #{inspect(data)}")
     [{type, required}] = typedef
     Enum.reduce_while(data, acc, fn data_element, new_acc ->
       case validate_required(data_element, {type, required}, "") do
