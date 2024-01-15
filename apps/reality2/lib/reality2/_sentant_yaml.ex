@@ -331,41 +331,48 @@ defmodule Reality2.Types do
   # A type definition is a tuple of {type, required} where
   #  type is a map of key/value pairs where the key is the name of the field, and
   #  required is a list of keys that are required to be present
-  # Either returns {:ok} or {:error, {:missing_required, path}} or {:error, {:invalid_field, path}}
+  # Either returns {:ok} or {:error, path}
   # where path is a dot seperated key-path to the field that is incorrect in the data, and indicates
   # either which required field is missing, or which field is not in the type definition
   # -----------------------------------------------------------------------------------------------
-  def validate(map, typedef), do: validate(map, typedef, "")
-
-  defp validate(map, typedef, acc) do
-    case validate_required(map, typedef, acc) do
-      "" ->
-        case validate_existing(map, typedef, "") do
-          "" -> {:ok}
-          path ->
-            if String.ends_with?(path, "{}") || String.ends_with?(path, "[]") do
-              {:error, {:wrong_type, String.trim(path, ".")}}
-            else
-              {:error, {:missing_existing, String.trim(path, ".")}}
-            end
-        end
-      path ->
-        if String.ends_with?(path, "{}") || String.ends_with?(path, "[]") do
-          {:error, {:wrong_type, String.trim(path, ".")}}
-        else
-          {:error, {:missing_required, String.trim(path, ".")}}
-        end
+  def validate(map, typedef) do
+    case validate(map, typedef, "", 0) do
+      "" -> {:ok}
+      "." -> {:error, "type error"}
+      path -> {:error, String.trim(path, ".")}
     end
   end
+
+  defp validate(map, typedef, acc, depth) do
+    # IO.puts("depth: #{inspect(depth)}")
+    if (depth < 10) do
+      # IO.puts("1")
+      acc1 = validate_required(map, typedef, acc, depth+1)
+      # IO.puts("2")
+      acc2 = validate_existing(map, typedef, acc, depth+1)
+      if acc1 == "" do
+        if acc2 == "" do
+          ""
+        else
+          acc2
+        end
+      else
+        acc1
+      end
+    else
+      "possible infinite loop"
+    end
+  end
+
 
   # -----------------------------------------------------------------------------------------------
   # Validate that the required fields are present in the data
   # -----------------------------------------------------------------------------------------------
-  defp validate_required(data, typedef, acc) when is_list(data) and is_list(typedef) do
+  defp validate_required(data, typedef, acc, depth) when is_list(data) and is_list(typedef) do
     case typedef do
       [{type, required}] ->
         Enum.reduce_while(data, acc, fn data_element, new_acc ->
-          case validate_required(data_element, {type, required}, "") do
+          case validate(data_element, {type, required}, "", depth) do
             "" -> {:cont, new_acc}
             path -> {:halt, "#{new_acc}#{path}"}
           end
@@ -373,11 +380,11 @@ defmodule Reality2.Types do
       _scalar -> acc # TODO: test that the scalar types match
     end
   end
-  defp validate_required(data, typedef, acc) when is_list(typedef) do
+  defp validate_required(data, typedef, acc, _) when is_list(typedef) do
     acc <> "." <> "[]"
   end
 
-  defp validate_required(data, typedef, acc) when is_map(data) and is_tuple(typedef) do
+  defp validate_required(data, typedef, acc, depth) when is_map(data) and is_tuple(typedef) do
     case typedef do
       {type, required} ->
         Enum.reduce_while(required, acc, fn key, new_acc ->
@@ -385,7 +392,7 @@ defmodule Reality2.Types do
             nil -> {:halt, "#{new_acc}.#{key}"}
             data_child ->
               subtype = Helpers.Map.get(type, key)
-              case validate_required(data_child, subtype, key) do
+              case validate(data_child, subtype, key, depth) do
                 ^key -> {:cont, new_acc}
                 path -> {:halt, "#{new_acc}.#{path}"}
               end
@@ -394,20 +401,20 @@ defmodule Reality2.Types do
       _scalar -> acc # TODO: test that the scalar types match
     end
   end
-  defp validate_required(data, typedef, acc) when is_tuple(typedef) do
+  defp validate_required(data, typedef, acc, _) when is_tuple(typedef) do
     acc <> "." <> "{}"
   end
-  defp validate_required(_, _, acc), do: acc
+  defp validate_required(_, _, acc, _), do: acc
 
   # -----------------------------------------------------------------------------------------------
   # Validate that the fields given in the data exist in the type defintion, and no others
   # -----------------------------------------------------------------------------------------------
-  defp validate_existing(data, [], acc) when is_list(data), do: acc
-  defp validate_existing(data, typedef, acc) when is_list(data) and is_list(typedef) do
+  defp validate_existing(data, [], acc, _) when is_list(data), do: acc
+  defp validate_existing(data, typedef, acc, depth) when is_list(data) and is_list(typedef) do
     case typedef do
       [{type, required}] ->
         Enum.reduce_while(data, acc, fn data_element, new_acc ->
-          case validate_existing(data_element, {type, required}, "") do
+          case validate(data_element, {type, required}, "", depth) do
             "" -> {:cont, new_acc}
             path -> {:halt, "#{new_acc}#{path}"}
           end
@@ -415,12 +422,12 @@ defmodule Reality2.Types do
       _scalar -> acc # TODO: test that the scalar types match
     end
   end
-  defp validate_existing(data, typedef, acc) when is_list(data) do
+  defp validate_existing(data, typedef, acc, _) when is_list(data) do
     acc <> "." <> "[]"
   end
 
-  defp validate_existing(data, %{}, acc) when is_map(data), do: acc
-  defp validate_existing(data, typedef, acc) when is_map(data) and is_tuple(typedef) do
+  defp validate_existing(data, %{}, acc, _) when is_map(data), do: acc
+  defp validate_existing(data, typedef, acc, depth) when is_map(data) and is_tuple(typedef) do
     keys = Map.keys(data)
     case typedef do
       {type, required} ->
@@ -429,13 +436,13 @@ defmodule Reality2.Types do
             nil -> {:halt, "#{new_acc}.#{key}"}
             subtype ->
               data_child = Helpers.Map.get(data, key)
-              IO.puts("key: #{inspect(key)}")
-              case validate_existing(data_child, subtype, key) do
+              # IO.puts("key: #{inspect(key)}")
+              case validate(data_child, subtype, key, depth) do
                 ^key ->
-                  IO.puts("acc: #{inspect(acc)}")
+                  # IO.puts("acc: #{inspect(acc)}")
                   {:cont, new_acc}
                 path ->
-                  IO.puts("path: #{new_acc}.#{path}")
+                  # IO.puts("path: #{new_acc}.#{path}")
                   {:halt, "#{new_acc}.#{path}"}
               end
           end
@@ -443,10 +450,10 @@ defmodule Reality2.Types do
       _scalar -> acc # TODO: test that the scalar types match
     end
   end
-  defp validate_existing(data, typedef, acc) when is_map(data) do
+  defp validate_existing(data, typedef, acc, _) when is_map(data) do
     acc <> "." <> "{}"
   end
-  defp validate_existing(_, _, acc), do: acc
+  defp validate_existing(_, _, acc, _), do: acc
   # -----------------------------------------------------------------------------------------------
 end
 

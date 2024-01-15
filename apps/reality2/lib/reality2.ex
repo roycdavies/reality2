@@ -380,7 +380,7 @@ sentant:
       description: String.t,
       more: test3
     }
-    def test2, do: {%{"description" => "", "more" => [test3()]}, ["more"]}
+    def test2, do: {%{"description" => "", "more" => [test3()]}, [""]}
 
     @type test3 :: %{
       anumber: Integer,
@@ -392,13 +392,25 @@ sentant:
       names: [String.t],
       something: test3
     }
-    def test4, do: {%{"names" => [""], "something" => test3()}, ["names"]}
+    def test4, do: {%{"names" => [""], "something" => test3()}, ["names", "something"]}
 
     @type test5 :: %{
       stuff: String.t,
       something: test4
     }
-    def test5, do: {%{"stuff" => "", "something" => test4()}, ["stuff"]}
+    def test5, do: {%{"stuff" => "", "something" => test4()}, ["stuff", "something"]}
+
+    @type test6 :: %{
+      one: Number,
+      two: test7
+    }
+    def test6, do: {%{"one" => 0, "two" => test7()}, ["one"]}
+
+    @type test7 :: %{
+      three: Number,
+      four: test6
+    }
+    def test7, do: {%{"three" => 0, "four" => test6()}, ["four"]}
 
 
     def test_validate() do
@@ -416,18 +428,22 @@ sentant:
 
       testdata11 = %{"stuff" => "Hello World", "something" => %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
       testdata12 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => "Hello World"}}
+      testdata13 = %{"one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{} }}}}}}}}}}}}}}}}}}}}}}}}
 
 
       result1 = Reality2.Types.validate(testdata1, test1()) # Should be OK
       IO.puts("Result 1 = #{inspect(result1)}")
 
-      result2 = Reality2.Types.validate(testdata2, test1()) # Should fail with {:error, {:missing_required, "tester.more.astring"}}
+      result1_1 = Reality2.Types.validate(testdata1, test2()) # Should be OK
+      IO.puts("Result 1_1 = #{inspect(result1_1)}")
+
+      result2 = Reality2.Types.validate(testdata2, test1()) # Should fail with {:error, "tester.more.astring"}
       IO.puts("Result 2 = #{inspect(result2)}")
 
-      result3 = Reality2.Types.validate(testdata3, test1()) # Should fail with {:error, {:missing_existing, "tester.more.number"}}
+      result3 = Reality2.Types.validate(testdata3, test1()) # Should fail with {:error, "tester.more.number"}
       IO.puts("Result 3 = #{inspect(result3)}")
 
-      result4 = Reality2.Types.validate(testdata4, test1()) # Should fail with {:error, {:wrong_type, "tester.{}"}}
+      result4 = Reality2.Types.validate(testdata4, test1()) # Should fail with {:error, "tester.{}"}
       IO.puts("Result 4 = #{inspect(result4)}")
 
       result5 = Reality2.Types.validate(testdata5, test4()) # Should be OK
@@ -436,10 +452,10 @@ sentant:
       result6 = Reality2.Types.validate(testdata6, test4()) # Should be OK
       IO.puts("Result 6 = #{inspect(result6)}")
 
-      result7 = Reality2.Types.validate(testdata7, test4()) # Should fail with {:error, {:wrong_type, "names.[]"}}
+      result7 = Reality2.Types.validate(testdata7, test4()) # Should fail with {:error, "names.[]"}
       IO.puts("Result 7 = #{inspect(result7)}")
 
-      result8 = Reality2.Types.validate(testdata8, test4()) # Should fail with {:error, {:wrong_type, "something.[]"}}
+      result8 = Reality2.Types.validate(testdata8, test4()) # Should fail with {:error, "something.[]"}
       IO.puts("Result 8 = #{inspect(result8)}")
 
       result9 = Reality2.Types.validate(testdata9, test4()) # Should be OK
@@ -448,11 +464,13 @@ sentant:
       result10 = Reality2.Types.validate(testdata10, test5()) # Should be OK
       IO.puts("Result 10 = #{inspect(result10)}")
 
-      result11 = Reality2.Types.validate(testdata11, test5()) # Should NOT be OK
+      result11 = Reality2.Types.validate(testdata11, test5()) # Should fail with {:error, "something.names.[]"}
       IO.puts("Result 11 = #{inspect(result11)}")
 
-      result12 = Reality2.Types.validate(testdata12, test5()) # Should NOT be OK
+      result12 = Reality2.Types.validate(testdata12, test5()) # Should fail with {:error, "something.something.{}"}
       IO.puts("Result 12 = #{inspect(result12)}")
+
+      result13 = Reality2.Types.validate(testdata13, test6()) # Should fail with {:error, "possible infinite loop"}
 
     end
 
