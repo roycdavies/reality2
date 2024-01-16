@@ -380,7 +380,7 @@ sentant:
       description: String.t,
       more: test3
     }
-    def test2, do: {%{"description" => "", "more" => [test3()]}, [""]}
+    def test2, do: {%{"description" => "", "more" => [test3()]}, ["description"]}
 
     @type test3 :: %{
       anumber: Integer,
@@ -434,43 +434,44 @@ sentant:
       result1 = Reality2.Types.validate(testdata1, test1()) # Should be OK
       IO.puts("Result 1 = #{inspect(result1)}")
 
-      result1_1 = Reality2.Types.validate(testdata1, test2()) # Should be OK
-      IO.puts("Result 1_1 = #{inspect(result1_1)}")
+      # result1_1 = Reality2.Types.validate(testdata1, test2()) # Should be OK
+      # IO.puts("Result 1_1 = #{inspect(result1_1)}")
 
-      result2 = Reality2.Types.validate(testdata2, test1()) # Should fail with {:error, "tester.more.astring"}
-      IO.puts("Result 2 = #{inspect(result2)}")
+      # result2 = Reality2.Types.validate(testdata2, test1()) # Should fail with {:error, "tester.more.astring"}
+      # IO.puts("Result 2 = #{inspect(result2)}")
 
-      result3 = Reality2.Types.validate(testdata3, test1()) # Should fail with {:error, "tester.more.number"}
-      IO.puts("Result 3 = #{inspect(result3)}")
+      # result3 = Reality2.Types.validate(testdata3, test1()) # Should fail with {:error, "tester.more.number"}
+      # IO.puts("Result 3 = #{inspect(result3)}")
 
-      result4 = Reality2.Types.validate(testdata4, test1()) # Should fail with {:error, "tester.{}"}
-      IO.puts("Result 4 = #{inspect(result4)}")
+      # result4 = Reality2.Types.validate(testdata4, test1()) # Should fail with {:error, "tester.{}"}
+      # IO.puts("Result 4 = #{inspect(result4)}")
 
-      result5 = Reality2.Types.validate(testdata5, test4()) # Should be OK
-      IO.puts("Result 5 = #{inspect(result5)}")
+      # result5 = Reality2.Types.validate(testdata5, test4()) # Should be OK
+      # IO.puts("Result 5 = #{inspect(result5)}")
 
-      result6 = Reality2.Types.validate(testdata6, test4()) # Should be OK
-      IO.puts("Result 6 = #{inspect(result6)}")
+      # result6 = Reality2.Types.validate(testdata6, test4()) # Should be OK
+      # IO.puts("Result 6 = #{inspect(result6)}")
 
       result7 = Reality2.Types.validate(testdata7, test4()) # Should fail with {:error, "names.[]"}
       IO.puts("Result 7 = #{inspect(result7)}")
 
-      result8 = Reality2.Types.validate(testdata8, test4()) # Should fail with {:error, "something.[]"}
-      IO.puts("Result 8 = #{inspect(result8)}")
+      # result8 = Reality2.Types.validate(testdata8, test4()) # Should fail with {:error, "something.[]"}
+      # IO.puts("Result 8 = #{inspect(result8)}")
 
-      result9 = Reality2.Types.validate(testdata9, test4()) # Should be OK
-      IO.puts("Result 9 = #{inspect(result9)}")
+      # result9 = Reality2.Types.validate(testdata9, test4()) # Should be OK
+      # IO.puts("Result 9 = #{inspect(result9)}")
 
-      result10 = Reality2.Types.validate(testdata10, test5()) # Should be OK
-      IO.puts("Result 10 = #{inspect(result10)}")
+      # result10 = Reality2.Types.validate(testdata10, test5()) # Should be OK
+      # IO.puts("Result 10 = #{inspect(result10)}")
 
-      result11 = Reality2.Types.validate(testdata11, test5()) # Should fail with {:error, "something.names.[]"}
-      IO.puts("Result 11 = #{inspect(result11)}")
+      # result11 = Reality2.Types.validate(testdata11, test5()) # Should fail with {:error, "something.names.[]"}
+      # IO.puts("Result 11 = #{inspect(result11)}")
 
-      result12 = Reality2.Types.validate(testdata12, test5()) # Should fail with {:error, "something.something.{}"}
-      IO.puts("Result 12 = #{inspect(result12)}")
+      # result12 = Reality2.Types.validate(testdata12, test5()) # Should fail with {:error, "something.something.{}"}
+      # IO.puts("Result 12 = #{inspect(result12)}")
 
-      result13 = Reality2.Types.validate(testdata13, test6()) # Should fail with {:error, "possible infinite loop"}
+      # result13 = Reality2.Types.validate(testdata13, test6()) # Should fail with {:error, "possible infinite loop"}
+      # IO.puts("Result 13 = #{inspect(result13)}")
 
     end
 
