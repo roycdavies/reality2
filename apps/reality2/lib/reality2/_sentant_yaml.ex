@@ -326,60 +326,81 @@ defmodule Reality2.Types do
   def swarm, do: {%{"name" => "", "class" => "", "description" => "", "author" => author(), "version" => "", "sentants" => [sentant()]}, ["sentants"]}
 
 
+  defmacro typeof(data) do
+    cond do
+      is_tuple(data) and elem(data, 0) == :type -> :type
+      is_list(data) ->
+        case data do
+          [{:type, _, _} | _] -> :array_type
+          _ -> :list
+        end
+      is_binary(data) -> :string
+      is_integer(data) or is_float(data) -> :number
+      is_boolean(data) -> :boolean
+      is_map(data) -> :map
+      is_tuple(data) -> :tuple
+      true -> :unknown
+    end
+  end
 
-  def validate(map, typedef) do
-    required = validate1(map, typedef, []) |> List.flatten
-    optional = validate2(map, typedef, []) |> List.flatten
+
+  def validate(data, typedef) do
+    required = validate1(data, typedef, []) |> List.flatten
+    optional = validate2(data, typedef, []) |> List.flatten
 
     IO.puts("required: #{inspect(required)} optional: #{inspect(optional)}")
   end
 
   defp validate1(_, {_, []}, _), do: []
-  defp validate1(map, {type, [item | rest]}, acc) do
+  defp validate1(map, {:type, type, [item | rest]}, acc) do
     case Helpers.Map.get(map, item) do
       nil -> [item | acc]
-      _ -> validate1(map, {type, rest}, acc)
+      _ -> validate1(map, {:type, type, rest}, acc)
     end
   end
   defp validate1(_, _, acc), do: acc
 
 
+  def validate2(data, :string, _) when is_binary(data), do: []
+  def validate2(data, :number, _) when is_float(data) or is_integer(data), do: []
+  def validate2(data, :boolean, _) when is_boolean(data), do: []
 
-  defp validate2(data, {type, _required}, acc) when is_map(data) do
-    IO.puts("data: #{inspect(data)}")
-    # Get the keys in the data to be validated
-    map_keys = Map.keys(data)
+  def validate2(data, {:type, type, _}, key_in) when is_map(data) do
+    IO.puts("data_keys: #{inspect(key_in)}")
 
-    Enum.reduce_while(map_keys, acc, fn key, new_acc ->
-      child_type_definition = Helpers.Map.get(type, key)
-      IO.puts("key: #{inspect(key)} child_type: #{inspect(child_type_definition)}")
+    data_keys = Map.keys(data)
 
-      case child_type_definition do
-        # This key is not part of the type, so ignore it
-        nil -> {:cont, acc}
-
-        # This key is part of the type and is a map, so validate it
-        {child_type, required} ->
-          case validate2(Helpers.Map.get(data, key), {child_type, required}, new_acc) do
-            [] -> {:cont, new_acc}
-            result -> {:halt, new_acc ++ result}
-          end
-
-        # The child type is a map of items, so validate each item
-        [{child_type, required}] ->
-          child_data = Helpers.Map.get(data, key)
-          Enum.reduce_while(child_data, new_acc, fn child_data_element, new_acc2 ->
-            case validate2(child_data_element, {child_type, required}, new_acc2) do
-              [] -> {:cont, new_acc2}
-              result -> {:halt, new_acc2 ++ result}
-            end
-          end)
-
-        # Anything else is a scalar, so ignore it
-        _ -> {:cont, new_acc}
+    result = Enum.map(data_keys, fn key ->
+      case Helpers.Map.get(type, key) do
+        nil -> [] # Not in the type definition, so ignore
+        subtype ->
+          subdata = Helpers.Map.get(data, key)
+          validate2(subdata, subtype, key)
       end
-    end)
+    end) |> List.flatten
+
+    case result do
+      [] -> []
+      _ -> [key_in] ++ result
+    end |> List.flatten
   end
+
+  def validate2(data, [{:type, type, }], key) when is_list(data) do
+    IO.puts("type_list")
+    Enum.map(data, fn subdata ->
+      validate2(subdata, type, key)
+    end) |> List.flatten
+  end
+
+  def validate2(data, [scalar], key) when is_list(data) and is_atom(scalar) do
+    IO.puts("scalar_list")
+    Enum.map(data, fn subdata ->
+      validate2(subdata, scalar, key)
+    end) |> List.flatten
+  end
+
+  def validate2(_, _, key), do: [key] # Anything else is an error, so return the key
+
 
 
 

@@ -374,61 +374,61 @@ sentant:
       name: String.t,
       tester: test2
     }
-    def test1, do: {%{"name" => "", "tester" => test2()}, ["name", "tester"]}
+    def test1, do: {:type, %{"name" => :string, "tester" => test2()}, ["name", "tester"]}
 
     @type test2 :: %{
       description: String.t,
-      more: test3
+      more: [test3]
     }
-    def test2, do: {%{"description" => "", "more" => [test3()]}, ["description"]}
+    def test2, do: {:type, %{"description" => :string, "more" => [test3()]}, ["description"]}
 
     @type test3 :: %{
       anumber: Integer,
       astring: String.t
     }
-    def test3, do: {%{"anumber" => 0, "astring" => ""}, ["astring"]}
+    def test3, do: {:type, %{"anumber" => :number, "astring" => :string}, ["astring"]}
 
     @type test4 :: %{
       names: [String.t],
       something: test3
     }
-    def test4, do: {%{"names" => [""], "something" => test3()}, ["names", "something"]}
+    def test4, do: {:type, %{"names" => [:string], "something" => test3()}, ["names", "something"]}
 
     @type test5 :: %{
       stuff: String.t,
       something: test4
     }
-    def test5, do: {%{"stuff" => "", "something" => test4()}, ["stuff", "something"]}
+    def test5, do: {:type, %{"stuff" => :string, "something" => test4()}, ["stuff", "something"]}
 
     @type test6 :: %{
       one: Number,
       two: test7
     }
-    def test6, do: {%{"one" => 0, "two" => test7()}, ["one"]}
+    def test6, do: {:type, %{"one" => :number, "two" => test7()}, ["one"]}
 
     @type test7 :: %{
       three: Number,
       four: test6
     }
-    def test7, do: {%{"three" => 0, "four" => test6()}, ["four"]}
+    def test7, do: {:type, %{"three" => :number, "four" => test6()}, ["four"]}
 
 
     def test_validate() do
 
       testdata1 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42, "astring" => "Hello World"}]}}
-      testdata2 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42}]}}
-      testdata3 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"number" => 42, "astring" => "Hello World"}]}}
-      testdata4 = %{"name" => "Fred", "tester" => 23}
-      testdata5 = %{"names" => ["Fred", "John"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
-      testdata6 = %{"names" => ["Fred", "John"]}
-      testdata7 = %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}
-      testdata8 = %{"names" => ["Fred"], "something" => [%{"anumber" => 42, "astring" => "Hello World"}]}
-      testdata9 = %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
-      testdata10 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
+      # testdata2 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42}]}}
+      # testdata3 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"number" => 42, "astring" => "Hello World"}]}}
+      # testdata4 = %{"name" => "Fred", "tester" => 23}
+      # testdata5 = %{"names" => ["Fred", "John"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
+      # testdata6 = %{"names" => ["Fred", "John"]}
+      # testdata7 = %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}
+      # testdata8 = %{"names" => ["Fred"], "something" => [%{"anumber" => 42, "astring" => "Hello World"}]}
+      # testdata9 = %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
+      # testdata10 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
 
-      testdata11 = %{"stuff" => "Hello World", "something" => %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
-      testdata12 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => "Hello World"}}
-      testdata13 = %{"one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{} }}}}}}}}}}}}}}}}}}}}}}}}
+      # testdata11 = %{"stuff" => "Hello World", "something" => %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
+      # testdata12 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => "Hello World"}}
+      # testdata13 = %{"one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{} }}}}}}}}}}}}}}}}}}}}}}}}
 
 
       result1 = Reality2.Types.validate(testdata1, test1()) # Should be OK
@@ -452,8 +452,8 @@ sentant:
       # result6 = Reality2.Types.validate(testdata6, test4()) # Should be OK
       # IO.puts("Result 6 = #{inspect(result6)}")
 
-      result7 = Reality2.Types.validate(testdata7, test4()) # Should fail with {:error, "names.[]"}
-      IO.puts("Result 7 = #{inspect(result7)}")
+      # result7 = Reality2.Types.validate(testdata7, test4()) # Should fail with {:error, "names.[]"}
+      # IO.puts("Result 7 = #{inspect(result7)}")
 
       # result8 = Reality2.Types.validate(testdata8, test4()) # Should fail with {:error, "something.[]"}
       # IO.puts("Result 8 = #{inspect(result8)}")
@@ -472,6 +472,11 @@ sentant:
 
       # result13 = Reality2.Types.validate(testdata13, test6()) # Should fail with {:error, "possible infinite loop"}
       # IO.puts("Result 13 = #{inspect(result13)}")
+
+
+      # test1 = {:type, %{"a" => :string, "b" => {:type, %{"c" => :number}, []}}, []}
+      # IO.puts(inspect(Reality2.Types.validate(%{"a" => "", "b" => ""}, test1)))
+
 
     end
 
