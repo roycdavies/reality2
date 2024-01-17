@@ -83,11 +83,11 @@ defmodule Reality2.Sentants do
     case convert_input(sentant_definition) do
       {:ok, definition_map} ->
         sentant_map = remove_sentant_parent_from_definition_map(definition_map)
-        case Reality2.Types.validate(sentant_map, Reality2.Types.sentant()) do
-          {:ok} ->
+        # case Reality2.Types.validate(sentant_map, Reality2.Types.sentant()) do
+        #   {:ok} ->
             create_from_map(add_defaults(sentant_map))
-          {:error, {error_code, reason}} -> {:error, {error_code, "sentant." <> reason}}
-        end
+        #   {:error, {error_code, reason}} -> {:error, {error_code, "sentant." <> reason}}
+        # end
       _ ->
         {:error, :definition}
     end
