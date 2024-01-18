@@ -198,7 +198,7 @@ defmodule Reality2.Types do
       "from" => [required: true, type: :string],
       "event" => [required: true, type: :string],
       "to" => [required: true, type: :string],
-      "actions" => [required: false, type: :list, list: action()]
+      "actions" => [required: false, type: :list, list: [required: false, type: :map, map: action()]]
     }
   end
 
