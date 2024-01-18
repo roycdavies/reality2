@@ -14,7 +14,6 @@ defmodule Reality2.Types do
   A universal ID.
   """
   @opaque uuid :: String.t()
-  def uuid, do: ""
 
   @typedoc """
   A description of who made or owns the Sentant.
@@ -37,7 +36,16 @@ defmodule Reality2.Types do
     name: String.t,
     email: String.t
   }
-  def author, do: {%{"id" => "", "name" => "", "email" => ""}, ["id", "name", "email"]}
+
+  def author() do
+    %{
+      "id" => [required: true, type: :string],
+      "name" => [required: true, type: :string],
+      "email" => [required: true, type: :string]
+    }
+  end
+
+
 
   @typedoc """
   An event definition sent to a Sentant.
@@ -57,7 +65,15 @@ defmodule Reality2.Types do
     parameters: map,
     passthrough: map
   }
-  def input_event, do: {%{"event" => "", "parameters" => %{}, "passthrough" => %{}}, ["event"]}
+  def input_event() do
+    %{
+      "event" => [required: true, type: :string],
+      "parameters" => [required: false, type: :map],
+      "passthrough" => [required: false, type: :map]
+    }
+  end
+
+
 
   @typedoc """
   Plugins are used to add functionality to Sentants beyond the built-in actions.
@@ -84,7 +100,19 @@ defmodule Reality2.Types do
     output: map,
     version: String.t
   }
-  def plugin, do: {%{"name" => "", "url" => "", "version" => "", "method" => "", "headers" => %{}, "body" => %{}, "output" => %{}}, ["name", "url", "output"]}
+  def plugin() do
+    %{
+      "name" => [required: true, type: :string],
+      "url" => [required: true, type: :string],
+      "method" => [required: false, type: :string],
+      "headers" => [required: false, type: :map],
+      "body" => [required: false, type: :map],
+      "output" => [required: true, type: :map],
+      "version" => [required: false, type: :string]
+    }
+  end
+
+
 
   @typedoc """
   The action definition of an automation.
@@ -107,7 +135,15 @@ defmodule Reality2.Types do
     command: String.t,
     parameters: map
   }
-  def action, do: {%{"plugin" => plugin(), "command" => "", "parameters" => %{}}, ["command"]}
+  def action() do
+    %{
+      "plugin" => [required: false, type: :string],
+      "command" => [required: true, type: :string],
+      "parameters" => [required: false, type: :map]
+    }
+  end
+
+
 
   @typedoc """
   An automation transition action definition.
@@ -157,7 +193,14 @@ defmodule Reality2.Types do
     to: String.t,
     actions: [action]
   }
-  def transition, do: {%{"from" => "", "event" => "", "to" => "", "actions" => [action()]}, ["from", "event", "to"]}
+  def transition() do
+    %{
+      "from" => [required: true, type: :string],
+      "event" => [required: true, type: :string],
+      "to" => [required: true, type: :string],
+      "actions" => [required: false, type: :list, list: action()]
+    }
+  end
 
   @typedoc """
   A sentant automation definition.
@@ -183,7 +226,7 @@ defmodule Reality2.Types do
     description: String.t,
     transitions: [transition]
   }
-  def automation, do: {%{"name" => "", "description" => "", "transitions" => [transition()]}, ["name", "transitions"]}
+  def automation, do: {:type, %{"name" => :string, "description" => :string, "transitions" => [transition()]}, ["name", "transitions"]}
 
   @typedoc """
   A stored state of an Automation.
@@ -202,7 +245,7 @@ defmodule Reality2.Types do
     name: String.t,
     state: String.t
   }
-  def stored_state, do: {%{"name" => "", "state" => ""}, ["name", "state"]}
+  def stored_state, do: {:type, %{"name" => :string, "state" => :string}, ["name", "state"]}
 
   @typedoc """
   The current status of this Sentant on this node.
@@ -213,7 +256,7 @@ defmodule Reality2.Types do
   ```
   """
   @type status :: String.t
-  def status, do: ""
+  def status, do: :string
 
   @typedoc """
   The definition of a Sentant.
@@ -288,7 +331,7 @@ defmodule Reality2.Types do
     states: [stored_state],
     status: status
   }
-  def sentant, do: {%{"id" => uuid(), "name" => "", "version" => "", "class" => "", "data" => %{}, "binary" => %{}, "tags" => [], "keywords" => [], "description" => "", "author" => author(), "plugins" => [plugin()], "automations" => [automation()], "states" => [stored_state()], "status" => status()}, ["name"]}
+  def sentant, do: {:type, %{"id" => uuid(), "name" => :string, "version" => :string, "class" => :string, "data" => :map, "binary" => :map, "tags" => [:string], "keywords" => [:string], "description" => :string, "author" => author(), "plugins" => [plugin()], "automations" => [automation()], "states" => [stored_state()], "status" => status()}, ["name"]}
 
   @typedoc """
   A group of Sentant Templates that work together to achieve a common goal.
@@ -323,32 +366,24 @@ defmodule Reality2.Types do
     version: String.t,
     sentants: [sentant]
   }
-  def swarm, do: {%{"name" => "", "class" => "", "description" => "", "author" => author(), "version" => "", "sentants" => [sentant()]}, ["sentants"]}
+  def swarm, do: {:type, %{"name" => :string, "class" => :string, "description" => :string, "author" => author(), "version" => :string, "sentants" => [sentant()]}, ["sentants"]}
 
-
-  defmacro typeof(data) do
-    cond do
-      is_tuple(data) and elem(data, 0) == :type -> :type
-      is_list(data) ->
-        case data do
-          [{:type, _, _} | _] -> :array_type
-          _ -> :list
-        end
-      is_binary(data) -> :string
-      is_integer(data) or is_float(data) -> :number
-      is_boolean(data) -> :boolean
-      is_map(data) -> :map
-      is_tuple(data) -> :tuple
-      true -> :unknown
-    end
-  end
 
 
   def validate(data, typedef) do
     required = validate1(data, typedef, []) |> List.flatten
-    optional = validate2(data, typedef, []) |> List.flatten
+    optional = validate(data, typedef, []) |> List.flatten
 
-    IO.puts("required: #{inspect(required)} optional: #{inspect(optional)}")
+    case required do
+      [] ->
+        case optional do
+          [] -> {:ok}
+          _ -> {:error_optional, optional}
+        end
+      _ -> {:error_required, required}
+    end
+
+    # IO.puts("required: #{inspect(required)} optional: #{inspect(optional)}")
   end
 
   defp validate1(_, {_, []}, _), do: []
@@ -358,16 +393,40 @@ defmodule Reality2.Types do
       _ -> validate1(map, {:type, type, rest}, acc)
     end
   end
+  defp validate1(_, [{_, []}], _), do: []
+  defp validate1(map, [{:type, type, [item | rest]}], acc) do
+    case Helpers.Map.get(map, item) do
+      nil -> [item | acc]
+      _ -> validate1(map, [{:type, type, rest}], acc)
+    end
+  end
   defp validate1(_, _, acc), do: acc
 
 
-  def validate2(data, :string, _) when is_binary(data), do: []
-  def validate2(data, :number, _) when is_float(data) or is_integer(data), do: []
-  def validate2(data, :boolean, _) when is_boolean(data), do: []
+  def validate(data, typedef, acc) do
+
+    result = validate2(data, typedef, acc)
+    # IO.puts("----------------------------------------")
+    # IO.puts("data: #{inspect(data)}")
+    # IO.puts("typedef: #{inspect(typedef)}")
+    # IO.puts("acc: #{inspect(acc)}")
+    # IO.puts("result: #{inspect(result)}")
+    # IO.puts("----------------------------------------")
+    result
+  end
+
+  def validate2(data, :string, key) when is_binary(data), do: []
+  def validate2(data, :number, key) when is_float(data) or is_integer(data), do: []
+  def validate2(data, :boolean, key) when is_boolean(data), do: []
+  def validate2(data, :map, key) when is_map(data), do: []
+  def validate2(data, :list, key) when is_list(data), do: []
+  def validate2(data, :tuple, key) when is_tuple(data), do: []
+  def validate2(data, :any, key), do: []
 
   def validate2(data, {:type, type, _}, key_in) when is_map(data) do
-    IO.puts("data_keys: #{inspect(key_in)}")
-
+    # Given a map and a type definition, vaidate that each element of the map matches the corresponding
+    # element in the type definition.
+    # If they are all OK, return an empty list, otherwise return a list of the keys that are not OK.
     data_keys = Map.keys(data)
 
     result = Enum.map(data_keys, fn key ->
@@ -375,32 +434,52 @@ defmodule Reality2.Types do
         nil -> [] # Not in the type definition, so ignore
         subtype ->
           subdata = Helpers.Map.get(data, key)
-          validate2(subdata, subtype, key)
+          # IO.puts("subdata: #{inspect(subdata)}, subtype: #{inspect(subtype)}")
+          validate(subdata, subtype, key)
       end
-    end) |> List.flatten
+    end)
+    result_flattened = List.flatten(result)
 
-    case result do
+    case result_flattened do
       [] -> []
-      _ -> [key_in] ++ result
-    end |> List.flatten
+      _ -> [key_in | result]
+    end
   end
 
-  def validate2(data, [{:type, type, }], key) when is_list(data) do
-    IO.puts("type_list")
-    Enum.map(data, fn subdata ->
-      validate2(subdata, type, key)
-    end) |> List.flatten
+  def validate2(data, [{:type, type, req} | _], key_in) when is_list(data) do
+    result = Enum.map(data, fn subdata ->
+      validate(subdata, {:type, type, req}, key_in)
+    end)
+    result_flattened = List.flatten(result)
+
+    case result_flattened do
+      [] -> []
+      _ -> [key_in | [result]]
+    end
   end
 
-  def validate2(data, [scalar], key) when is_list(data) and is_atom(scalar) do
-    IO.puts("scalar_list")
-    Enum.map(data, fn subdata ->
-      validate2(subdata, scalar, key)
-    end) |> List.flatten
+  def validate2(data, [scalar], key_in) when is_list(data) and is_atom(scalar) do
+    result = Enum.map(data, fn subdata ->
+      validate(subdata, scalar, key_in)
+    end)
+    result_flattened = List.flatten(result)
+
+    case result_flattened do
+      [] -> []
+      _ -> [key_in | [result]]
+    end
   end
 
-  def validate2(_, _, key), do: [key] # Anything else is an error, so return the key
+  def validate2(_, _, key) do
+    [key] # Anything else is an error, so return the key
+  end
 
+
+  def remove_empty_lists(list) do
+    Enum.filter(list, fn x -> x != [] end)
+    |> Enum.map(fn x -> if is_list(x), do: remove_empty_lists(x), else: x end)
+    |> Enum.filter(fn x -> x != [] end)
+  end
 
 
 

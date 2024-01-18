@@ -86,8 +86,8 @@ defmodule Reality2.Sentants do
         # case Reality2.Types.validate(sentant_map, Reality2.Types.sentant()) do
         #   {:ok} ->
             create_from_map(add_defaults(sentant_map))
-        #   {:error, {error_code, reason}} -> {:error, {error_code, "sentant." <> reason}}
-        # end
+          {:error, error} -> {:error, error}
+        end
       _ ->
         {:error, :definition}
     end

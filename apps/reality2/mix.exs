@@ -56,6 +56,7 @@ defmodule Reality2.MixProject do
       {:uuid, "~> 1.1"},
       {:toml, "~> 0.7"},
       {:finch, "~> 0.16"},
+      {:validate, "~> 1.3"},
       {:ai_reality2_vars, in_umbrella: true}
     ]
   end

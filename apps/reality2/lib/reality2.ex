@@ -211,7 +211,7 @@ sentant:
     swarm_definition = """
     swarm:
       sentants:
-        - name: Light Switch
+        - names: Light Switch
           description: This is a test sentant.
           automations:
           - name: switch
@@ -380,7 +380,7 @@ sentant:
       description: String.t,
       more: [test3]
     }
-    def test2, do: {:type, %{"description" => :string, "more" => [test3()]}, ["description"]}
+    def test2, do: {:type, %{"description" => :string, "more" => [test3()]}, ["description", "more"]}
 
     @type test3 :: %{
       anumber: Integer,
@@ -392,7 +392,7 @@ sentant:
       names: [String.t],
       something: test3
     }
-    def test4, do: {:type, %{"names" => [:string], "something" => test3()}, ["names", "something"]}
+    def test4, do: {:type, %{"names" => [:string], "something" => test3()}, ["names"]}
 
     @type test5 :: %{
       stuff: String.t,
@@ -416,62 +416,90 @@ sentant:
     def test_validate() do
 
       testdata1 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42, "astring" => "Hello World"}]}}
-      # testdata2 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42}]}}
-      # testdata3 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"number" => 42, "astring" => "Hello World"}]}}
-      # testdata4 = %{"name" => "Fred", "tester" => 23}
-      # testdata5 = %{"names" => ["Fred", "John"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
-      # testdata6 = %{"names" => ["Fred", "John"]}
-      # testdata7 = %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}
-      # testdata8 = %{"names" => ["Fred"], "something" => [%{"anumber" => 42, "astring" => "Hello World"}]}
-      # testdata9 = %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
-      # testdata10 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
+      testdata2 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"anumber" => 42}]}}
+      testdata3 = %{"name" => "Fred", "tester" => %{"description" => "A friend", "more" => [%{"number" => 42, "astring" => "Hello World"}]}}
+      testdata4 = %{"name" => "Fred", "tester" => 23}
+      testdata5 = %{"names" => ["Fred", "John"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
+      testdata6 = %{"names" => ["Fred", "John"]}
+      testdata7 = %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}
+      testdata8 = %{"names" => ["Fred"], "something" => [%{"anumber" => 42, "astring" => "Hello World"}]}
+      testdata9 = %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}
+      testdata10 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
 
-      # testdata11 = %{"stuff" => "Hello World", "something" => %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
-      # testdata12 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => "Hello World"}}
-      # testdata13 = %{"one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{} }}}}}}}}}}}}}}}}}}}}}}}}
+      testdata11 = %{"stuff" => "Hello World", "something" => %{"names" => "Fred", "something" => %{"anumber" => 42, "astring" => "Hello World"}}}
+      testdata12 = %{"stuff" => "Hello World", "something" => %{"names" => ["Fred"], "something" => "Hello World"}}
+      testdata13 = %{"one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{ "one" => 42, "two" => %{ "three" => 42, "four" => %{} }}}}}}}}}}}}}}}}}}}}}}}}
 
 
+      IO.puts("---------------------------------------------testdata1------------------------------------")
       result1 = Reality2.Types.validate(testdata1, test1()) # Should be OK
       IO.puts("Result 1 = #{inspect(result1)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result1_1 = Reality2.Types.validate(testdata1, test2()) # Should be OK
-      # IO.puts("Result 1_1 = #{inspect(result1_1)}")
+      IO.puts("---------------------------------------------testdata1.1----------------------------------")
+      result1_1 = Reality2.Types.validate(testdata1, test2()) # Should be OK
+      IO.puts("Result 1_1 = #{inspect(result1_1)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result2 = Reality2.Types.validate(testdata2, test1()) # Should fail with {:error, "tester.more.astring"}
-      # IO.puts("Result 2 = #{inspect(result2)}")
+      IO.puts("---------------------------------------------testdata2------------------------------------")
+      result2 = Reality2.Types.validate(testdata2, test1()) # Should fail with {:error, "tester.more.astring"}
+      IO.puts("Result 2 = #{inspect(result2)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result3 = Reality2.Types.validate(testdata3, test1()) # Should fail with {:error, "tester.more.number"}
-      # IO.puts("Result 3 = #{inspect(result3)}")
+      IO.puts("---------------------------------------------testdata3------------------------------------")
+      result3 = Reality2.Types.validate(testdata3, test1()) # Should fail with {:error, "tester.more.number"}
+      IO.puts("Result 3 = #{inspect(result3)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result4 = Reality2.Types.validate(testdata4, test1()) # Should fail with {:error, "tester.{}"}
-      # IO.puts("Result 4 = #{inspect(result4)}")
+      IO.puts("---------------------------------------------testdata4------------------------------------")
+      result4 = Reality2.Types.validate(testdata4, test1()) # Should fail with {:error, "tester.{}"}
+      IO.puts("Result 4 = #{inspect(result4)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result5 = Reality2.Types.validate(testdata5, test4()) # Should be OK
-      # IO.puts("Result 5 = #{inspect(result5)}")
+      IO.puts("---------------------------------------------testdata5------------------------------------")
+      result5 = Reality2.Types.validate(testdata5, test4()) # Should be OK
+      IO.puts("Result 5 = #{inspect(result5)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result6 = Reality2.Types.validate(testdata6, test4()) # Should be OK
-      # IO.puts("Result 6 = #{inspect(result6)}")
+      IO.puts("---------------------------------------------testdata6------------------------------------")
+      result6 = Reality2.Types.validate(testdata6, test4()) # Should be OK
+      IO.puts("Result 6 = #{inspect(result6)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result7 = Reality2.Types.validate(testdata7, test4()) # Should fail with {:error, "names.[]"}
-      # IO.puts("Result 7 = #{inspect(result7)}")
+      IO.puts("---------------------------------------------testdata7------------------------------------")
+      result7 = Reality2.Types.validate(testdata7, test4()) # Should fail with {:error, "names.[]"}
+      IO.puts("Result 7 = #{inspect(result7)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result8 = Reality2.Types.validate(testdata8, test4()) # Should fail with {:error, "something.[]"}
-      # IO.puts("Result 8 = #{inspect(result8)}")
+      IO.puts("---------------------------------------------testdata8------------------------------------")
+      result8 = Reality2.Types.validate(testdata8, test4()) # Should fail with {:error, "something.[]"}
+      IO.puts("Result 8 = #{inspect(result8)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result9 = Reality2.Types.validate(testdata9, test4()) # Should be OK
-      # IO.puts("Result 9 = #{inspect(result9)}")
+      IO.puts("---------------------------------------------testdata9------------------------------------")
+      result9 = Reality2.Types.validate(testdata9, test4()) # Should be OK
+      IO.puts("Result 9 = #{inspect(result9)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result10 = Reality2.Types.validate(testdata10, test5()) # Should be OK
-      # IO.puts("Result 10 = #{inspect(result10)}")
+      IO.puts("---------------------------------------------testdata10-----------------------------------")
+      result10 = Reality2.Types.validate(testdata10, test5()) # Should be OK
+      IO.puts("Result 10 = #{inspect(result10)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result11 = Reality2.Types.validate(testdata11, test5()) # Should fail with {:error, "something.names.[]"}
-      # IO.puts("Result 11 = #{inspect(result11)}")
+      IO.puts("---------------------------------------------testdata11-----------------------------------")
+      result11 = Reality2.Types.validate(testdata11, test5()) # Should fail with {:error, "something.names.[]"}
+      IO.puts("Result 11 = #{inspect(result11)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
-      # result12 = Reality2.Types.validate(testdata12, test5()) # Should fail with {:error, "something.something.{}"}
-      # IO.puts("Result 12 = #{inspect(result12)}")
+      IO.puts("---------------------------------------------testdata12-----------------------------------")
+      result12 = Reality2.Types.validate(testdata12, test5()) # Should fail with {:error, "something.something.{}"}
+      IO.puts("Result 12 = #{inspect(result12)}")
+      IO.puts("------------------------------------------------------------------------------------------")
 
+      # IO.puts("---------------------------------------------testdata13-----------------------------------")
       # result13 = Reality2.Types.validate(testdata13, test6()) # Should fail with {:error, "possible infinite loop"}
       # IO.puts("Result 13 = #{inspect(result13)}")
+      # IO.puts("------------------------------------------------------------------------------------------")
 
 
       # test1 = {:type, %{"a" => :string, "b" => {:type, %{"c" => :number}, []}}, []}
