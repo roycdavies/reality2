@@ -39,9 +39,9 @@ defmodule Reality2.Types do
 
   def author() do
     %{
-      "id" => [required: true, type: :string],
-      "name" => [required: true, type: :string],
-      "email" => [required: true, type: :string]
+      "id" => [nullable: true, required: true, type: :string],
+      "name" => [nullable: true, required: true, type: :string],
+      "email" => [nullable: true, required: true, type: :string]
     }
   end
 
@@ -67,9 +67,9 @@ defmodule Reality2.Types do
   }
   def input_event() do
     %{
-      "event" => [required: true, type: :string],
-      "parameters" => [required: false, type: :map],
-      "passthrough" => [required: false, type: :map]
+      "event" => [nullable: true, required: true, type: :string],
+      "parameters" => [nullable: true, required: false, type: :map],
+      "passthrough" => [nullable: true, required: false, type: :map]
     }
   end
 
@@ -102,14 +102,17 @@ defmodule Reality2.Types do
   }
   def plugin() do
     %{
-      "name" => [required: true, type: :string],
-      "url" => [required: true, type: :string],
-      "method" => [required: false, type: :string],
-      "headers" => [required: false, type: :map],
-      "body" => [required: false, type: :map],
-      "output" => [required: true, type: :map],
-      "version" => [required: false, type: :string]
+      "name" => [nullable: true, required: true, type: :string],
+      "url" => [nullable: true, required: true, type: :string],
+      "method" => [nullable: true, required: false, type: :string],
+      "headers" => [nullable: true, required: false, type: :map],
+      "body" => [nullable: true, required: false, type: :map],
+      "output" => [nullable: true, required: true, type: :map],
+      "version" => [nullable: true, required: false, type: :string]
     }
+  end
+  def plugin_defaults() do
+    %{"name" => "", "url" => "", "method" => "POST", "headers" => %{}, "body" => %{}, "output" => %{}, "version" => ""}
   end
 
 
@@ -137,9 +140,9 @@ defmodule Reality2.Types do
   }
   def action() do
     %{
-      "plugin" => [required: false, type: :string],
-      "command" => [required: true, type: :string],
-      "parameters" => [required: false, type: :map]
+      "plugin" => [nullable: true, required: false, type: :string],
+      "command" => [nullable: true, required: true, type: :string],
+      "parameters" => [nullable: true, required: false, type: :map]
     }
   end
 
@@ -195,12 +198,14 @@ defmodule Reality2.Types do
   }
   def transition() do
     %{
-      "from" => [required: true, type: :string],
-      "event" => [required: true, type: :string],
-      "to" => [required: true, type: :string],
-      "actions" => [required: false, type: :list, list: [required: false, type: :map, map: action()]]
+      "from" => [nullable: true, required: true, type: :string],
+      "event" => [nullable: true, required: true, type: :string],
+      "to" => [nullable: true, required: true, type: :string],
+      "actions" => [nullable: true, required: false, type: :list, list: [nullable: true, required: false, type: :map, map: action()]]
     }
   end
+
+
 
   @typedoc """
   A sentant automation definition.
@@ -226,7 +231,15 @@ defmodule Reality2.Types do
     description: String.t,
     transitions: [transition]
   }
-  def automation, do: {:type, %{"name" => :string, "description" => :string, "transitions" => [transition()]}, ["name", "transitions"]}
+  def automation() do
+    %{
+      "name" => [nullable: true, required: true, type: :string],
+      "description" => [nullable: true, required: false, type: :string],
+      "transitions" => [required: true, type: :list, list: [required: false, type: :map, map: transition()]]
+    }
+  end
+
+
 
   @typedoc """
   A stored state of an Automation.
@@ -245,7 +258,14 @@ defmodule Reality2.Types do
     name: String.t,
     state: String.t
   }
-  def stored_state, do: {:type, %{"name" => :string, "state" => :string}, ["name", "state"]}
+  def stored_state() do
+    %{
+      "name" => [nullable: true, required: true, type: :string],
+      "state" => [nullable: true, required: true, type: :string]
+    }
+  end
+
+
 
   @typedoc """
   The current status of this Sentant on this node.
@@ -331,7 +351,26 @@ defmodule Reality2.Types do
     states: [stored_state],
     status: status
   }
-  def sentant, do: {:type, %{"id" => uuid(), "name" => :string, "version" => :string, "class" => :string, "data" => :map, "binary" => :map, "tags" => [:string], "keywords" => [:string], "description" => :string, "author" => author(), "plugins" => [plugin()], "automations" => [automation()], "states" => [stored_state()], "status" => status()}, ["name"]}
+  def sentant() do
+    %{
+      "id" => [nullable: true, required: false, type: :string],
+      "name" => [nullable: true, required: true, type: :string],
+      "version" => [nullable: true, required: false, type: :string],
+      "class" => [nullable: true, required: false, type: :string],
+      "data" => [nullable: true, required: false, type: :map],
+      "binary" => [nullable: true, required: false, type: :map],
+      "tags" => [nullable: true, required: false, type: :list, list: [nullable: true, required: false, type: :string]],
+      "keywords" => [nullable: true, required: false, type: :list, list: [nullable: true, required: false, type: :string]],
+      "description" => [nullable: true, required: false, type: :string],
+      "author" => [nullable: true, required: false, type: :map, map: author()],
+      "plugins" => [nullable: true, required: false, type: :list, list: [nullable: true, required: false, type: :map, map: plugin()]],
+      "automations" => [nullable: true, required: false, type: :list, list: [nullable: true, required: false, type: :map, map: automation()]],
+      "states" => [nullable: true, required: false, type: :list, list: [nullable: true, required: false, type: :map, map: stored_state()]],
+      "status" => [nullable: true, required: false, type: :string]
+    }
+  end
+
+
 
   @typedoc """
   A group of Sentant Templates that work together to achieve a common goal.
@@ -366,253 +405,37 @@ defmodule Reality2.Types do
     version: String.t,
     sentants: [sentant]
   }
-  def swarm, do: {:type, %{"name" => :string, "class" => :string, "description" => :string, "author" => author(), "version" => :string, "sentants" => [sentant()]}, ["sentants"]}
+  def swarm() do
+    %{
+      "name" => [nullable: true, required: false, type: :string],
+      "class" => [nullable: true, required: false, type: :string],
+      "description" => [nullable: true, required: false, type: :string],
+      "author" => [nullable: true, required: false, type: :map, map: author()],
+      "version" => [nullable: true, required: false, type: :string],
+      "sentants" => [required: true, type: :list, list: [required: true, type: :map, map: sentant()]]
+    }
+  end
 
 
+  @typedoc """
+  Validates the data against the given type definition.
 
+  ```elixir
+    case Reality2.Types.validate(swarm_map, Reality2.Types.swarm()) do
+      :ok -> create_from_map(swarm_map)
+      {:error, error} -> {:error, error}
+    end  ```
+  """
   def validate(data, typedef) do
-    required = validate1(data, typedef, []) |> List.flatten
-    optional = validate(data, typedef, []) |> List.flatten
-
-    case required do
-      [] ->
-        case optional do
-          [] -> {:ok}
-          _ -> {:error_optional, optional}
-        end
-      _ -> {:error_required, required}
-    end
-
-    # IO.puts("required: #{inspect(required)} optional: #{inspect(optional)}")
-  end
-
-  defp validate1(_, {_, []}, _), do: []
-  defp validate1(map, {:type, type, [item | rest]}, acc) do
-    case Helpers.Map.get(map, item) do
-      nil -> [item | acc]
-      _ -> validate1(map, {:type, type, rest}, acc)
+    # IO.puts("Types.validate: data = #{inspect(data, pretty: true)}")
+    # IO.puts("Types.validate: typedef = #{inspect(typedef, pretty: true)}")
+    case Validate.validate(data, typedef) do
+      {:ok, _} -> :ok
+      {:error, errors} -> {:error, Validate.Util.errors_to_map(errors)}
     end
   end
-  defp validate1(_, [{_, []}], _), do: []
-  defp validate1(map, [{:type, type, [item | rest]}], acc) do
-    case Helpers.Map.get(map, item) do
-      nil -> [item | acc]
-      _ -> validate1(map, [{:type, type, rest}], acc)
-    end
-  end
-  defp validate1(_, _, acc), do: acc
-
-
-  def validate(data, typedef, acc) do
-
-    result = validate2(data, typedef, acc)
-    # IO.puts("----------------------------------------")
-    # IO.puts("data: #{inspect(data)}")
-    # IO.puts("typedef: #{inspect(typedef)}")
-    # IO.puts("acc: #{inspect(acc)}")
-    # IO.puts("result: #{inspect(result)}")
-    # IO.puts("----------------------------------------")
-    result
-  end
-
-  def validate2(data, :string, key) when is_binary(data), do: []
-  def validate2(data, :number, key) when is_float(data) or is_integer(data), do: []
-  def validate2(data, :boolean, key) when is_boolean(data), do: []
-  def validate2(data, :map, key) when is_map(data), do: []
-  def validate2(data, :list, key) when is_list(data), do: []
-  def validate2(data, :tuple, key) when is_tuple(data), do: []
-  def validate2(data, :any, key), do: []
-
-  def validate2(data, {:type, type, _}, key_in) when is_map(data) do
-    # Given a map and a type definition, vaidate that each element of the map matches the corresponding
-    # element in the type definition.
-    # If they are all OK, return an empty list, otherwise return a list of the keys that are not OK.
-    data_keys = Map.keys(data)
-
-    result = Enum.map(data_keys, fn key ->
-      case Helpers.Map.get(type, key) do
-        nil -> [] # Not in the type definition, so ignore
-        subtype ->
-          subdata = Helpers.Map.get(data, key)
-          # IO.puts("subdata: #{inspect(subdata)}, subtype: #{inspect(subtype)}")
-          validate(subdata, subtype, key)
-      end
-    end)
-    result_flattened = List.flatten(result)
-
-    case result_flattened do
-      [] -> []
-      _ -> [key_in | result]
-    end
-  end
-
-  def validate2(data, [{:type, type, req} | _], key_in) when is_list(data) do
-    result = Enum.map(data, fn subdata ->
-      validate(subdata, {:type, type, req}, key_in)
-    end)
-    result_flattened = List.flatten(result)
-
-    case result_flattened do
-      [] -> []
-      _ -> [key_in | [result]]
-    end
-  end
-
-  def validate2(data, [scalar], key_in) when is_list(data) and is_atom(scalar) do
-    result = Enum.map(data, fn subdata ->
-      validate(subdata, scalar, key_in)
-    end)
-    result_flattened = List.flatten(result)
-
-    case result_flattened do
-      [] -> []
-      _ -> [key_in | [result]]
-    end
-  end
-
-  def validate2(_, _, key) do
-    [key] # Anything else is an error, so return the key
-  end
-
-
-  def remove_empty_lists(list) do
-    Enum.filter(list, fn x -> x != [] end)
-    |> Enum.map(fn x -> if is_list(x), do: remove_empty_lists(x), else: x end)
-    |> Enum.filter(fn x -> x != [] end)
-  end
-
-
-
-  # -----------------------------------------------------------------------------------------------
-  # Validate a data against a type definition
-  # A type definition is a tuple of {type, required} where
-  #  type is a map of key/value pairs where the key is the name of the field, and
-  #  required is a list of keys that are required to be present
-  # Either returns {:ok} or {:error, path}
-  # where path is a dot seperated key-path to the field that is incorrect in the data, and indicates
-  # either which required field is missing, or which field is not in the type definition
-  # -----------------------------------------------------------------------------------------------
-  # def validate(map, typedef) do
-  #   case validate(map, typedef, "", 0) do
-  #     "" -> {:ok}
-  #     "." -> {:error, "type error"}
-  #     path -> {:error, String.trim(path, ".")}
-  #   end
-  # end
-
-  # defp validate(map, typedef, acc, depth) do
-  #   # IO.puts("depth: #{inspect(depth)}")
-  #   if (depth < 10) do
-  #     # IO.puts("1")
-  #     acc1 = validate_required(map, typedef, acc, depth+1)
-  #     # IO.puts("2")
-  #     acc2 = validate_existing(map, typedef, acc, depth+1)
-  #     if acc1 == "" do
-  #       if acc2 == "" do
-  #         ""
-  #       else
-  #         acc2
-  #       end
-  #     else
-  #       acc1
-  #     end
-  #   else
-  #     "possible infinite loop"
-  #   end
-  # end
-
-
-  # -----------------------------------------------------------------------------------------------
-  # Validate that the required fields are present in the data
-  # -----------------------------------------------------------------------------------------------
-  # defp validate_required(data, typedef, acc, depth) when is_list(data) and is_list(typedef) do
-  #   case typedef do
-  #     [{type, required}] ->
-  #       Enum.reduce_while(data, acc, fn data_element, new_acc ->
-  #         case validate(data_element, {type, required}, "", depth) do
-  #           "" -> {:cont, new_acc}
-  #           path -> {:halt, "#{new_acc}#{path}"}
-  #         end
-  #       end)
-  #     _scalar -> acc # TODO: test that the scalar types match
-  #   end
-  # end
-  # defp validate_required(data, typedef, acc, _) when is_list(typedef) do
-  #   acc <> "." <> "[]"
-  # end
-
-  # defp validate_required(data, typedef, acc, depth) when is_map(data) and is_tuple(typedef) do
-  #   case typedef do
-  #     {type, required} ->
-  #       Enum.reduce_while(required, acc, fn key, new_acc ->
-  #         case Helpers.Map.get(data, key) do
-  #           nil -> {:halt, "#{new_acc}.#{key}"}
-  #           data_child ->
-  #             subtype = Helpers.Map.get(type, key)
-  #             case validate(data_child, subtype, key, depth) do
-  #               ^key -> {:cont, new_acc}
-  #               path -> {:halt, "#{new_acc}.#{path}"}
-  #             end
-  #         end
-  #       end)
-  #     _scalar -> acc # TODO: test that the scalar types match
-  #   end
-  # end
-  # defp validate_required(data, typedef, acc, _) when is_tuple(typedef) do
-  #   acc <> "." <> "{}"
-  # end
-  # defp validate_required(_, _, acc, _), do: acc
-
-  # -----------------------------------------------------------------------------------------------
-  # Validate that the fields given in the data exist in the type defintion, and no others
-  # -----------------------------------------------------------------------------------------------
-  # defp validate_existing(data, [], acc, _) when is_list(data), do: acc
-  # defp validate_existing(data, typedef, acc, depth) when is_list(data) and is_list(typedef) do
-  #   case typedef do
-  #     [{type, required}] ->
-  #       Enum.reduce_while(data, acc, fn data_element, new_acc ->
-  #         case validate(data_element, {type, required}, "", depth) do
-  #           "" -> {:cont, new_acc}
-  #           path -> {:halt, "#{new_acc}#{path}"}
-  #         end
-  #       end)
-  #     _scalar -> acc # TODO: test that the scalar types match
-  #   end
-  # end
-  # defp validate_existing(data, typedef, acc, _) when is_list(data) do
-  #   acc <> "." <> "[]"
-  # end
-
-  # defp validate_existing(data, %{}, acc, _) when is_map(data), do: acc
-  # defp validate_existing(data, typedef, acc, depth) when is_map(data) and is_tuple(typedef) do
-  #   keys = Map.keys(data)
-  #   case typedef do
-  #     {type, required} ->
-  #       Enum.reduce_while(keys, acc, fn key, new_acc ->
-  #         case Helpers.Map.get(type, key) do
-  #           nil -> {:halt, "#{new_acc}.#{key}"}
-  #           subtype ->
-  #             data_child = Helpers.Map.get(data, key)
-  #             # IO.puts("key: #{inspect(key)}")
-  #             case validate(data_child, subtype, key, depth) do
-  #               ^key ->
-  #                 # IO.puts("acc: #{inspect(acc)}")
-  #                 {:cont, new_acc}
-  #               path ->
-  #                 # IO.puts("path: #{new_acc}.#{path}")
-  #                 {:halt, "#{new_acc}.#{path}"}
-  #             end
-  #         end
-  #       end)
-  #     _scalar -> acc # TODO: test that the scalar types match
-  #   end
-  # end
-  # defp validate_existing(data, typedef, acc, _) when is_map(data) do
-  #   acc <> "." <> "{}"
-  # end
-  # defp validate_existing(_, _, acc, _), do: acc
-  # -----------------------------------------------------------------------------------------------
 end
+
 
 
 defmodule YAML.Sentant_example do

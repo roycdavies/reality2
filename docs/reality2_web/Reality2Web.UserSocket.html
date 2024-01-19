@@ -5,16 +5,16 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.31.0">
-    <meta name="project" content="Reality2.AI v0.1.0">
+    <meta name="project" content="Reality2.Web v0.1.0">
 
 
-    <title>Helpers.Types — Reality2.AI v0.1.0</title>
+    <title>Reality2Web.UserSocket — Reality2.Web v0.1.0</title>
     <link rel="stylesheet" href="dist/html-elixir-3ZLIM5JF.css" />
 
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
     <script src="dist/handlebars.templates-43PMFBC7.js"></script>
-    <script src="dist/sidebar_items-94A3B8CE.js"></script>
+    <script src="dist/sidebar_items-05BC2814.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -50,7 +50,7 @@
 
       <div>
         <a href="https://reality2.ai" class="sidebar-projectName" translate="no">
-Reality2.AI
+Reality2.Web
         </a>
         <div class="sidebar-projectVersion" translate="no">
           v0.1.0
@@ -93,7 +93,7 @@ Pages
         <div class="search-settings">
           <form class="search-bar" action="search.html">
             <label class="search-label">
-              <span class="sr-only">Search documentation of Reality2.AI</span>
+              <span class="sr-only">Search documentation of Reality2.Web</span>
               <input name="q" type="text" class="search-input" placeholder="Search Documentation (press /)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             </label>
             <button type="submit" class="search-button" aria-label="Submit Search">
@@ -114,13 +114,13 @@ Pages
 
 <h1>
 
-    <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/helpers.ex#L63" title="View Source" class="icon-action" rel="help">
+    <a href="https://github.com/roycdavies/reality2/blob/main/lib/reality2_web/usersocket.ex#L1" title="View Source" class="icon-action" rel="help">
       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
       <span class="sr-only">View Source</span>
     </a>
 
-  <span translate="no">Helpers.Types</span> 
-  <small class="app-vsn" translate="no">(Reality2.AI v0.1.0)</small>
+  <span translate="no">Reality2Web.UserSocket</span> 
+  <small class="app-vsn" translate="no">(Reality2.Web v0.1.0)</small>
 
 </h1>
 
@@ -140,9 +140,21 @@ Pages
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#validate/2" translate="no">validate(map, the_type)</a>
+        <a href="#connect/2" translate="no">connect(params, socket)</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.7.10/Phoenix.Socket.html#c:connect/2"><code class="inline">Phoenix.Socket.connect/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#id/1" translate="no">id(socket)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.7.10/Phoenix.Socket.html#c:id/1"><code class="inline">Phoenix.Socket.id/1</code></a>.</p></div>
 
     </div>
 
@@ -159,16 +171,16 @@ Pages
       <span class="text">Functions</span>
     </h1>
     <div class="functions-list">
-<section class="detail" id="validate/2">
+<section class="detail" id="connect/2">
 
   <div class="detail-header">
-    <a href="#validate/2" class="detail-link" title="Link to this function">
+    <a href="#connect/2" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">validate(map, the_type)</h1>
+    <h1 class="signature" translate="no">connect(params, socket)</h1>
 
-      <a href="https://github.com/roycdavies/reality2/tree/main/apps/reality2/blob/main/lib/helpers.ex#L64" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/roycdavies/reality2/blob/main/lib/reality2_web/usersocket.ex#L5" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -178,7 +190,29 @@ Pages
 
   <section class="docstring">
 
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.7.10/Phoenix.Socket.html#c:connect/2"><code class="inline">Phoenix.Socket.connect/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="id/1">
 
+  <div class="detail-header">
+    <a href="#id/1" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">id(socket)</h1>
+
+      <a href="https://github.com/roycdavies/reality2/blob/main/lib/reality2_web/usersocket.ex#L24" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.7.10/Phoenix.Socket.html#c:id/1"><code class="inline">Phoenix.Socket.id/1</code></a>.</p>
   </section>
 </section>
 
@@ -193,7 +227,7 @@ Pages
               Search HexDocs
             </button>
 
-              <a href="Reality2.AI.epub" title="ePub version">
+              <a href="Reality2.Web.epub" title="ePub version">
                 Download ePub version
               </a>
 

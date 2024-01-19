@@ -28,11 +28,11 @@ defmodule Reality2.Swarm do
     case convert_input(swarm_definition) do
       {:ok, definition_map} ->
         swarm_map = remove_swarm_parent_from_definition_map(definition_map)
-        validity = Types.validate(swarm_map, Types.swarm())
-        IO.puts("Swarm.create: validity = #{inspect(validity)}")
-        IO.puts("Swarm.create: definition_map = #{inspect(swarm_map, pretty: true)}")
+        # validity = Types.validate(swarm_map, Types.swarm())
+        # IO.puts("Swarm.create: validity = #{inspect(validity)}")
+        # IO.puts("Swarm.create: definition_map = #{inspect(swarm_map, pretty: true)}")
         case Reality2.Types.validate(swarm_map, Reality2.Types.swarm()) do
-          {:ok} ->
+          :ok ->
             create_from_map(swarm_map)
           {:error, error} -> {:error, error}
         end

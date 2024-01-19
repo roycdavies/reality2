@@ -83,8 +83,8 @@ defmodule Reality2.Sentants do
     case convert_input(sentant_definition) do
       {:ok, definition_map} ->
         sentant_map = remove_sentant_parent_from_definition_map(definition_map)
-        # case Reality2.Types.validate(sentant_map, Reality2.Types.sentant()) do
-        #   {:ok} ->
+        case Reality2.Types.validate(sentant_map, Reality2.Types.sentant()) do
+          :ok ->
             create_from_map(add_defaults(sentant_map))
           {:error, error} -> {:error, error}
         end
@@ -232,6 +232,16 @@ defmodule Reality2.Sentants do
   end
 
   def read(_, _), do: {:error, :existance}
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  def read_all(command) do
+    get_all_sentant_comms()
+    |> Enum.map( fn (pid) -> GenServer.call(pid, command) end )
+  end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -460,7 +470,7 @@ defmodule Reality2.Sentants do
     definition_map
     |> Map.put_new("description", "")
     |> Map.put_new("version", "0.1.0")
-    |> Map.put_new("author", %{"id" => "", "name" => "", "email" => ""})
+    |> Map.put_new("author", %{"id" => "_", "name" => "_", "email" => "_"}) # Will be changed when we actually have users
     |> Map.put_new("class", "ai.reality2.default")
     |> Map.put_new("data", %{})
     |> Map.put_new("binary", %{})
