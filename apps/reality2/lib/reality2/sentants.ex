@@ -86,7 +86,9 @@ defmodule Reality2.Sentants do
         case Reality2.Types.validate(sentant_map, Reality2.Types.sentant()) do
           :ok ->
             create_from_map(add_defaults(sentant_map))
-          {:error, error} -> {:error, error}
+          {:error, error} ->
+            IO.puts("Error: " <> inspect(error))
+            {:error, error}
         end
       _ ->
         {:error, :definition}
@@ -96,7 +98,7 @@ defmodule Reality2.Sentants do
   defp create_from_map(sentant_map) do
     case sentant_name(sentant_map) do
       {:ok, name} ->
-        # IO.puts("Creating Sentant: #{inspect(sentant_map, pretty: true)}")
+        IO.puts("Creating Sentant: #{inspect(sentant_map, pretty: true)}")
         case sentant_id(sentant_map) do
           {:ok, _, id} ->
             case Reality2.Metadata.get(:SentantIDs, name) do
@@ -221,7 +223,7 @@ defmodule Reality2.Sentants do
   end
 
   def read(%{:id => uuid}, command) do
-    # IO.puts("Reading Sentant: " <> inspect(uuid, pretty: true))
+    IO.puts("Reading Sentant: " <> inspect(uuid, pretty: true))
     case Process.whereis(String.to_atom(uuid <> "|comms")) do
       nil ->
         {:error, :id}

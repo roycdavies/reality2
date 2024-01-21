@@ -363,6 +363,58 @@ sentant:
 
 
 
+  def test_geospatial() do
+    sentant_definition = """
+    sentant:
+      name: fred
+      plugins:
+        - name: ai.reality2.geospatial
+          type: internal
+      automations:
+        - name: geospatial
+          transitions:
+            - from: start
+              event: init
+              to: ready
+              actions:
+                - plugin: ai.reality2.geospatial
+                  command: set
+                  parameters:
+                    latitude: 10.0
+                    longitude: 20.0
+                    altitude: 0.0
+            - from: "*"
+              event: get
+              to: ready
+              actions:
+                - command: get
+                  plugin: ai.reality2.geospatial
+                - command: print
+            - from: "*"
+              event: search
+              to: ready
+              actions:
+                - command: search
+                  plugin: ai.reality2.geospatial
+                - command: print
+
+    """
+
+    id = case Reality2.Sentants.create(sentant_definition) do
+      {:ok, id} -> IO.puts("Sentant created: #{inspect(id)}")
+      {:error, reason} -> IO.puts("Sentant creation failed: #{inspect(reason)}")
+    end
+
+    # Reality2.Sentants.sendto(%{:name => "fred"}, %{:command => "set", :parameters => %{"latitude" => 0.0, "longitude" => 0.0, "altitude" => 0.0}})
+    Reality2.Sentants.sendto(%{:name => "fred"}, %{:event => "get"})
+    Reality2.Sentants.sendto(%{:name => "fred"}, %{:event => "search"})
+
+    {:ok, id}
+  end
+
+
+
+
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Public Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------

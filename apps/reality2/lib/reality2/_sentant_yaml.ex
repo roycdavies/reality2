@@ -108,11 +108,12 @@ defmodule Reality2.Types do
       "headers" => [nullable: true, required: false, type: :map],
       "body" => [nullable: true, required: false, type: :map],
       "output" => [nullable: true, required: true, type: :map],
-      "version" => [nullable: true, required: false, type: :string]
+      "version" => [nullable: true, required: false, type: :string],
+      "type" => [nullable: true, required: false, type: :string]
     }
   end
   def plugin_defaults() do
-    %{"name" => "", "url" => "", "method" => "POST", "headers" => %{}, "body" => %{}, "output" => %{}, "version" => ""}
+    %{"name" => "", "url" => "", "method" => "POST", "headers" => %{}, "body" => %{}, "output" => %{}, "version" => "", "type" => ""}
   end
 
 
@@ -427,8 +428,8 @@ defmodule Reality2.Types do
     end  ```
   """
   def validate(data, typedef) do
-    # IO.puts("Types.validate: data = #{inspect(data, pretty: true)}")
-    # IO.puts("Types.validate: typedef = #{inspect(typedef, pretty: true)}")
+    IO.puts("Types.validate: data = #{inspect(data, pretty: true)}")
+    IO.puts("Types.validate: typedef = #{inspect(typedef, pretty: true)}")
     case Validate.validate(data, typedef) do
       {:ok, _} -> :ok
       {:error, errors} -> {:error, Validate.Util.errors_to_map(errors)}

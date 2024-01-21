@@ -193,6 +193,11 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp do_plugin_action(plugin, id, action_map, action_parameters, acc, parameters, passthrough) do
 
+    IO.puts("Automation.do_plugin_action: plugin = #{inspect(plugin)}")
+    IO.puts("Automation.do_plugin_action: id = #{inspect(id)}")
+    IO.puts("Automation.do_plugin_action: action_map = #{inspect(action_map)}")
+    IO.puts("Automation.do_plugin_action: action_parameters = #{inspect(action_parameters)}")
+
     # The parameters for the plugin are the accumulated parameters, merged with the action parameters merged with the parameters passed to the Sentant
     joint_parameters = Map.merge(acc, Map.merge(action_parameters, parameters))
 
@@ -201,7 +206,7 @@ defmodule Reality2.Automation do
       nil ->
         {:error, :no_plugin}
       pid ->
-        # Call the plugin on the Sentant, which in turn will call the appropriate internal App or extrnal plugin
+        # Call the plugin on the Sentant, which in turn will call the appropriate internal App or external plugin
         GenServer.call(pid, %{command: Helpers.Map.get(action_map, "command"), parameters: joint_parameters, passthrough: passthrough})
     end
 

@@ -57,7 +57,8 @@ defmodule Reality2.MixProject do
       {:toml, "~> 0.7"},
       {:finch, "~> 0.16"},
       {:validate, "~> 1.3"},
-      {:ai_reality2_vars, in_umbrella: true}
+      {:ai_reality2_vars, in_umbrella: true},
+      {:ai_reality2_geospatial, in_umbrella: true}
     ]
   end
 

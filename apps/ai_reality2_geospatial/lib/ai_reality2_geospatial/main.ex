@@ -1,10 +1,15 @@
-defmodule AiReality2Vars.Main do
+defmodule AiReality2Geospatial.Main do
 # *******************************************************************************************************************************************
 @moduledoc """
-  Module for managing the main supervisor tree for the `AiReality2Vars` App.
+  Module for managing the main supervisor tree for the `AiReality2Geospatial` App.
 
-  In this instance, the main supervisor is a DynamicSupervisor, which is used to manage the Data stores for each Sentant,
-  however, this could be a PartitionSupervisor, or indeed, just a single process for all Sentants.
+  In this instance, the main supervisor is a DynamicSupervisor, which is used to manage the Geospatial interelationships between Sentants.
+  Implementation of this is using octatrees and geohashes.
+
+  In order to minimise side effects of a geospatial search crashing and wiping out the entire octatree, the octatree is managed by a GenServer
+  with each Sentant having its own GenServer process.  This means that if one Sentant plugin crashes, it does not affect the others.
+  This means that the locations are in essence stored in memory, not on disk, so if keeping location between restarts is important, then
+  a storage plugin will be required as well.
 
   Use this as a template for your own Main module for your own Apps.  The `create`, `delete`, `sendto` and `whereas` functions must be implemented.
 
@@ -36,31 +41,36 @@ defmodule AiReality2Vars.Main do
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  @spec create(String.t()) ::
+  @spec create(String.t(), %{}) ::
     {:ok}
     | {:error, :existance}
 
   @doc """
-  Create a new Data store, returning {:ok} or an appropriate error.
+  Create a new Geospatial location for this Sentant, returning {:ok} or an appropriate error.
 
-  This creates a new child for each Sentant where the id is passed in and has the App name appended.
+  This creates a new entry into the geospatial database.  Each Sentant gets a Geospatial data store, with the idea that in the future, this
+  might be expanded to do more than just store one location.  Each Sentant could store a whole GIS database, for example.
 
   - Parameters
     - `id` - The id of the Sentant for which the Data store is being created.
+    - `location` - A map containing the location of the Sentant expressed as %{"latitude" => 0.0, "longitude" => 0.0, "altitude" => 0.0},
+                   or alternatively, a geohash string and an altitude for example %{"geohash" => "u4pruydqqvj", "altitude" => 0.0}
   """
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  def create(sentant_id) do
+  def create(sentant_id, location \\ %{}) do
     name = sentant_id <> "|" <> app_name()
     case Process.whereis(String.to_atom(name)) do
       nil->
-        case DynamicSupervisor.start_child(__MODULE__, AiReality2Vars.Data.child_spec(String.to_atom(name))) do
-          {:ok, _pid} ->
+        case DynamicSupervisor.start_child(__MODULE__, AiReality2Geospatial.Data.child_spec(String.to_atom(name))) do
+          {:ok, pid} ->
+            GenServer.call(pid, %{command: "set", parameters: location})
             {:ok}
           error -> error
         end
       pid ->
         # Clear the data store so there is no old data that hackers might be able to access in the case this was a reused ID
         GenServer.call(pid, %{command: "clear"})
+        GenServer.call(pid, %{command: "set", parameters: location})
         {:ok}
     end
   end
@@ -130,6 +140,7 @@ defmodule AiReality2Vars.Main do
     - `{:error, :unknown_command}` - If the command was not recognised.
   """
   def sendto(sentant_id, command_and_parameters) do
+    IO.puts("sendto: #{inspect(command_and_parameters)}")
     case whereis(sentant_id) do
       nil ->
         {:error, :existence}
@@ -144,12 +155,15 @@ defmodule AiReality2Vars.Main do
                 nil ->
                   {:error, :key}
                 result ->
+                  # IO.puts("result: #{inspect(result)}")
                   result
              end
           "all" ->
             GenServer.call(pid, command_and_parameters)
           "clear" ->
             GenServer.cast(pid, command_and_parameters)
+          "search" ->
+            GenServer.call(pid, command_and_parameters)
           _ ->
             {:error, :command}
         end
