@@ -84,7 +84,7 @@ defmodule AiReality2Geospatial.Data do
             long2 = AiReality2Geospatial.Main.get(location2, "longitude", 0.0)
             dist = distance(lat1, long1, lat2, long2)
             if dist <= radius do
-              process_name = case Process.info(pid) do
+              case Process.info(pid) do
                 {:ok, info} ->
                   case Map.get(info, :registered_name) do
                     nil -> nil

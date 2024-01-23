@@ -50,7 +50,7 @@ defmodule Reality2.Sentant.Comms do
           # Ignore
           :ok
         pid ->
-          IO.puts("Sending to: " <> inspect(pid) <> inspect(command_and_parameters))
+          IO.puts("Calling to: " <> inspect(pid) <> inspect(command_and_parameters))
           GenServer.call(pid, command_and_parameters)
       end
     end)
@@ -80,7 +80,7 @@ defmodule Reality2.Sentant.Comms do
           # Ignore
           :ok
         pid ->
-          IO.puts("Sending to: " <> inspect(pid) <> inspect(command_and_parameters))
+          IO.puts("Casting to: " <> inspect(pid) <> inspect(command_and_parameters))
 
           # Build the subscription data
           event = Helpers.Map.get(command_and_parameters, "event", "")
@@ -93,6 +93,8 @@ defmodule Reality2.Sentant.Comms do
 
           # Send off to any event subscriptions
           Absinthe.Subscription.publish(Reality2Web.Endpoint, subscription_data, sentant_event: id <> "|" <> event)
+
+          IO.puts("HERE")
 
           # Send to each automation
           GenServer.cast(pid, command_and_parameters)

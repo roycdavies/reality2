@@ -44,21 +44,21 @@ defmodule Reality2.Plugin do
     # -----------------------------------------------------------------------------------------------------------------------------------------
     @impl true
     def handle_call(command, _from, {name, id, plugin_map, state}) do
-      # IO.puts("Plugin.handle_call: args = #{inspect(command)} #{inspect(name)}, #{inspect(id)}, #{inspect(plugin_map)}, #{inspect(state)}")
 
       case Helpers.Map.get(plugin_map, "type") do
         "internal" ->
           # Internal Plugin
-
+          # IO.puts("Plugin.handle_call INTERNAL: args = #{inspect(command)} #{inspect(name)}, #{inspect(id)}, #{inspect(plugin_map)}, #{inspect(state)}")
           case sendto(id, name, command) do
             {:ok, answer} ->
               {:reply, {:ok, answer}, {name, id, plugin_map, state}}
             :ok ->
-              {:reply, :ok, {name, id, plugin_map, state}}
+              {:reply, {:ok, %{}}, {name, id, plugin_map, state}}
             {:error, error} ->
               {:reply, {:error, error}, {name, id, plugin_map, state}}
           end
         _ ->
+          # IO.puts("Plugin.handle_call EXTERNAL: args = #{inspect(command)} #{inspect(name)}, #{inspect(id)}, #{inspect(plugin_map)}, #{inspect(state)}")
           # External Plugin
 
           # Get the parameters
@@ -101,7 +101,7 @@ defmodule Reality2.Plugin do
                     {:error, reason} -> {:reply, {:error, reason}, {name, id, plugin_map, state}}
                     {:ok, answer} ->
                       case Helpers.Map.get(output, "event") do
-                        nil -> :ok
+                        nil -> {:reply, {:ok, answer}, {name, id, plugin_map, state}}
                         event ->
                           # Send the event to the Sentant
                           output_key = Helpers.Map.get(output, "key", "result")
@@ -112,14 +112,14 @@ defmodule Reality2.Plugin do
                           # IO.puts("Plugin.handle_call: MERGED = #{inspect(Map.merge(parameters, %{output_key => answer}))}")
                           Reality2.Sentants.sendto(%{id: id}, %{event: event, parameters: Map.merge(parameters, %{output_key => answer}), passthrough: passthrough})
                       end
-                      {:reply, {:ok, answer}, {name, id, plugin_map, state}}
+                      {:reply, {:ok, %{}}, {name, id, plugin_map, state}}
                   end
               end
           end
       end
     end
     def handle_call(_, _, state) do
-      IO.puts("Unknown Command")
+      # IO.puts("Unknown Command")
       {:reply, {:error, :unknown_command}, state}
     end
     # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ defmodule Reality2.Plugin do
     end
     # Time to reinitialise.
     def handle_cast({:reinit, new_plugin_map}, {name, id, _plugin_map, state}) do
-      IO.puts("Plugin.handle_cast: args = #{inspect(new_plugin_map)} #{inspect(name)}, #{inspect(id)}, #{inspect(state)}")
+      # IO.puts("Plugin.handle_cast: args = #{inspect(new_plugin_map)} #{inspect(name)}, #{inspect(id)}, #{inspect(state)}")
       init_plugin({name, id})
       {:noreply, {name, id, new_plugin_map, state}}
     end
@@ -148,7 +148,7 @@ defmodule Reality2.Plugin do
           sendto(id, name, command)
         _ ->
           # External Plugin
-          IO.puts("Plugin.handle_cast: args = #{inspect(command)} #{inspect(name)}, #{inspect(id)}, #{inspect(plugin_map)}, #{inspect(state)}")
+          # IO.puts("Plugin.handle_cast: args = #{inspect(command)} #{inspect(name)}, #{inspect(id)}, #{inspect(plugin_map)}, #{inspect(state)}")
           :ok
       end
       {:noreply, {name, id, plugin_map, state}}

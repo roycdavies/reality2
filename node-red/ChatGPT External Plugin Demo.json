@@ -26,7 +26,7 @@
         ],
         "out": [
             {
-                "x": 1460,
+                "x": 1680,
                 "y": 100,
                 "wires": [
                     {
@@ -40,7 +40,7 @@
         "meta": {},
         "color": "#DDAA99",
         "status": {
-            "x": 1460,
+            "x": 1680,
             "y": 160,
             "wires": [
                 {
@@ -315,7 +315,7 @@
         "name": "Reality2 Websocket",
         "server": "",
         "client": "3a6f6ce74a5a5468",
-        "x": 470,
+        "x": 690,
         "y": 100,
         "wires": []
     },
@@ -326,7 +326,7 @@
         "name": "Reality2 Websocket",
         "server": "",
         "client": "3a6f6ce74a5a5468",
-        "x": 650,
+        "x": 870,
         "y": 100,
         "wires": [
             [
@@ -342,7 +342,7 @@
         "property": "payload",
         "action": "",
         "pretty": false,
-        "x": 840,
+        "x": 1060,
         "y": 100,
         "wires": [
             [
@@ -362,12 +362,12 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1050,
+        "x": 1270,
         "y": 100,
         "wires": [
             [
-                "4db9013399b3fbed",
-                "de70d7b235219484"
+                "de70d7b235219484",
+                "71ca64eea3a77ba4"
             ]
         ]
     },
@@ -402,7 +402,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1290,
+        "x": 1510,
         "y": 160,
         "wires": [
             []
@@ -415,7 +415,7 @@
         "name": "",
         "scope": null,
         "uncaught": false,
-        "x": 1020,
+        "x": 1240,
         "y": 220,
         "wires": [
             [
@@ -436,7 +436,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1290,
+        "x": 1510,
         "y": 220,
         "wires": [
             []
@@ -455,9 +455,29 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1280,
+        "x": 1500,
         "y": 280,
         "wires": []
+    },
+    {
+        "id": "71ca64eea3a77ba4",
+        "type": "function",
+        "z": "845fc0d6c01a7d33",
+        "name": "Block final answer",
+        "func": "// Get the data and sentantID\nlet data = msg.payload;\n\nif (data.event) {\n    return msg;\n}\nelse {\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 160,
+        "wires": [
+            [
+                "4db9013399b3fbed"
+            ]
+        ]
     },
     {
         "id": "74a31d76bf068544",

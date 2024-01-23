@@ -418,7 +418,7 @@ defmodule Reality2.Types do
   end
 
 
-  @typedoc """
+  @doc """
   Validates the data against the given type definition.
 
   ```elixir

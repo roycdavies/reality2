@@ -46,11 +46,11 @@ defmodule Reality2Web.SentantResolver do
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  # Get all the Sentants on this Node.  TODO: Search criteria and privacy
+  # Get all the Sentants on this Node.  TODO: Search criteria and privacy / ownership
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def all_sentants(_, _, _) do
     case Reality2.Sentants.read_all(:definition) do
-      sentants ->
+      {:ok, sentants} ->
         {:ok, Enum.map(sentants, fn sentant -> convert_map_keys(sentant) end)}
       {:error, reason} ->
         {:error, reason}

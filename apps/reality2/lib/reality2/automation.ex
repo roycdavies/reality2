@@ -56,6 +56,7 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @impl true
   def handle_cast(args, {name, id, automation_map, state}) do
+    IO.puts("Automation.handle_cast: #{inspect(name)} : #{inspect(state)} : #{inspect(args)}")
     parameters = Helpers.Map.get(args, :parameters, %{})
     passthrough = Helpers.Map.get(args, :passthrough, %{})
 
@@ -64,7 +65,7 @@ defmodule Reality2.Automation do
       event ->
         case Helpers.Map.get(automation_map, "transitions") do
           nil ->
-            {:noreply, {name, automation_map, state}}
+            {:noreply, {name, id, automation_map, state}}
           transitions ->
             new_state =
               Enum.reduce_while(transitions, state,
@@ -172,17 +173,20 @@ defmodule Reality2.Automation do
   # }
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp do_action(id, action_map, acc, parameters, passthrough) do
-    action_parameters = case Helpers.Map.get(action_map, "parameters") do
-      nil -> %{}
-      params -> params
-    end
+    action_parameters = Helpers.Map.get(action_map, "parameters", %{})
 
-    case Helpers.Map.get(action_map, "plugin") do
+    result = case Helpers.Map.get(action_map, "plugin") do
       nil ->
+        IO.puts("INBUILT")
         do_inbuilt_action(Helpers.Map.get(action_map, "command"), id, action_map, action_parameters, acc, parameters, passthrough)
       plugin ->
+        IO.puts("PLUGIN")
         do_plugin_action(plugin, id, action_map, action_parameters, acc, parameters, passthrough)
     end
+
+    # Result for accumulation
+    IO.puts("Automation.do_action: result = #{inspect(result)}")
+    Map.merge(acc, result)
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -199,19 +203,23 @@ defmodule Reality2.Automation do
     IO.puts("Automation.do_plugin_action: action_parameters = #{inspect(action_parameters)}")
 
     # The parameters for the plugin are the accumulated parameters, merged with the action parameters merged with the parameters passed to the Sentant
-    joint_parameters = Map.merge(acc, Map.merge(action_parameters, parameters))
+    joint_parameters = Map.merge(Map.merge(action_parameters, parameters), acc)
 
     # When the sentant begins, there is a small possibiity that the plugin has not yet started.
-    result = case test_and_wait(String.to_atom(id <> "|plugin|" <> plugin), 5) do
+    case test_and_wait(String.to_atom(id <> "|plugin|" <> plugin), 5) do
       nil ->
-        {:error, :no_plugin}
+        %{}
       pid ->
         # Call the plugin on the Sentant, which in turn will call the appropriate internal App or external plugin
-        GenServer.call(pid, %{command: Helpers.Map.get(action_map, "command"), parameters: joint_parameters, passthrough: passthrough})
+        case GenServer.call(pid, %{command: Helpers.Map.get(action_map, "command"), parameters: joint_parameters, passthrough: passthrough}) do
+          {:ok, result} ->
+            IO.puts("Automation.do_plugin_action: command = #{inspect(Helpers.Map.get(action_map, "command"))} result = #{inspect(result)}")
+            result
+          {:error, reason} ->
+            IO.puts("Automation.do_plugin_action: error = #{inspect(reason)}")
+            %{}
+        end
     end
-
-    # Result for accumulation
-    Map.merge(acc, %{plugin => result})
   end
 
   defp test_and_wait(_, 0), do: nil
@@ -233,15 +241,13 @@ defmodule Reality2.Automation do
   defp do_inbuilt_action(action, id, action_map, action_parameters, acc, parameters, passthrough) do
 
     # The parameters for the plugin are the accumulated parameters, merged with the action parameters merged with the parameters passed to the Sentant
-    joint_parameters = Map.merge(acc, Map.merge(action_parameters, parameters))
+    joint_parameters = Map.merge(Map.merge(action_parameters, parameters), acc)
 
     case action do
-      "send" -> send(id, action_map, action_parameters, acc, joint_parameters, passthrough)
-      "print" -> print(id, action_map, action_parameters, acc, joint_parameters, passthrough)
-      "set" -> set(id, action_map, action_parameters, acc, joint_parameters, passthrough)
-      _ ->
-        # IO.puts("Automation.do_inbuilt_action: unknown action")
-        Map.merge(acc, %{action => :unknown_action})
+      "send" -> send(id, action_map, action_parameters, joint_parameters, passthrough)
+      "print" -> print(id, action_map, action_parameters, joint_parameters, passthrough)
+      "set" -> set(id, action_map, action_parameters, joint_parameters, passthrough)
+      _ -> %{}
     end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -255,7 +261,7 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Send
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  defp send(id, _action_map, action_parameters, acc, parameters, passthrough) do
+  defp send(id, _action_map, action_parameters, parameters, passthrough) do
 
     name_or_id = case Helpers.Map.get(action_parameters, "to") do
       nil ->
@@ -287,7 +293,7 @@ defmodule Reality2.Automation do
         Reality2.Metadata.set(String.to_atom(id <> "|timers"), event, timer)
     end
 
-    Map.merge(acc, %{:send => :ok})
+    %{}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -296,12 +302,10 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Print to console
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  defp print(id, _action_map, _action_parameters, acc, parameters, passthrough) do
+  defp print(id, _action_map, _action_parameters, parameters, _passthrough) do
     name = Reality2.Metadata.get(:SentantNames, id)
-    # IO.puts("Received : #{inspect(parameters)} from #{inspect(name)}, passthrough = #{inspect(passthrough)}")
-    # IO.puts(" results : #{inspect(acc)}")
-
-    Map.merge(acc, %{:print => :ok})
+    IO.puts("Action: print #{inspect(name)} : #{inspect(parameters, pretty: true)}")
+    %{}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -310,15 +314,10 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Set a temporary value
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  defp set(_id, action_map, action_parameters, acc, parameters, _passthrough) do
-    # IO.puts("Set: action_parameters = #{inspect(action_parameters)}")
-    # IO.puts("   : action_map = #{inspect(action_map)}")
-    # IO.puts("   : acc = #{inspect(acc)}")
-    # IO.puts("   : parameters = #{inspect(parameters)}")
-
+  defp set(_id, _action_map, action_parameters, parameters, _passthrough) do
     key = Helpers.Map.get(action_parameters, "key")
     value = replace_variable_in_map(Helpers.Map.get(action_parameters, "value"), parameters)
-    Map.merge(acc, %{key => value})
+    %{key => value}
   end
 
   defp replace_variable_in_map(data, variables) when is_map(data) do

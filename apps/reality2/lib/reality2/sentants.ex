@@ -239,10 +239,31 @@ defmodule Reality2.Sentants do
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
+  @spec read_all(command :: :state | :definition) ::
+    {:ok, list()}
+  @doc """
+  Read something from all Sentants - determined by the command.  The result will depend on the command.
+
+  - Parameters
+    - `command` - The command to be executed on each Sentant, which must be either `:state` or `:definition`.
+
+  - Returns
+    - `{:ok, list}` - The Sentant was read, and the list contains the responses.
+
+  - Example
+  ```elixir
+  case Reality2.Sentants.read_all(:definition) do
+    {:ok, list} ->
+      # Do something with the list
+    {:error, :invalid} ->
+      # Invalid parameter
+  end
+  ```
+  """
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def read_all(command) do
-    get_all_sentant_comms()
-    |> Enum.map( fn (pid) -> GenServer.call(pid, command) end )
+    {:ok, get_all_sentant_comms()
+    |> Enum.map( fn (pid) -> GenServer.call(pid, command) end )}
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
