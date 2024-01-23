@@ -8,6 +8,14 @@
         "env": []
     },
     {
+        "id": "4005549dafb33eed",
+        "type": "tab",
+        "label": "Light and Switch",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "845fc0d6c01a7d33",
         "type": "subflow",
         "name": "SentantEvent",
@@ -36,7 +44,13 @@
                 ]
             }
         ],
-        "env": [],
+        "env": [
+            {
+                "name": "event",
+                "type": "str",
+                "value": "chatgpt_response"
+            }
+        ],
         "meta": {},
         "color": "#DDAA99",
         "status": {
@@ -98,6 +112,16 @@
                 "name": "home_dir",
                 "type": "str",
                 "value": "/home/roycdavies/Development/Reality2"
+            },
+            {
+                "name": "yaml_file",
+                "type": "str",
+                "value": "/Reality2/python/chatgpt_question.yaml"
+            },
+            {
+                "name": "openai_api_key",
+                "type": "str",
+                "value": "/OPENAI_API_KEY.txt"
             }
         ],
         "meta": {},
@@ -156,7 +180,13 @@
                 ]
             }
         ],
-        "env": [],
+        "env": [
+            {
+                "name": "event",
+                "type": "str",
+                "value": "chatgpt"
+            }
+        ],
         "meta": {},
         "color": "#DDAA99",
         "status": {
@@ -169,6 +199,77 @@
                 },
                 {
                     "id": "e05a51ca169c4aff",
+                    "port": 0
+                }
+            ]
+        }
+    },
+    {
+        "id": "25d2111070da5d9e",
+        "type": "subflow",
+        "name": "SwarmLoad",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 80,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "2f7d6f4e7116f88e"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 780,
+                "y": 180,
+                "wires": [
+                    {
+                        "id": "0edbcb8c78657ad6",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 780,
+                "y": 260,
+                "wires": [
+                    {
+                        "id": "0edbcb8c78657ad6",
+                        "port": 1
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "home_dir",
+                "type": "str",
+                "value": "/home/roycdavies/Development/Reality2"
+            },
+            {
+                "name": "yaml_file",
+                "type": "str",
+                "value": "/Reality2/python/chatgpt_question.yaml"
+            },
+            {
+                "name": "openai_api_key",
+                "type": "str",
+                "value": "/OPENAI_API_KEY.txt"
+            }
+        ],
+        "meta": {
+            "keywords": "Reality2"
+        },
+        "color": "#DDAA99",
+        "status": {
+            "x": 1160,
+            "y": 220,
+            "wires": [
+                {
+                    "id": "206860f96b406cc0",
                     "port": 0
                 }
             ]
@@ -291,7 +392,7 @@
     {
         "id": "42ada8608d4fe9d1",
         "type": "ui_group",
-        "name": "Reality2",
+        "name": "Reality2 - ChatGPT",
         "tab": "a3768b013fb512e4",
         "order": 1,
         "disp": true,
@@ -307,6 +408,17 @@
         "wholemsg": "false",
         "hb": "30",
         "subprotocol": ""
+    },
+    {
+        "id": "1936854a8e7f9c4c",
+        "type": "ui_group",
+        "name": "Reality2 - Light and Switch",
+        "tab": "a3768b013fb512e4",
+        "order": 2,
+        "disp": true,
+        "width": "10",
+        "collapse": true,
+        "className": ""
     },
     {
         "id": "4db9013399b3fbed",
@@ -346,7 +458,8 @@
         "y": 100,
         "wires": [
             [
-                "59f16defd6c6aac4"
+                "59f16defd6c6aac4",
+                "421fb9b4e52e00f5"
             ]
         ]
     },
@@ -355,7 +468,7 @@
         "type": "function",
         "z": "845fc0d6c01a7d33",
         "name": "Interpret Response",
-        "func": "// Get the data and sentantID\nlet data = msg.payload;\nlet sentantid = global.get(\"sentantid\");\n\n// This gets called during the join, subscription and subsequent return of the message from ChatGPT.\n// The data.ref field helps determine which stage of the process we are in.\nif (data.ref == \"join\")\n{\n    // The join command was set in the Subscribe Button - this is the next command for the Subscription\n    let the_message = {\n        \"topic\": \"__absinthe__:control\",\n        \"event\": \"doc\",\n        \"payload\": {\n            \"query\": \"subscription {sentantEvent(id: \\\"\" + sentantid + \"\\\", event: \\\"chatgpt_response\\\") { event parameters sentant { id } } }\"\n        },\n        \"ref\": \"subscribe\"\n    };\n    return({payload: the_message});\n}\nelse if (data.ref == \"subscribe\")\n{\n    // If we have successfully subscribed, stop further messages.\n    return(null); \n}\nelse\n{\n    // A result from Chat GPT has arrived.\n    return { payload: { chatgpt_says: data.payload.result.data.sentantEvent.parameters.chatgpt_says }};\n}",
+        "func": "// Get the data and sentantID\nlet data = msg.payload;\nlet sentantid = flow.get(\"$parent.sentantid\");\nlet the_event = env.get(\"event\");\n\n// This gets called during the join, subscription and subsequent return of the message from ChatGPT.\n// The data.ref field helps determine which stage of the process we are in.\nif (data)\n{\n    if (data.ref == \"join\")\n    {\n        // The join command was set in the Subscribe Button - this is the next command for the Subscription\n        let the_message = {\n            \"topic\": \"__absinthe__:control\",\n            \"event\": \"doc\",\n            \"payload\": {\n                \"query\": \"subscription {sentantEvent(id: \\\"\" + sentantid + \"\\\", event: \\\"\" + the_event + \"\\\") { event parameters sentant { id } } }\"\n            },\n            \"ref\": \"subscribe\"\n        };\n        return({payload: the_message});\n    }\n    else if (data.ref == \"subscribe\")\n    {\n        // If we have successfully subscribed, stop further messages.\n        return(null); \n    }\n    else if (data.event == \"subscription:data\")\n    {\n        // A result from Chat GPT has arrived.\n        return { payload: { chatgpt_says: data.payload.result.data.sentantEvent.parameters.chatgpt_says }};\n    }\n}",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -380,7 +493,7 @@
         "fieldType": "msg",
         "format": "json",
         "syntax": "plain",
-        "template": "{\n    \"__\": \"This is what Phoenix Server requires for WebSockets\",\n    \"topic\": \"__absinthe__:control\",\n    \"event\": \"phx_join\",\n    \"payload\": {},\n    \"ref\": \"join\"\n}",
+        "template": "{\n    \"topic\": \"__absinthe__:control\",\n    \"event\": \"phx_join\",\n    \"payload\": {},\n    \"ref\": \"join\"\n}",
         "output": "str",
         "x": 260,
         "y": 100,
@@ -464,7 +577,7 @@
         "type": "function",
         "z": "845fc0d6c01a7d33",
         "name": "Block final answer",
-        "func": "// Get the data and sentantID\nlet data = msg.payload;\n\nif (data.event) {\n    return msg;\n}\nelse {\n    return null;\n}\n",
+        "func": "// Get the data and sentantID\nlet data = msg.payload;\n\nif (data && data.event) {\n    return msg;\n}\nelse {\n    return null;\n}\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -478,6 +591,23 @@
                 "4db9013399b3fbed"
             ]
         ]
+    },
+    {
+        "id": "421fb9b4e52e00f5",
+        "type": "debug",
+        "z": "845fc0d6c01a7d33",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1220,
+        "y": 300,
+        "wires": []
     },
     {
         "id": "74a31d76bf068544",
@@ -591,7 +721,7 @@
         "type": "function",
         "z": "0642542a5da9d32f",
         "name": "Set up filenames",
-        "func": "msg.variables = {\n    openai_api_filename: env.get(\"home_dir\") + \"/OPENAI_API_KEY.txt\",\n    yaml_filename: env.get(\"home_dir\") + \"/Reality2/python/chatgpt_question.yaml\"\n}\nreturn msg;",
+        "func": "msg.variables = {\n    openai_api_filename: env.get(\"home_dir\") + env.get(\"openai_api_key\"),\n    yaml_filename: env.get(\"home_dir\") + env.get(\"yaml_file\")\n}\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -700,7 +830,7 @@
         "type": "function",
         "z": "800b653b02783641",
         "name": "Get values from Interface",
-        "func": "let sentantid = global.get(\"sentantid\");\nlet question = global.get(\"question\");\n\nif(sentantid) {\n    msg.variables = {\n        \"sentantid\": sentantid,\n        \"event\": \"chatgpt\",\n        \"parameters\": \"\\{\\\"message\\\":\\\"\" + question + \"\\\"\\}\"\n    }\n}\nelse\n{\n    node.log(\"SentantID Error\")\n}\nreturn msg;",
+        "func": "let sentantid = flow.get(\"$parent.sentantid\");\nlet question = flow.get(\"$parent.question\");\nlet the_event = env.get(\"event\");\n\nif(sentantid) {\n    msg.variables = {\n        \"sentantid\": sentantid,\n        \"event\": the_event,\n        \"parameters\": \"\\{\\\"message\\\":\\\"\" + question + \"\\\"\\}\"\n    }\n}\nelse\n{\n    node.log(\"SentantID Error\")\n}\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -711,7 +841,8 @@
         "y": 100,
         "wires": [
             [
-                "a62d20d2ed170d13"
+                "a62d20d2ed170d13",
+                "b37d62d198e0bd90"
             ]
         ]
     },
@@ -782,6 +913,219 @@
                 "e05a51ca169c4aff",
                 "65b87a14b01907df"
             ]
+        ]
+    },
+    {
+        "id": "b37d62d198e0bd90",
+        "type": "debug",
+        "z": "800b653b02783641",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "0edbcb8c78657ad6",
+        "type": "graphql",
+        "z": "25d2111070da5d9e",
+        "name": "GraphQL - SwarmLoad",
+        "graphql": "b0f951c25b9c0e67",
+        "format": "handlebars",
+        "template": "mutation SwarmLoad ($definition: String!) {\n  swarmLoad(yamlDefinition: $definition) {\n    sentants {\n      name id\n    }\n  }\n}",
+        "syntax": "plain",
+        "token": "",
+        "showDebug": false,
+        "x": 550,
+        "y": 220,
+        "wires": [
+            [
+                "206860f96b406cc0"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "47e80cebee9fd656",
+        "type": "file in",
+        "z": "25d2111070da5d9e",
+        "name": "Read ChatGPT Question YAML File",
+        "filename": "variables.yaml_filename",
+        "filenameType": "msg",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 1040,
+        "y": 120,
+        "wires": [
+            [
+                "633da996d5170160"
+            ]
+        ]
+    },
+    {
+        "id": "633da996d5170160",
+        "type": "function",
+        "z": "25d2111070da5d9e",
+        "name": "Insert OpenAI API Key into file",
+        "func": "// Get the openai API key\nlet apiKey = flow.get(\"openai_api_key\");\n\n// Replace the text __openai_api_key__ in the file with the actual API key\nlet updatedContent = msg.payload.replace(/__openai_api_key__/g, apiKey);\n\n// Set this in the variables\nreturn {\"variables\": {\"definition\": updatedContent}};",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 220,
+        "wires": [
+            [
+                "0edbcb8c78657ad6"
+            ]
+        ]
+    },
+    {
+        "id": "3e793077e5582383",
+        "type": "file in",
+        "z": "25d2111070da5d9e",
+        "name": "Read OPENAI_API_KEY from file",
+        "filename": "variables.openai_api_filename",
+        "filenameType": "msg",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 500,
+        "y": 120,
+        "wires": [
+            [
+                "3c20d51ce4c602f4"
+            ]
+        ]
+    },
+    {
+        "id": "3c20d51ce4c602f4",
+        "type": "change",
+        "z": "25d2111070da5d9e",
+        "name": "Set OPENAI_API_KEY",
+        "rules": [
+            {
+                "t": "set",
+                "p": "openai_api_key",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 770,
+        "y": 120,
+        "wires": [
+            [
+                "47e80cebee9fd656"
+            ]
+        ]
+    },
+    {
+        "id": "2f7d6f4e7116f88e",
+        "type": "function",
+        "z": "25d2111070da5d9e",
+        "name": "Set up filenames",
+        "func": "msg.variables = {\n    openai_api_filename: env.get(\"home_dir\") + env.get(\"openai_api_key\"),\n    yaml_filename: env.get(\"home_dir\") + env.get(\"yaml_file\")\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 120,
+        "wires": [
+            [
+                "3e793077e5582383"
+            ]
+        ]
+    },
+    {
+        "id": "206860f96b406cc0",
+        "type": "function",
+        "z": "25d2111070da5d9e",
+        "name": "Set Status",
+        "func": "if (msg.payload.graphql)\n{\n    if (msg.payload.graphql.swarmLoad.sentants)\n    {\n        let sentantid_array = msg.payload.graphql.swarmLoad.sentants.map(obj => obj.id);\n\n        msg.payload = ({ fill: \"green\", text: \"Sentant IDs: \" + sentantid_array.join(\", \") });\n    }\n    else\n    {\n        msg.payload = ({ fill: \"red\", text: \"Problem with sentantLoad.\" });\n    }\n}\nelse\n{\n    msg.payload = ({ fill: \"red\", text: \"Problem with sentantLoad.\" });\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 930,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "14da47203ba9f713",
+        "type": "catch",
+        "z": "25d2111070da5d9e",
+        "name": "",
+        "scope": null,
+        "uncaught": false,
+        "x": 540,
+        "y": 380,
+        "wires": [
+            [
+                "8055c7fe5462adba",
+                "996f1a35062bbe74"
+            ]
+        ]
+    },
+    {
+        "id": "996f1a35062bbe74",
+        "type": "debug",
+        "z": "25d2111070da5d9e",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 920,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "8055c7fe5462adba",
+        "type": "function",
+        "z": "25d2111070da5d9e",
+        "name": "Trap Errors",
+        "func": "if (msg.error)\n{\n    msg.payload = ({ fill: \"red\", text: \"Filename Error\" });\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 930,
+        "y": 260,
+        "wires": [
+            []
         ]
     },
     {
@@ -891,7 +1235,7 @@
             {
                 "t": "set",
                 "p": "sentantid",
-                "pt": "global",
+                "pt": "flow",
                 "to": "payload.graphql.sentantLoad.id",
                 "tot": "msg"
             }
@@ -942,7 +1286,7 @@
             {
                 "t": "set",
                 "p": "question",
-                "pt": "global",
+                "pt": "flow",
                 "to": "payload",
                 "tot": "msg"
             }
@@ -1047,5 +1391,119 @@
             [],
             []
         ]
+    },
+    {
+        "id": "9476978e13a6f41b",
+        "type": "ui_button",
+        "z": "4005549dafb33eed",
+        "name": "Create Button",
+        "group": "1936854a8e7f9c4c",
+        "order": 2,
+        "width": "5",
+        "height": "2",
+        "passthru": false,
+        "label": "Load Sentants",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "grey",
+        "className": "",
+        "icon": "fa-upload",
+        "payload": "{}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "str",
+        "x": 300,
+        "y": 200,
+        "wires": [
+            [
+                "6ad552d3338eb7f0"
+            ]
+        ]
+    },
+    {
+        "id": "9c43109d049fcb1c",
+        "type": "ui_text",
+        "z": "4005549dafb33eed",
+        "group": "1936854a8e7f9c4c",
+        "order": 5,
+        "width": "10",
+        "height": "2",
+        "name": "SentantID Output",
+        "label": "Sentant ID",
+        "format": "{{msg.payload.graphql.sentantLoad.id}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 1090,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "f1da0356b7826d1c",
+        "type": "change",
+        "z": "4005549dafb33eed",
+        "name": "Set SentantID Parameter",
+        "rules": [
+            {
+                "t": "set",
+                "p": "sentantid",
+                "pt": "flow",
+                "to": "payload.graphql.swarmLoad.sentants[1].id",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1070,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6ad552d3338eb7f0",
+        "type": "subflow:25d2111070da5d9e",
+        "z": "4005549dafb33eed",
+        "name": "",
+        "env": [
+            {
+                "name": "yaml_file",
+                "value": "/Reality2/python/light_and_switch.yaml",
+                "type": "str"
+            }
+        ],
+        "x": 590,
+        "y": 200,
+        "wires": [
+            [
+                "9c43109d049fcb1c",
+                "2a27a1b7b7092a86",
+                "f1da0356b7826d1c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "2a27a1b7b7092a86",
+        "type": "debug",
+        "z": "4005549dafb33eed",
+        "name": "debug 10",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 830,
+        "y": 100,
+        "wires": []
     }
 ]

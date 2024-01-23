@@ -56,7 +56,7 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   @impl true
   def handle_cast(args, {name, id, automation_map, state}) do
-    IO.puts("Automation.handle_cast: #{inspect(name)} : #{inspect(state)} : #{inspect(args)}")
+    # IO.puts("Automation.handle_cast: #{inspect(name)} : #{inspect(state)} : #{inspect(args)}")
     parameters = Helpers.Map.get(args, :parameters, %{})
     passthrough = Helpers.Map.get(args, :passthrough, %{})
 
@@ -177,15 +177,12 @@ defmodule Reality2.Automation do
 
     result = case Helpers.Map.get(action_map, "plugin") do
       nil ->
-        IO.puts("INBUILT")
         do_inbuilt_action(Helpers.Map.get(action_map, "command"), id, action_map, action_parameters, acc, parameters, passthrough)
       plugin ->
-        IO.puts("PLUGIN")
         do_plugin_action(plugin, id, action_map, action_parameters, acc, parameters, passthrough)
     end
 
     # Result for accumulation
-    IO.puts("Automation.do_action: result = #{inspect(result)}")
     Map.merge(acc, result)
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -197,10 +194,10 @@ defmodule Reality2.Automation do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp do_plugin_action(plugin, id, action_map, action_parameters, acc, parameters, passthrough) do
 
-    IO.puts("Automation.do_plugin_action: plugin = #{inspect(plugin)}")
-    IO.puts("Automation.do_plugin_action: id = #{inspect(id)}")
-    IO.puts("Automation.do_plugin_action: action_map = #{inspect(action_map)}")
-    IO.puts("Automation.do_plugin_action: action_parameters = #{inspect(action_parameters)}")
+    # IO.puts("Automation.do_plugin_action: plugin = #{inspect(plugin)}")
+    # IO.puts("Automation.do_plugin_action: id = #{inspect(id)}")
+    # IO.puts("Automation.do_plugin_action: action_map = #{inspect(action_map)}")
+    # IO.puts("Automation.do_plugin_action: action_parameters = #{inspect(action_parameters)}")
 
     # The parameters for the plugin are the accumulated parameters, merged with the action parameters merged with the parameters passed to the Sentant
     joint_parameters = Map.merge(Map.merge(action_parameters, parameters), acc)
@@ -213,10 +210,10 @@ defmodule Reality2.Automation do
         # Call the plugin on the Sentant, which in turn will call the appropriate internal App or external plugin
         case GenServer.call(pid, %{command: Helpers.Map.get(action_map, "command"), parameters: joint_parameters, passthrough: passthrough}) do
           {:ok, result} ->
-            IO.puts("Automation.do_plugin_action: command = #{inspect(Helpers.Map.get(action_map, "command"))} result = #{inspect(result)}")
+            # IO.puts("Automation.do_plugin_action: command = #{inspect(Helpers.Map.get(action_map, "command"))} result = #{inspect(result)}")
             result
-          {:error, reason} ->
-            IO.puts("Automation.do_plugin_action: error = #{inspect(reason)}")
+          {:error, _reason} ->
+            # IO.puts("Automation.do_plugin_action: error = #{inspect(reason)}")
             %{}
         end
     end

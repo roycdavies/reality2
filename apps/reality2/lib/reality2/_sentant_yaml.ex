@@ -428,8 +428,8 @@ defmodule Reality2.Types do
     end  ```
   """
   def validate(data, typedef) do
-    IO.puts("Types.validate: data = #{inspect(data, pretty: true)}")
-    IO.puts("Types.validate: typedef = #{inspect(typedef, pretty: true)}")
+    # IO.puts("Types.validate: data = #{inspect(data, pretty: true)}")
+    # IO.puts("Types.validate: typedef = #{inspect(typedef, pretty: true)}")
     case Validate.validate(data, typedef) do
       {:ok, _} -> :ok
       {:error, errors} -> {:error, Validate.Util.errors_to_map(errors)}
