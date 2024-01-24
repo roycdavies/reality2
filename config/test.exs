@@ -20,7 +20,20 @@ config :reality2_web, Reality2Web.Endpoint,
   # secret_key_base: "uDHCwdkWFOQffm6NJTBxtVeu159joiaJjTqnD6G45ODhwHdnlfdtTIb4juSFvZMk",
   # server: false
 
-  http: [ip: {0, 0, 0, 0}, port: 8080],
+  # http: [ip: {0, 0, 0, 0}, port: 8080],
+  # check_origin: false,
+  # code_reloader: true,
+  # debug_errors: true,
+  # secret_key_base: "2yz7/4pkTLPlQ54tltF1IOW37oNzSae4+8rmK4KF3LbZWzBfJfAi1y0RKxD5FI4b",
+  # watchers: []
+
+  https: [
+    ip: {0, 0, 0, 0},
+    port: 4001,
+    cipher_suite: :strong,
+    keyfile: "priv/cert/selfsigned_key.pem",
+    certfile: "priv/cert/selfsigned.pem"
+  ],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,

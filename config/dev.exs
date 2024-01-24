@@ -39,6 +39,7 @@ config :reality2_web, Reality2Web.Endpoint,
 # The `http:` config above can be replaced with:
 #
   https: [
+    ip: {0, 0, 0, 0},
     port: 4001,
     cipher_suite: :strong,
     keyfile: "priv/cert/selfsigned_key.pem",
