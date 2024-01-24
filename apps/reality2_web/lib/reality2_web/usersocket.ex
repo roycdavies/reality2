@@ -5,7 +5,7 @@ defmodule Reality2Web.UserSocket do
   def connect(params, socket) do
     IO.puts("UserSocket.connect params: #{inspect(params)}")
 
-     {:ok, socket}
+    {:ok, socket}
   end
 
   def id(socket) do
