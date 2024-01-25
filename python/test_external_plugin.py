@@ -5,7 +5,7 @@ from sentant_websocket import subscribe
    
 if __name__ == '__main__':
     # Select your transport with a defined url endpoint
-    transport = RequestsHTTPTransport(url="http://localhost:8080/reality2", verify=False, retries=3)
+    transport = RequestsHTTPTransport(url="https://localhost:4001/reality2", verify=False, retries=3)
 
     # Create a GraphQL client using the defined transport
     client = Client(transport=transport, fetch_schema_from_transport=True)
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     id = result["sentantLoad"]["id"]
     
     # Start the subscription to the Sentant
-    threading.Thread(target=subscribe, args=("ws://localhost:8080/reality2/websocket", id, "chatgpt_response",)).start()
+    threading.Thread(target=subscribe, args=("wss://localhost:4001/reality2/websocket", id, "chatgpt_response",)).start()
 
     # Set up the send event mutation
     send_event = gql(

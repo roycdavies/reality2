@@ -176,9 +176,8 @@ defmodule Reality2Web.Schema.Sentant do
     field :sentant_event, :event_parameters do
       arg :id, non_null(:uuid4)
       arg :event, non_null(:string)
-      arg :passthrough, :json
 
-      config fn %{id: sentantid, event: event, passthrough: passthrough}, _ ->
+      config fn %{id: sentantid, event: event}, _ ->
         IO.puts("sentant_event sentantid: #{inspect(sentantid)}")
         IO.puts("sentant_event event: #{inspect(event)}")
         {:ok, topic: sentantid <> "|" <> event}

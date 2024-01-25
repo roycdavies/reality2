@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from websockets.sync.client import connect
+from websockets.sync.client import connect, ssl
 import json
 import time
 import threading
@@ -47,8 +47,12 @@ def subscribe(server, sentantid, event):
             time.sleep(30)
             websocket.send(json.dumps(heartbeat))
             
+    ssl_context = ssl.create_default_context() 
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+
     # Connect to the server, join the channel and subscribe to the sentant event        
-    with connect(server) as websocket:
+    with connect(server, ssl_context=ssl_context) as websocket:
         # Join the channel
         websocket.send(json.dumps(join_message))
         message = websocket.recv()

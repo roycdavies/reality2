@@ -3,12 +3,12 @@ from gql.transport.requests import RequestsHTTPTransport
 import time
 
 # Select your transport with a defined url endpoint
-transport = RequestsHTTPTransport(url="http://localhost:8080/reality2", verify=False, retries=3)
+transport = RequestsHTTPTransport(url="https://localhost:4001/reality2", verify=False, retries=3)
 
 # Create a GraphQL client using the defined transport
 client = Client(transport=transport, fetch_schema_from_transport=True)
 
-with open('light_and_bulb.yaml', 'r') as file:
+with open('light_and_switch.yaml', 'r') as file:
     yamlDefinition = file.read()
 
 # Provide a GraphQL query
@@ -45,5 +45,3 @@ send_event = gql(
 )
 
 client.execute(send_event, variable_values={"id": id, "event": "turn_on"})
-time.sleep(10)
-client.execute(send_event, variable_values={"id": id, "event": "stop"})
