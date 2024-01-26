@@ -9,6 +9,9 @@
     import { behavior, Message, Image, Grid, Column, Header, Content, Button } from "svelte-fomantic-ui";
 
     import reality2_node from "./lib/reality2_node";
+    import type Sentant from './lib/reality2_node.ts';
+    import SentantCard from './lib/SentantCard.svelte';
+
 
     import type { QueryVars, AppVars } from './lib/Types.svelte';
     import { AppStates, AppEvents } from './lib/Types.svelte';
@@ -131,15 +134,11 @@ Layout
 ------------------------------------------------------------------------------------------------------->
 <svelte:window on:beforeunload={beforeunload} />
 <main>
-
-    <Button ui red on:click={loadAll}>Load</Button>
-
     {#await allSentants}
         <p>Loading...</p>
     {:then response}
     {#each response.data.sentantAll as sentant}
-        <p>{sentant.id}</p>
-        <p>{sentant.name}</p>
+        <SentantCard {sentant} />
     {/each}
     {:catch error}
         <p>Error: {error.message}</p>
