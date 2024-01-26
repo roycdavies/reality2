@@ -8,16 +8,13 @@
 <script lang="ts">
     import { behavior, Message, Image, Grid, Column, Header, Content, Button } from "svelte-fomantic-ui";
 
-    import { ApolloClient, InMemoryCache } from '@apollo/client';
-    import { setClient } from 'svelte-apollo';
+    import reality2_node from "./lib/reality2_node";
 
     import type { QueryVars, AppVars } from './lib/Types.svelte';
-    import { AppStates, AppEvents, LoginStates, LoginEvents } from './lib/Types.svelte';
+    import { AppStates, AppEvents } from './lib/Types.svelte';
     import Automation from './lib/FiniteStateMachine';
 
    
-    import { Itemtype, Usertype } from "./lib/Graphql.svelte";
-    import type { Item as ItemT, Session } from './lib/Graphql.svelte';
     import { getQueryStringVal } from './lib/Querystring.svelte';
 
     import { onMount } from 'svelte';
@@ -53,11 +50,8 @@
     // Prevent the user from leaving the page
     // -------------------------------------------------------------------------------------------------
     function beforeunload(event: BeforeUnloadEvent) {
-        if ((AppC.currentState !== AppStates.QRCODE) && (AppC.currentState !== AppStates.QRSEARCH))
-        {
-            event.preventDefault();
-            return (event.returnValue = "");
-        }
+        event.preventDefault();
+        return (event.returnValue = "");
     }
     // -------------------------------------------------------------------------------------------------
 
@@ -75,11 +69,13 @@
     // GraphQL
     // -------------------------------------------------------------------------------------------------
     // GraphQL client setup 
-    const client = new ApolloClient({
-        uri:  '/api',
-        cache: new InMemoryCache()
-    });
-    setClient(client);
+    let reality2Node = new reality2_node("https://localhost:4001");
+
+    $: allSentants = reality2Node.sentantAll();
+
+    function loadAll() {
+        reality2Node.sentantAll();
+    }
     // -------------------------------------------------------------------------------------------------
 
 
@@ -136,7 +132,17 @@ Layout
 <svelte:window on:beforeunload={beforeunload} />
 <main>
 
-    <Button ui red>Test</Button>
+    <Button ui red on:click={loadAll}>Load</Button>
 
+    {#await allSentants}
+        <p>Loading...</p>
+    {:then response}
+    {#each response.data.sentantAll as sentant}
+        <p>{sentant.id}</p>
+        <p>{sentant.name}</p>
+    {/each}
+    {:catch error}
+        <p>Error: {error.message}</p>
+    {/await}
 </main>
 <!----------------------------------------------------------------------------------------------------->

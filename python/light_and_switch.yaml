@@ -6,8 +6,9 @@
 # Contant: http://roycdavies.github.io
 # ------------------------------------------------------------------------------------------------------
 swarm:
+  name: Light and Switch
+  description: A Swarm of Sentants to illustrate sending events between Sentants.
   sentants:
-
     # --------------------------------------------------------------------------------------------------
     # Light Switch Sentant
     # --------------------------------------------------------------------------------------------------

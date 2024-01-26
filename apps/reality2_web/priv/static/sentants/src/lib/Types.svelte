@@ -32,13 +32,5 @@
         LOAD_QUERY_STRINGS='loadQueryStrings'
     };
 
-    export enum LoginStates {
-        _='*',
-        LOAD='load'
-    }
-    export enum LoginEvents {
-        INITIALISE="initialise"
-    }
-
 </script>
 <!----------------------------------------------------------------------------------------------------->
