@@ -137,9 +137,9 @@ Layout
     {#await allSentants}
         <p>Loading...</p>
     {:then response}
-    {#each response.data.sentantAll as sentant}
-        <SentantCard {sentant} />
-    {/each}
+        {#each response.data.sentantAll as sentant}
+            <SentantCard {sentant} />
+        {/each}
     {:catch error}
         <p>Error: {error.message}</p>
     {/await}

@@ -10,15 +10,13 @@
 
     import type { Sentant } from './reality2_node.js';
 
-    let sentant: Sentant = {id: "", name: ""};
-    let 
+    export let sentant: Sentant;
 
-    $: sentant : Sentant = sentant;
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
 <Card ui>
     <Content>
-        <Header>{sentant.name}</Header>
+        <Header>Name : {sentant.name}</Header>
     </Content>
 </Card>
