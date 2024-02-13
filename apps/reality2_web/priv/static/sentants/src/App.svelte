@@ -6,12 +6,11 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { behavior, Message, Image, Grid, Column, Header, Content, Button } from "svelte-fomantic-ui";
+    import { Cards } from "svelte-fomantic-ui";
 
     import reality2_node from "./lib/reality2_node";
     import type Sentant from './lib/reality2_node.ts';
     import SentantCard from './lib/SentantCard.svelte';
-
 
     import type { QueryVars, AppVars } from './lib/Types.svelte';
     import { AppStates, AppEvents } from './lib/Types.svelte';
@@ -114,6 +113,10 @@
     };
 
     // ------------------------------------------------------------------------------------------------- 
+
+    function convertToSentant (sentant: any) : Sentant {
+        return sentant as Sentant;
+    }
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -132,14 +135,17 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<svelte:window on:beforeunload={beforeunload} />
+<!-- <svelte:window on:beforeunload={beforeunload} /> -->
 <main>
     {#await allSentants}
         <p>Loading...</p>
     {:then response}
-        {#each response.data.sentantAll as sentant}
-            <SentantCard {sentant} />
-        {/each}
+        <Cards ui>
+            {#each response.data.sentantAll as sentant}
+                <SentantCard {sentant}/>
+            {/each}
+        </Cards>
+
     {:catch error}
         <p>Error: {error.message}</p>
     {/await}

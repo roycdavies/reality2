@@ -5,18 +5,22 @@
   Created: Jan 2024
   Contact: roycdavies.github.io
 ------------------------------------------------------------------------------------------------------->
-<script context="module" lang="ts">
-    import {Card, Content, Header} from "svelte-fomantic-ui";
+<script lang="ts">
+    import {Card, Content, Header, Image} from "svelte-fomantic-ui";
 
     import type { Sentant } from './reality2_node.js';
 
-    export let sentant: Sentant;
-
+    export let sentant: Sentant = {name: "Sentant Name", id: "Sentant ID"};
+    
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
 <Card ui>
+    <Image ui large src="/images/globe.png"/>
     <Content>
         <Header>Name : {sentant.name}</Header>
+    </Content>
+    <Content extra>
+        <p>{sentant.id}</p>
     </Content>
 </Card>
