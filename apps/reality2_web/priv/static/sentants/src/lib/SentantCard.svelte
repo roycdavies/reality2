@@ -2,7 +2,7 @@
   A Sentant Card
 
   Author: Dr. Roy C. Davies
-  Created: Jan 2024
+  Created: Feb 2024
   Contact: roycdavies.github.io
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
@@ -10,13 +10,13 @@
 
     import type { Sentant } from './reality2_node.js';
 
-    export let sentant: Sentant = {name: "Sentant Name", id: "Sentant ID"};
+    export let sentant: Sentant = {name: "", id: ""};
     
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
 <Card ui>
-    <Image ui large src="/images/globe.png"/>
+    <Image ui large src="/images/sentant.png"/>
     <Content>
         <Header>Name : {sentant.name}</Header>
     </Content>
@@ -24,3 +24,4 @@
         <p>{sentant.id}</p>
     </Content>
 </Card>
+

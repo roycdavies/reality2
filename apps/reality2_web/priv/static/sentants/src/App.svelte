@@ -16,6 +16,8 @@
     import { AppStates, AppEvents } from './lib/Types.svelte';
     import Automation from './lib/FiniteStateMachine';
 
+    import { Canvas } from '@threlte/core';
+    import Scene from './lib/Scene.svelte'
    
     import { getQueryStringVal } from './lib/Querystring.svelte';
 
@@ -136,7 +138,7 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
 <!-- <svelte:window on:beforeunload={beforeunload} /> -->
-<main>
+<!-- <main>
     {#await allSentants}
         <p>Loading...</p>
     {:then response}
@@ -149,5 +151,10 @@ Layout
     {:catch error}
         <p>Error: {error.message}</p>
     {/await}
-</main>
+</main> -->
+
+
+<Canvas>
+    <Scene />
+</Canvas>
 <!----------------------------------------------------------------------------------------------------->
