@@ -1,5 +1,7 @@
 <script lang="ts">
     import { T } from '@threlte/core'
+
+    import Sentant3D from './Sentant3D.svelte';
 </script>
 <T.PerspectiveCamera
     position={[10, 10, 10]}
@@ -7,7 +9,6 @@
         ref.lookAt(0, 0, 0)
     }}
 />
-<T.Mesh>
-    <T.SphereGeometry args={[3, 32, 16]} />
-    <T.MeshBasicMaterial color="red" />
-</T.Mesh>
+
+<Sentant3D />
+<Sentant3D position={[4,4,4]}/>
