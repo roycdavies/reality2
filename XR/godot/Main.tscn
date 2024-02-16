@@ -1,0 +1,92 @@
+[gd_scene load_steps=3 format=3 uid="uid://cc71islaf4sqf"]
+
+[ext_resource type="Script" path="res://Springs.gd" id="1_qwbuk"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_m1dod"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7.61584)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
+transform = Transform3D(0.800229, -0.432683, -0.415233, 0.599694, 0.577371, 0.554085, 0, -0.692408, 0.721506, 0, 0, 0)
+
+[node name="Node" type="Node" parent="."]
+
+[node name="Sentant3D" type="RigidBody3D" parent="Node"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.14065, 0, 0)
+gravity_scale = 1.66533e-16
+constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
+script = ExtResource("1_qwbuk")
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D"]
+radial_segments = 24
+rings = 12
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D"]
+shape = SubResource("SphereShape3D_m1dod")
+
+[node name="Sentant3D2" type="RigidBody3D" parent="Node"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.04447, 0, 0)
+gravity_scale = 1.66533e-16
+constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
+script = ExtResource("1_qwbuk")
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D2"]
+radial_segments = 24
+rings = 12
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D2"]
+shape = SubResource("SphereShape3D_m1dod")
+
+[node name="Sentant3D3" type="RigidBody3D" parent="Node"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.08227, 0)
+gravity_scale = 1.66533e-16
+constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
+script = ExtResource("1_qwbuk")
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D3"]
+radial_segments = 24
+rings = 12
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D3"]
+shape = SubResource("SphereShape3D_m1dod")
+
+[node name="Sentant3D4" type="RigidBody3D" parent="Node"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.40827, 0)
+gravity_scale = 1.66533e-16
+constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
+script = ExtResource("1_qwbuk")
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D4"]
+radial_segments = 24
+rings = 12
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D4"]
+shape = SubResource("SphereShape3D_m1dod")
+
+[node name="Sentant3D5" type="RigidBody3D" parent="Node"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.02651)
+gravity_scale = 1.66533e-16
+constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
+script = ExtResource("1_qwbuk")
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D5"]
+radial_segments = 24
+rings = 12
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D5"]
+shape = SubResource("SphereShape3D_m1dod")
+
+[node name="Sentant3D6" type="RigidBody3D" parent="Node"]
+gravity_scale = 1.66533e-16
+constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
+script = ExtResource("1_qwbuk")
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D6"]
+radial_segments = 24
+rings = 12
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D6"]
+shape = SubResource("SphereShape3D_m1dod")

@@ -4,8 +4,7 @@
     export let position = [0, 0, 0];
 </script>
 
-<T.Mesh>
-    <T.SphereGeometry args={[3, 32, 16]} />
+<T.Mesh position={position}>
+    <T.SphereGeometry args={[1, 32, 16]} />
     <T.MeshBasicMaterial color="blue" />
-    position={position}
 </T.Mesh>
