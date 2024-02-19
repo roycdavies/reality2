@@ -25,8 +25,9 @@ volumetric_fog_density = 0.5
 
 [sub_resource type="SystemFont" id="SystemFont_jaoip"]
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" node_paths=PackedStringArray("orbitControls")]
 script = ExtResource("1_lyt62")
+orbitControls = NodePath("OrbitControls")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70)
@@ -43,6 +44,7 @@ script = ExtResource("2_drb8w")
 _camera = NodePath("../Camera3D")
 
 [node name="Reality2Node" parent="." instance=ExtResource("2_1gfg2")]
+mass = 0.01
 numSwarms = 10
 numSentantsInSwarm = 20
 
