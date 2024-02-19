@@ -1,92 +1,52 @@
-[gd_scene load_steps=3 format=3 uid="uid://cc71islaf4sqf"]
+[gd_scene load_steps=7 format=3 uid="uid://cc71islaf4sqf"]
 
-[ext_resource type="Script" path="res://Springs.gd" id="1_qwbuk"]
+[ext_resource type="PackedScene" uid="uid://m3vri17l8600" path="res://Reality2Node.tscn" id="2_1gfg2"]
+[ext_resource type="Script" path="res://addons/orbit-controls/orbit-controls.gd" id="2_drb8w"]
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_m1dod"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mxip7"]
+
+[sub_resource type="Sky" id="Sky_yja41"]
+sky_material = SubResource("ShaderMaterial_mxip7")
+
+[sub_resource type="Environment" id="Environment_qsxco"]
+background_mode = 1
+background_color = Color(0.117647, 0.129412, 0.188235, 1)
+sky = SubResource("Sky_yja41")
+ambient_light_source = 2
+reflected_light_source = 2
+volumetric_fog_density = 0.5
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_xwnjh"]
 
 [node name="Node3D" type="Node3D"]
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7.61584)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.02866, 68.5767)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
-transform = Transform3D(0.800229, -0.432683, -0.415233, 0.599694, 0.577371, 0.554085, 0, -0.692408, 0.721506, 0, 0, 0)
 
-[node name="Node" type="Node" parent="."]
+[node name="OrbitControls" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_drb8w")
+_camera = NodePath("../Camera3D")
 
-[node name="Sentant3D" type="RigidBody3D" parent="Node"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.14065, 0, 0)
-gravity_scale = 1.66533e-16
-constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
-script = ExtResource("1_qwbuk")
+[node name="Reality2Node" parent="." instance=ExtResource("2_1gfg2")]
+numSwarms = 10
+numSentantsInSwarm = 20
 
-[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D"]
-radial_segments = 24
-rings = 12
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_qsxco")
+camera_attributes = SubResource("CameraAttributesPractical_xwnjh")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D"]
-shape = SubResource("SphereShape3D_m1dod")
-
-[node name="Sentant3D2" type="RigidBody3D" parent="Node"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.04447, 0, 0)
-gravity_scale = 1.66533e-16
-constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
-script = ExtResource("1_qwbuk")
-
-[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D2"]
-radial_segments = 24
-rings = 12
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D2"]
-shape = SubResource("SphereShape3D_m1dod")
-
-[node name="Sentant3D3" type="RigidBody3D" parent="Node"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.08227, 0)
-gravity_scale = 1.66533e-16
-constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
-script = ExtResource("1_qwbuk")
-
-[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D3"]
-radial_segments = 24
-rings = 12
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D3"]
-shape = SubResource("SphereShape3D_m1dod")
-
-[node name="Sentant3D4" type="RigidBody3D" parent="Node"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.40827, 0)
-gravity_scale = 1.66533e-16
-constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
-script = ExtResource("1_qwbuk")
-
-[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D4"]
-radial_segments = 24
-rings = 12
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D4"]
-shape = SubResource("SphereShape3D_m1dod")
-
-[node name="Sentant3D5" type="RigidBody3D" parent="Node"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.02651)
-gravity_scale = 1.66533e-16
-constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
-script = ExtResource("1_qwbuk")
-
-[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D5"]
-radial_segments = 24
-rings = 12
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D5"]
-shape = SubResource("SphereShape3D_m1dod")
-
-[node name="Sentant3D6" type="RigidBody3D" parent="Node"]
-gravity_scale = 1.66533e-16
-constant_force = Vector3(2.08165e-12, 2.08165e-12, 2.08165e-12)
-script = ExtResource("1_qwbuk")
-
-[node name="CSGSphere3D" type="CSGSphere3D" parent="Node/Sentant3D6"]
-radial_segments = 24
-rings = 12
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Sentant3D6"]
-shape = SubResource("SphereShape3D_m1dod")
+[node name="Label3D" type="Label3D" parent="."]
+pixel_size = 0.05
+billboard = 1
+shaded = true
+alpha_antialiasing_mode = 1
+alpha_antialiasing_edge = 1.0
+outline_modulate = Color(0.313726, 0.313726, 0.313726, 1)
+text = "Hello World"
+outline_size = 0
