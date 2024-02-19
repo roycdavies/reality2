@@ -69,6 +69,7 @@ func add_sentant(i):
 	var title = Label3D.new()
 	title.text = new_sentant.name
 	title.set_outline_size(0)
+	title.modulate = Color.BISQUE
 	title.billboard = true
 	title.pixel_size = 0.005
 	title.position = Vector3(0.0, 0.0, 0.0)

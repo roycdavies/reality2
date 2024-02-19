@@ -1,7 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://cc71islaf4sqf"]
+[gd_scene load_steps=11 format=3 uid="uid://cc71islaf4sqf"]
 
+[ext_resource type="Script" path="res://Selector.gd" id="1_lyt62"]
 [ext_resource type="PackedScene" uid="uid://m3vri17l8600" path="res://Reality2Node.tscn" id="2_1gfg2"]
 [ext_resource type="Script" path="res://addons/orbit-controls/orbit-controls.gd" id="2_drb8w"]
+
+[sub_resource type="Theme" id="Theme_rl7gn"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_vpm3v"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_mxip7"]
 
@@ -18,10 +23,13 @@ volumetric_fog_density = 0.5
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_xwnjh"]
 
+[sub_resource type="SystemFont" id="SystemFont_jaoip"]
+
 [node name="Node3D" type="Node3D"]
+script = ExtResource("1_lyt62")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.02866, 68.5767)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
 
@@ -30,6 +38,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+theme = SubResource("Theme_rl7gn")
 script = ExtResource("2_drb8w")
 _camera = NodePath("../Camera3D")
 
@@ -37,16 +46,26 @@ _camera = NodePath("../Camera3D")
 numSwarms = 10
 numSentantsInSwarm = 20
 
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Reality2Node"]
+shape = SubResource("SphereShape3D_vpm3v")
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_qsxco")
 camera_attributes = SubResource("CameraAttributesPractical_xwnjh")
 
 [node name="Label3D" type="Label3D" parent="."]
-pixel_size = 0.05
+visibility_range_end = 15.0
+visibility_range_end_margin = 3.0
+visibility_range_fade_mode = 2
+pixel_size = 0.01
 billboard = 1
 shaded = true
+no_depth_test = true
 alpha_antialiasing_mode = 1
 alpha_antialiasing_edge = 1.0
+modulate = Color(0.211765, 0.2, 0.862745, 1)
 outline_modulate = Color(0.313726, 0.313726, 0.313726, 1)
-text = "Hello World"
+text = "Reality2"
+font = SubResource("SystemFont_jaoip")
+font_size = 40
 outline_size = 0

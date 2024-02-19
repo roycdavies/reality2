@@ -26,8 +26,13 @@ class Sentant:
 		var sphere = MeshInstance3D.new()
 		var sphere_mesh = SphereMesh.new()
 		var material = StandardMaterial3D.new()
+		var collider = CollisionShape3D.new()
+		collider.set_shape(SphereShape3D.new())
+		collider.shape.set_radius(0.5)
+		sphere.add_child(collider)
 		material.albedo_color = color
 		sphere.material_override = material
+
 
 		sphere.mesh = sphere_mesh
 		# A little randomness to make sure the objects move around OK
