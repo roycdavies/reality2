@@ -1,4 +1,4 @@
-class Sentant:
+class Planet:
 	
 	## Closest Distance between Sentants
 	var closestDistance = 30.0
@@ -22,13 +22,13 @@ class Sentant:
 
 
 	# Called when the node enters the scene tree for the first time.
-	func _init(parent, name = "node", color = Color.CADET_BLUE):
-		var sphere = MeshInstance3D.new()
-		var sphere_mesh = SphereMesh.new()
-		var material = StandardMaterial3D.new()
-		material.albedo_color = color
-		sphere.material_override = material
-		sphere.mesh = sphere_mesh
+	func _init(parent, name = "Test", color = Color.CADET_BLUE):
+		#var sphere = MeshInstance3D.new()
+		#var sphere_mesh = SphereMesh.new()
+		#var material = StandardMaterial3D.new()
+		#material.albedo_color = color
+		#sphere.material_override = material
+		#sphere.mesh = sphere_mesh
 		
 		var area = Area3D.new()
 		area.set_ray_pickable(true)
@@ -37,13 +37,14 @@ class Sentant:
 		collider.shape.set_radius(0.5)
 		
 		area.add_child(collider)
-		sphere.add_child(area)
+		#sphere.add_child(area)
+		parent.add_child(area)
 
 		# A little randomness to make sure the objects move around OK
 		parent.position = Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5) * 0.1
-		sphere.name = name
+		#self.name = name
 		
-		parent.add_child(sphere)
+		#parent.add_child(sphere)
 		_sentant = parent
 
 

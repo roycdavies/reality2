@@ -1,0 +1,52 @@
+[gd_scene load_steps=9 format=3 uid="uid://m3vri17l8600"]
+
+[ext_resource type="Script" path="res://scripts/Reality2Node.gd" id="1_va0tq"]
+[ext_resource type="Shader" path="res://materials/iridescent/source/star_shader.gdshader" id="2_dr4sr"]
+[ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="3_1o70l"]
+[ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="4_oq3cs"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w6tku"]
+albedo_color = Color(0.643137, 0.639216, 0, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_espv8"]
+size = Vector3(1.4, 1.4, 1.4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jrbjf"]
+render_priority = 0
+shader = ExtResource("2_dr4sr")
+shader_parameter/albedo = Color(0.85098, 0.878431, 0, 1)
+shader_parameter/specular = 0.0
+shader_parameter/roughness = 1.0
+shader_parameter/metallic = 0.4
+shader_parameter/uv_scale = Vector2(6, 4)
+shader_parameter/glitter_glow_intensity = 0.1
+shader_parameter/noise_direction_sampler = ExtResource("3_1o70l")
+shader_parameter/shimmer_glow_intensity = 0.2
+shader_parameter/fresnel_power = 2.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_36kgj"]
+radius = 1.0
+height = 2.0
+
+[node name="Reality2Node" type="RigidBody3D"]
+editor_description = "A Reality2 Node"
+gravity_scale = 1.629
+freeze = true
+script = ExtResource("1_va0tq")
+numSentantsInSwarm = 5
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="."]
+visible = false
+radius = 1.0
+radial_segments = 24
+rings = 12
+material = SubResource("StandardMaterial3D_w6tku")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_espv8")
+disabled = true
+
+[node name="MaterialMesh" type="MeshInstance3D" parent="."]
+material_override = SubResource("ShaderMaterial_jrbjf")
+mesh = SubResource("SphereMesh_36kgj")
+script = ExtResource("4_oq3cs")

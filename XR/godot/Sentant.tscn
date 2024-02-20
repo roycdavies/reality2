@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dyoe3gu7vhwbq"]
-
-[ext_resource type="Script" path="res://Sentant.gd" id="1_wcutp"]
-
-[node name="Sentant3D" type="Node3D"]
-script = ExtResource("1_wcutp")

@@ -1,0 +1,29 @@
+[gd_scene load_steps=7 format=3 uid="uid://bwgk43p5qcrey"]
+
+[ext_resource type="Script" path="res://scripts/Swarm.gd" id="1_7yhip"]
+[ext_resource type="Shader" path="res://materials/iridescent/source/star_shader.gdshader" id="2_nmt0m"]
+[ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="3_fifk3"]
+[ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="4_rul88"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bnp0s"]
+render_priority = 0
+shader = ExtResource("2_nmt0m")
+shader_parameter/albedo = Color(0.145098, 0.4, 1, 1)
+shader_parameter/specular = 0.0
+shader_parameter/roughness = 1.0
+shader_parameter/metallic = 0.4
+shader_parameter/uv_scale = Vector2(6, 4)
+shader_parameter/glitter_glow_intensity = 0.1
+shader_parameter/noise_direction_sampler = ExtResource("3_fifk3")
+shader_parameter/shimmer_glow_intensity = 0.2
+shader_parameter/fresnel_power = 2.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_0d0i5"]
+
+[node name="SwarmSimple" type="Node3D"]
+script = ExtResource("1_7yhip")
+
+[node name="MaterialMesh" type="MeshInstance3D" parent="."]
+material_override = SubResource("ShaderMaterial_bnp0s")
+mesh = SubResource("SphereMesh_0d0i5")
+script = ExtResource("4_rul88")
