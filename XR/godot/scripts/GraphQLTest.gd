@@ -1,20 +1,131 @@
 extends Node
 
-@export var graphQL: Node
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Scripts used
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+var GQL = load("res://scripts/GraphQL.gd").new()
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Private Variables
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+var url = "https://localhost:4001/reality2"
+var lightSwitchID = ""
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Generic Printout function
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+var print_result = func(data):
+	print(data)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Get a list of all the Sentants
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantAll(callback, details: String = "id"):
+	var body = 'query {  sentantAll { ' + details + ' } }'
+	GQL.query(url, body, callback)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantAll_response(data):
+	var response = {}
+	var errors = {}
+	if (data.has("errors")):
+		errors = data["errors"]
+		print("ERROR: ", errors)
+	else:
+		response = data["data"]["sentantAll"]
+		print ("RESPONSE: ", response)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Get Sentant details by ID
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantGetByID(callback, id: String, details: String = "id"):
+	var query = 'query SentantGet($id: UUID4!) { sentantGet(id: $id) {' + details + '} }'
+	var variables = {"id": id}
+	GQL.query(url, query, callback, variables)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantGetByID_response(data):
+	var response = {}
+	var errors = {}
+	if (data.has("errors")):
+		errors = data["errors"]
+		print("ERROR: ", errors)
+	else:
+		response = data["data"]["sentantGet"]
+		print ("RESPONSE: ", response)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Get Sentant details by Name
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantGetByName(callback, name: String, details: String = "id"):
+	var query = 'query SentantGet($name: String!) { sentantGet(name: $name) {' + details + '} }'
+	var variables = {"name": name}
+	GQL.query(url, query, callback, variables)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantGetByName_response(data):
+	var response = {}
+	var errors = {}
+	if (data.has("errors")):
+		errors = data["errors"]
+		print("ERROR: ", errors)
+	else:
+		response = data["data"]["sentantGet"]
+		lightSwitchID = response["id"]
+		print ("RESPONSE: ", response)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Send an Event to a named Sentant
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantSend(callback, id: String, event: String, details: String = "id"):
+	var query = 'mutation SentantSend($id: UUID4!, $event: String!) { sentantSend(id: $id, event: $event) {' + details + '} }'
+	var variables = {"id": id, "event": event}
+	GQL.query(url, query, callback, variables)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantSend_response(data):
+	var response = {}
+	var errors = {}
+	if (data.has("errors")):
+		errors = data["errors"]
+		print("ERROR: ", errors)
+	else:
+		response = data["data"]["sentantSend"]
+		print ("RESPONSE: ", response)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantEvent(callback, id: String, event: String, details: String = "id"):
+	var query = 'subscription SentantEvent($id: UUID4!, $event: String!) { sentantEvent(id: $id, event: $event) {' + details + '} }'
+	var variables = {"id": id, "event": event}
+	GQL.subscription(url, query, callback, variables)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Called when the node enters the scene tree for the first time.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
-	graphQL.sentantAll()
-	graphQL.sentantGetByID("fbbfab28-c957-11ee-b44f-de59b61f7ba5")
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	pass
-
-
-func _on_graph_ql_sentant_all_response(result):
-	print(result)
-
-
-func _on_graph_ql_sentant_get_response(result):
-	print(result)
+	sentantAll(func(data): sentantAll_response(data), "description id name")
+	sentantGetByName(func(data): sentantGetByName_response(data), "Light Switch", "id")
+	sentantGetByID(func(data): sentantGetByID_response(data), lightSwitchID, "name")
+	sentantEvent(print_result, lightSwitchID, "name")
+	sentantSend(func(data): sentantSend_response(data), lightSwitchID, "turn_on", "name")
