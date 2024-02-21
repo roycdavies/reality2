@@ -3,7 +3,8 @@
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 extends Node
 
-var _websocket_client
+var _websocket_client = WebSocketPeer.new()
+var _websocket_stage = 0
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
@@ -34,30 +35,57 @@ func mutation(url, query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # GraphQL subscritionvia Websockets
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+var _subscription_query: String
 func subscription(url, query, callback, variables={}, headers_dict={}):
-	_websocket_client = WebSocketPeer.new()
-	_websocket_client.connect_to_url(url)
+	print ("Websocket: ", url)
+	_subscription_query = "subscription {sentantEvent(id: \"" + variables["id"] + "\", event: \"" + variables["event"] + "\") { event parameters sentant { id } } }"
+	#_websocket_client = WebSocketPeer.new()
+	_websocket_client.connect_to_url(url, TLSOptions.client_unsafe())
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+var join_message = {
+	"topic": "__absinthe__:control",
+	"event": "phx_join",
+	"payload": {},
+	"ref": 0
+}
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
+	print(_websocket_client)
 	if (_websocket_client != null):
 		_websocket_client.poll()
-		var state = _websocket_client.get_ready_state()
-		if state == WebSocketPeer.STATE_OPEN:
-			while _websocket_client.get_available_packet_count():
-				print("Packet: ", _websocket_client.get_packet())
-		elif state == WebSocketPeer.STATE_CLOSING:
-			# Keep polling to achieve proper close.
-			pass
-		elif state == WebSocketPeer.STATE_CLOSED:
-			var code = _websocket_client.get_close_code()
-			var reason = _websocket_client.get_close_reason()
-			print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
-			set_process(false) # Stop processing.
+		
+		if (_websocket_stage == 0):
+			_websocket_client.send_text(JSON.stringify(join_message))
+			_websocket_stage = 1
+		elif (_websocket_stage == 1):
+			var subscribe = {
+				"topic": "__absinthe__:control",
+				"event": "doc",
+				"payload": {
+					"query": _subscription_query
+				},
+				"ref": 0
+			}
+			_websocket_client.send_text(JSON.stringify(subscribe))
+			_websocket_stage = 2
+		else:
+			var state = _websocket_client.get_ready_state()
+			if state == WebSocketPeer.STATE_OPEN:
+				print("OPEN")
+				while _websocket_client.get_available_packet_count():
+					print("Packet: ", _websocket_client.get_packet())
+			elif state == WebSocketPeer.STATE_CLOSING:
+				# Keep polling to achieve proper close.
+				pass
+			elif state == WebSocketPeer.STATE_CLOSED:
+				var code = _websocket_client.get_close_code()
+				var reason = _websocket_client.get_close_reason()
+				print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
+				set_process(false) # Stop processing.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

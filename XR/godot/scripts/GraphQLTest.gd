@@ -13,6 +13,7 @@ var GQL = load("res://scripts/GraphQL.gd").new()
 # Private Variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 var url = "https://localhost:4001/reality2"
+var ws_url = "wss://localhost:4001/reality2/websocket"
 var lightSwitchID = ""
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -115,7 +116,7 @@ func sentantSend_response(data):
 func sentantEvent(callback, id: String, event: String, details: String = "id"):
 	var query = 'subscription SentantEvent($id: UUID4!, $event: String!) { sentantEvent(id: $id, event: $event) {' + details + '} }'
 	var variables = {"id": id, "event": event}
-	GQL.subscription(url, query, callback, variables)
+	GQL.subscription(ws_url, query, callback, variables)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
