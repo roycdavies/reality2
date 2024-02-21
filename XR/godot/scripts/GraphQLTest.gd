@@ -3,12 +3,12 @@ extends Node
 @export var graphQL: Node
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	#graphQL.sentantAll()
-	graphQL.sentantGetByID("7240e77a-d011-11ee-b5fd-18c04dee389e")
+	graphQL.sentantAll()
+	graphQL.sentantGetByID("fbbfab28-c957-11ee-b44f-de59b61f7ba5")
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	pass
 
 

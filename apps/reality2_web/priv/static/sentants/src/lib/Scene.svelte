@@ -23,5 +23,6 @@
     }}
 />
 
+
 <Sentant3D />
 <Sentant3D position={[2,0,0]}/>

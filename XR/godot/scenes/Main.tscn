@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="5_ikgce"]
 [ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="6_k13sq"]
 [ext_resource type="Script" path="res://scripts/GraphQLTest.gd" id="7_ovdbm"]
-[ext_resource type="PackedScene" uid="uid://cetcxbrte45fj" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
+[ext_resource type="PackedScene" uid="uid://b4gje7ot3h305" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
 
 [sub_resource type="Theme" id="Theme_rl7gn"]
 
