@@ -43,12 +43,6 @@ func subscription(url, query, callback, variables={}, headers_dict={}):
 	_websocket_client.connect_to_url(url, TLSOptions.client_unsafe())
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-var join_message = {
-	"topic": "__absinthe__:control",
-	"event": "phx_join",
-	"payload": {},
-	"ref": 0
-}
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -59,6 +53,12 @@ func _process(_delta):
 		_websocket_client.poll()
 		
 		if (_websocket_stage == 0):
+			var join_message = {
+				"topic": "__absinthe__:control",
+				"event": "phx_join",
+				"payload": {},
+				"ref": 0
+			}
 			_websocket_client.send_text(JSON.stringify(join_message))
 			_websocket_stage = 1
 		elif (_websocket_stage == 1):
@@ -74,6 +74,7 @@ func _process(_delta):
 			_websocket_stage = 2
 		else:
 			var state = _websocket_client.get_ready_state()
+			print(state)
 			if state == WebSocketPeer.STATE_OPEN:
 				print("OPEN")
 				while _websocket_client.get_available_packet_count():
