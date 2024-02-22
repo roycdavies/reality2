@@ -5,6 +5,7 @@ extends Node
 
 var _websocket_client = WebSocketPeer.new()
 var _websocket_stage = 0
+var _subscription_query: String
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
@@ -35,22 +36,24 @@ func mutation(url, query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # GraphQL subscritionvia Websockets
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-var _subscription_query: String
 func subscription(url, query, callback, variables={}, headers_dict={}):
 	print ("Websocket: ", url)
 	_subscription_query = "subscription {sentantEvent(id: \"" + variables["id"] + "\", event: \"" + variables["event"] + "\") { event parameters sentant { id } } }"
 	#_websocket_client = WebSocketPeer.new()
-	_websocket_client.connect_to_url(url, TLSOptions.client_unsafe())
+	#_websocket_client.connect_to_url(url, TLSOptions.client_unsafe())
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
+func _ready():
+	_websocket_client.connect_to_url("wss://localhost:4001/reality2/websocket", TLSOptions.client_unsafe())
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
-	print(_websocket_client)
+	#print(_websocket_client)
 	if (_websocket_client != null):
 		_websocket_client.poll()
+		var state = _websocket_client.get_ready_state()
+		#print(state)
 		
 		if (_websocket_stage == 0):
 			var join_message = {
@@ -73,10 +76,8 @@ func _process(_delta):
 			_websocket_client.send_text(JSON.stringify(subscribe))
 			_websocket_stage = 2
 		else:
-			var state = _websocket_client.get_ready_state()
-			print(state)
-			if state == WebSocketPeer.STATE_OPEN:
-				print("OPEN")
+			if state == WebSocketPeer.State.STATE_OPEN:
+				#print("OPEN")
 				while _websocket_client.get_available_packet_count():
 					print("Packet: ", _websocket_client.get_packet())
 			elif state == WebSocketPeer.STATE_CLOSING:
@@ -86,7 +87,7 @@ func _process(_delta):
 				var code = _websocket_client.get_close_code()
 				var reason = _websocket_client.get_close_reason()
 				print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
-				set_process(false) # Stop processing.
+				#set_process(false) # Stop processing.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

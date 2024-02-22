@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="5_ikgce"]
 [ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="6_k13sq"]
 [ext_resource type="Script" path="res://scripts/GraphQLTest.gd" id="7_ovdbm"]
-[ext_resource type="PackedScene" uid="uid://cetcxbrte45fj" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
+[ext_resource type="PackedScene" uid="uid://b4gje7ot3h305" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
 
 [sub_resource type="Theme" id="Theme_rl7gn"]
 
@@ -56,8 +56,6 @@ orbitControls = NodePath("OrbitControls")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
-light_intensity_lux = 100000.0
-light_temperature = 6500.0
 
 [node name="OrbitControls" type="Control" parent="."]
 layout_mode = 3
