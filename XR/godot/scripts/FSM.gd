@@ -1,27 +1,4 @@
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# A transition for the FSM / Automation
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-class Transition:
-	var _from: String
-	var _event: String
-	var _to: String
-	var _actions = []
-	
-	func _init(from, event, to, actions = []):
-		_from = from
-		_event = event
-		_to = to
-		_actions = actions
-		
-	func from(): return _from
-	func event(): return _event
-	func to(): return _to
-	func actions(): return _actions
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
 # A Finite State Machine or Automation
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 class FSM:
@@ -29,6 +6,8 @@ class FSM:
 	var _transitions = []
 	var _event_queue = []
 	var _timed_events = []
+	var _debug = false
+	func set_debug(val): _debug = val
 	
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	# Constructor
@@ -42,8 +21,10 @@ class FSM:
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	# Public functions
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
-	func add_transition(from, event, to, actions):
-		var transition = Transition.new(from, event, to, actions)
+	func add_transition(from, event, to, actions = []):
+		var transition = {"from": from, "event": event, "to": to, "actions": actions}
+		if (_debug): print("Adding Transition: ", transition)
+		_transitions.push_back(transition)
 
 	func queue_event(event: String, parameters = {}, delay = 0):
 		if (delay == 0):
@@ -57,7 +38,7 @@ class FSM:
 		for i in range(_timed_events.size() - 1, -1, -1):
 			if (_timed_events[i].time <= Time.get_ticks_msec()):
 				queue_event(_timed_events[i].event, _timed_events[i].parameters)
-				_timed_events.remove(i)
+				_timed_events.remove_at(i)
 		
 		# Check the events and perform transitions
 		if _event_queue.size() > 0:
@@ -71,12 +52,13 @@ class FSM:
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	func _check_transitions(event_and_parameters):
 		for transition in _transitions:
-			if (_current_state == transition.from() || transition.from() == "*"):
-				if (event_and_parameters.event == transition.event()):
-					if(transition.to() != "*"):
-						_current_state = transition.to()
+			if (_current_state == transition.from || transition.from == "*"):
+				if (event_and_parameters.event == transition.event):
+					if (_debug): print(transition.from, ":", transition.event, "->", transition.to)
+					if(transition.to != "*"):
+						_current_state = transition.to
 					var previous_result = event_and_parameters.parameters
-					for action in transition.actions():
+					for action in transition.actions:
 						previous_result = action.call(previous_result)
 					break
 	# --------------------------------------------------------------------------------------------------------------------------------------------------

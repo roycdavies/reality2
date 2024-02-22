@@ -53,7 +53,8 @@ func subscription(url, query, callback, variables={}, headers_dict={}):
 # Set things up
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
-	_websocket_automation = FSM.new()
+	_websocket_automation = FSM.FSM.new()
+	_websocket_automation.set_debug(true)
 	_websocket_client.connect_to_url("wss://localhost:4001/reality2/websocket", TLSOptions.client_unsafe())
 	
 	_websocket_automation.add_transition("start",			"init",				"ready", 			[print_parameters])
@@ -65,6 +66,8 @@ func _ready():
 	_websocket_automation.add_transition("subscribing",		"subscribed", 		"open",				[poll])
 	
 	_websocket_automation.add_transition("*",				"error", 			"ready",			[print_parameters, func(__): _websocket_automation.queue_event("open", {}, 1)])
+
+	_websocket_automation.queue_event("open")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -119,7 +122,7 @@ var check_subscribed = func(_parameters):
 		_websocket_automation.queue_event("check_subscribed", {}, 0.1)
 		
 var poll = func(_parameters):
-	pass
+	_websocket_client.poll()
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
