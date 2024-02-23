@@ -64,6 +64,9 @@ func _ready():
 	_websocket_automation.add_transition("joining",			"opened", 			"subscribing",		[check_subscribed])
 	_websocket_automation.add_transition("subscribing",		"check_subscribed", "subscribing",		[check_subscribed])
 	_websocket_automation.add_transition("subscribing",		"subscribed", 		"open",				[poll])
+	_websocket_automation.add_transition("open",			"polling", 			"open",				[poll])
+	_websocket_automation.add_transition("open",			"receiving", 		"open",				[receive])
+	_websocket_automation.add_transition("open",			"close", 			"ready",			[func(__): _websocket_automation.queue_event("open", {}, 1)])
 	
 	_websocket_automation.add_transition("*",				"error", 			"ready",			[print_parameters, func(__): _websocket_automation.queue_event("open", {}, 1)])
 
@@ -73,13 +76,14 @@ func _ready():
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Actions for Automations
+# Actions for the Automations
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 var print_parameters = func(parameters):
 	print (parameters)
 	return parameters
 	
-var send_join_message = func(_parameters):
+
+var send_join_message = func(parameters):
 	if (_websocket_client != null):
 		var join_message = {
 			"topic": "__absinthe__:control",
@@ -91,15 +95,17 @@ var send_join_message = func(_parameters):
 		_websocket_automation.queue_event("check_joined", {}, 0.1)
 	else:
 		_websocket_automation.queue_event("error", {"error": "Could not join"})
-	
-var check_joined = func(_parameters):
+	return parameters
+		
+var check_joined = func(parameters):
 	_websocket_client.poll()
 	if _websocket_client.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
 		_websocket_automation.queue_event("opened")
 	else:
 		_websocket_automation.queue_event("check_joined", {}, 0.1)
-		
-var send_subscribe_message = func(_parameters):
+	return parameters
+			
+var send_subscribe_message = func(parameters):
 	if (_websocket_client != null):
 		var subscribe = {
 			"topic": "__absinthe__:control",
@@ -113,16 +119,36 @@ var send_subscribe_message = func(_parameters):
 		_websocket_automation.queue_event("check_subscribed", {}, 0.1)
 	else:
 		_websocket_automation.queue_event("error", {"error": "Could not subscribe"})
-		
-var check_subscribed = func(_parameters):
+	return parameters
+			
+var check_subscribed = func(parameters):
 	_websocket_client.poll()
 	if _websocket_client.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
 		_websocket_automation.queue_event("subscribed")
 	else:
 		_websocket_automation.queue_event("check_subscribed", {}, 0.1)
-		
-var poll = func(_parameters):
+		_websocket_automation.queue_event("polling", {}, 0.15)
+	return parameters
+			
+var poll = func(parameters):
 	_websocket_client.poll()
+	if _websocket_client.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
+		if (_websocket_client.get_available_packet_count()):
+			_websocket_automation.queue_event("receiving")
+		else:
+			_websocket_automation.queue_event("polling", {}, 0.1)
+	elif _websocket_client.get_ready_state() == WebSocketPeer.State.STATE_CLOSED:
+		var code = _websocket_client.get_close_code()
+		var reason = _websocket_client.get_close_reason()
+		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
+		_websocket_automation.queue_event("closed", {}, 0.1)
+	return parameters
+			
+var receive = func(parameters):
+	while _websocket_client.get_available_packet_count():
+		print("Packet: ", _websocket_client.get_packet())
+	_websocket_automation.queue_event("polling", {}, 0.1)
+	return parameters
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

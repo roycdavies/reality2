@@ -57,6 +57,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70)
 current = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
+light_intensity_lux = 100000.0
+light_temperature = 6500.0
 
 [node name="OrbitControls" type="Control" parent="."]
 layout_mode = 3
