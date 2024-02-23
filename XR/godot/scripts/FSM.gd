@@ -37,12 +37,14 @@ class FSM:
 		# Check the timed events and queue any that have expired
 		for i in range(_timed_events.size() - 1, -1, -1):
 			if (_timed_events[i].time <= Time.get_ticks_msec()):
+				if(_debug): print("QUEUEING :", _timed_events[i].event, _timed_events[i].parameters)
 				queue_event(_timed_events[i].event, _timed_events[i].parameters)
 				_timed_events.remove_at(i)
 		
 		# Check the events and perform transitions
 		if _event_queue.size() > 0:
 			var event_and_parameters = _event_queue.pop_front()
+			if (_debug): print("EVENT: ", event_and_parameters.event, ", ", event_and_parameters.parameters)
 			_check_transitions(event_and_parameters)
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	

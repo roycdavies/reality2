@@ -38,7 +38,7 @@ swarm:
               - command: send
                 parameters:
                   event: turn_off
-                  delay: 2000
+                  delay: 5000
 
           # turn_off event
           - from: on
@@ -50,6 +50,11 @@ swarm:
                 parameters:
                   to: Light Bulb
                   event: turn_off
+                            # Send turn_off to self after 2 seconds
+              - command: send
+                parameters:
+                  event: turn_on
+                  delay: 5000
     # --------------------------------------------------------------------------------------------------
 
     # --------------------------------------------------------------------------------------------------

@@ -8,6 +8,22 @@ Users interact with the digital agents directly, so the focus of attention is at
 
 That said, at least initially, internet connected devices such as browsers, which communicate using TCP-IP, work at the device level, so the interaction with the Sentants does have to go via the node.
 
-Presently, we use a GraphQL API with queries, mutations and subscriptions.
+## GraphQL
+
+Presently, we use a GraphQL API with queries, mutations and subscriptions.  I'll get a Postman defition file in here soon, though of course you can create your own using introspection.
+
+## Sentant definition files
+
+When a Node is started, it is empty of Sentants.  You load the Sentants from a text file (see the definitions folder) in YAML, TOML or JSON format.  This is somewhat equivalent to a webserver loading web-page definitions, except that Sentants can be loaded at any time.
+
+## Clients
+
+In the python folder is some example client code that uses the definitions in the definitions folder.
+
+In the XR folder, there is some example client code and visualisation for godot, and soon also for unity, and perhaps later threejs.
+
+In the node-red folder, there is some example setup for that graphical tool.  You will need to have node-red running first, of course.
+
+## Plans
 
 There are many plans for this platform which will be made public in due course.  For now, this is very early alpha stage.

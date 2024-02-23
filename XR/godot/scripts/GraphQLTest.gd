@@ -114,7 +114,7 @@ func sentantSend_response(data):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantEvent(callback, id: String, event: String, details: String = "id"):
-	var query = 'subscription SentantEvent($id: UUID4!, $event: String!) { sentantEvent(id: "' + id + '", event: $event) {' + details + '} }'
+	var query = 'subscription SentantEvent($id: UUID4!, $event: String!) { sentantEvent(id: $id, event: $event) {' + details + '} }'
 	var variables = {"id": id, "event": event}
 	GQL.subscription(ws_url, query, callback, variables)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -128,5 +128,5 @@ func _ready():
 	sentantAll(func(data): sentantAll_response(data), "description id name")
 	sentantGetByName(func(data): sentantGetByName_response(data), "Light Switch", "id")
 	sentantGetByID(func(data): sentantGetByID_response(data), lightSwitchID, "name")
-	sentantEvent(print_result, lightSwitchID, "name")
+	sentantEvent(print_result, lightSwitchID, "turn_on")
 	sentantSend(func(data): sentantSend_response(data), lightSwitchID, "turn_on", "name")

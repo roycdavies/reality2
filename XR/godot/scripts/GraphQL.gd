@@ -5,11 +5,9 @@ extends Node
 
 var FSM = preload("res://scripts/FSM.gd")
 
-var _websocket_client = WebSocketPeer.new()
-var _websocket_stage = 0
-var _subscription_query: String
-
-var _websocket_automation
+var _WSC = WebSocketPeer.new()
+var _WSQ: String
+var _WSA = FSM.FSM.new()
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
@@ -38,13 +36,15 @@ func mutation(url, query, callback, variables={}, headers_dict={}):
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# GraphQL subscritionvia Websockets
+# GraphQL subscription via Websockets
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func subscription(url, query, callback, variables={}, headers_dict={}):
 	print ("Websocket: ", url)
-	_subscription_query = "subscription {sentantEvent(id: \"" + variables["id"] + "\", event: \"" + variables["event"] + "\") { event parameters sentant { id } } }"
-	#_websocket_client = WebSocketPeer.new()
-	#_websocket_client.connect_to_url(url, TLSOptions.client_unsafe())
+	_WSQ = "subscription {sentantEvent(id: \"" + variables["id"] + "\", event: \"" + variables["event"] + "\") { event parameters sentant { id } } }"
+	print(_WSQ)
+	#_WSC = WebSocketPeer.new()
+	#_WSC.connect_to_url(url, TLSOptions.client_unsafe())
+	_WSA.queue_event("subscribe", {}, 30)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -53,24 +53,24 @@ func subscription(url, query, callback, variables={}, headers_dict={}):
 # Set things up
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
-	_websocket_automation = FSM.FSM.new()
-	_websocket_automation.set_debug(true)
-	_websocket_client.connect_to_url("wss://localhost:4001/reality2/websocket", TLSOptions.client_unsafe())
+	_WSA.set_debug(true)
+	_WSC.connect_to_url("wss://localhost:4001/reality2/websocket", TLSOptions.client_unsafe())
 	
-	_websocket_automation.add_transition("start",			"init",				"ready", 			[print_parameters])
-	_websocket_automation.add_transition("ready",			"open",				"joining", 			[send_join_message])
-	_websocket_automation.add_transition("joining",			"check_joined",		"joining", 			[check_joined])
+	_WSA.add_transition("start",			"init",				"ready", 			[print_parameters])
+	_WSA.add_transition("ready",			"open",				"joining", 			[send_join_message])
+	_WSA.add_transition("joining",			"check_joined",		"joining", 			[check_joined])
 	
-	_websocket_automation.add_transition("joining",			"opened", 			"subscribing",		[check_subscribed])
-	_websocket_automation.add_transition("subscribing",		"check_subscribed", "subscribing",		[check_subscribed])
-	_websocket_automation.add_transition("subscribing",		"subscribed", 		"open",				[poll])
-	_websocket_automation.add_transition("open",			"polling", 			"open",				[poll])
-	_websocket_automation.add_transition("open",			"receiving", 		"open",				[receive])
-	_websocket_automation.add_transition("open",			"close", 			"ready",			[func(__): _websocket_automation.queue_event("open", {}, 1)])
+	_WSA.add_transition("joining",			"joined", 			"joined",			[])
+	_WSA.add_transition("joined",			"subscribe", 		"subscribing",		[send_subscribe_message])	
+	_WSA.add_transition("subscribing",		"check_subscribed", "subscribing",		[check_subscribed])
+	_WSA.add_transition("subscribing",		"subscribed", 		"open",				[poll])
+	_WSA.add_transition("open",				"polling", 			"open",				[poll])
+	_WSA.add_transition("open",				"receiving", 		"open",				[receive])
+	_WSA.add_transition("open",				"closed", 			"joining",			[func(__): _WSA.queue_event("joined", {}, 1)])
 	
-	_websocket_automation.add_transition("*",				"error", 			"ready",			[print_parameters, func(__): _websocket_automation.queue_event("open", {}, 1)])
+	_WSA.add_transition("*",				"error", 			"ready",			[print_parameters, func(__): _WSA.queue_event("open", {}, 1)])
 
-	_websocket_automation.queue_event("open")
+	_WSA.queue_event("open")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -78,130 +78,98 @@ func _ready():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Actions for the Automations
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Print the parameters
 var print_parameters = func(parameters):
 	print (parameters)
 	return parameters
 	
-
+# Send a join message - this is specific to the Phoenix Graphql Web Server
 var send_join_message = func(parameters):
-	if (_websocket_client != null):
+	if (_WSC != null):
 		var join_message = {
 			"topic": "__absinthe__:control",
 			"event": "phx_join",
 			"payload": {},
 			"ref": 0
 		}
-		_websocket_client.send_text(JSON.stringify(join_message))
-		_websocket_automation.queue_event("check_joined", {}, 0.1)
+		_WSC.send_text(JSON.stringify(join_message))
+		_WSA.queue_event("check_joined", {}, 0.1)
 	else:
-		_websocket_automation.queue_event("error", {"error": "Could not join"})
+		_WSA.queue_event("error", {"error": "Could not join"})
 	return parameters
-		
+
+# Check whether the Join message was successful
 var check_joined = func(parameters):
-	_websocket_client.poll()
-	if _websocket_client.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
-		_websocket_automation.queue_event("opened")
+	_WSC.poll()
+	if _WSC.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
+		_WSA.queue_event("joined")
 	else:
-		_websocket_automation.queue_event("check_joined", {}, 0.1)
+		_WSA.queue_event("check_joined", {}, 0.1)
 	return parameters
-			
+	
+# Send the subscription message
 var send_subscribe_message = func(parameters):
-	if (_websocket_client != null):
+	if (_WSC != null):
 		var subscribe = {
 			"topic": "__absinthe__:control",
 			"event": "doc",
 			"payload": {
-				"query": _subscription_query
+				"query": _WSQ
 			},
 			"ref": 0
 		}
-		_websocket_client.send_text(JSON.stringify(subscribe))
-		_websocket_automation.queue_event("check_subscribed", {}, 0.1)
+		print(JSON.stringify(subscribe))
+		_WSC.send_text(JSON.stringify(subscribe))
+		_WSA.queue_event("check_subscribed", {}, 0.1)
 	else:
-		_websocket_automation.queue_event("error", {"error": "Could not subscribe"})
+		_WSA.queue_event("error", {"error": "Could not subscribe"})
 	return parameters
 			
+# Check whether the subscription message was successful
 var check_subscribed = func(parameters):
-	_websocket_client.poll()
-	if _websocket_client.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
-		_websocket_automation.queue_event("subscribed")
+	_WSC.poll()
+	if _WSC.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
+		_WSA.queue_event("subscribed")
 	else:
-		_websocket_automation.queue_event("check_subscribed", {}, 0.1)
-		_websocket_automation.queue_event("polling", {}, 0.15)
+		_WSA.queue_event("check_subscribed", {}, 0.1)
+		_WSA.queue_event("polling", {}, 0.15)
 	return parameters
-			
+
+# Once connected and subscribed, check if anything arrives, and if so, receive it
 var poll = func(parameters):
-	_websocket_client.poll()
-	if _websocket_client.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
-		if (_websocket_client.get_available_packet_count()):
-			_websocket_automation.queue_event("receiving")
+	_WSC.poll()
+	if _WSC.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
+		if (_WSC.get_available_packet_count() > 0):
+			_WSA.queue_event("receiving")
 		else:
-			_websocket_automation.queue_event("polling", {}, 0.1)
-	elif _websocket_client.get_ready_state() == WebSocketPeer.State.STATE_CLOSED:
-		var code = _websocket_client.get_close_code()
-		var reason = _websocket_client.get_close_reason()
+			_WSA.queue_event("polling", {}, 0.1)
+	elif _WSC.get_ready_state() == WebSocketPeer.State.STATE_CLOSED:
+		var code = _WSC.get_close_code()
+		var reason = _WSC.get_close_reason()
 		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
-		_websocket_automation.queue_event("closed", {}, 0.1)
+		_WSA.queue_event("closed", {}, 0.1)
 	return parameters
 			
 var receive = func(parameters):
-	while _websocket_client.get_available_packet_count():
-		print("Packet: ", _websocket_client.get_packet())
-	_websocket_automation.queue_event("polling", {}, 0.1)
+	while _WSC.get_available_packet_count() > 0:
+		print("Packet: ", _WSC.get_packet().get_string_from_utf8())
+	_WSA.queue_event("polling", {}, 0.1)
 	return parameters
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Poll the
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
-	_websocket_automation.step()
-	#print(_websocket_client)
-	#if (_websocket_client != null):
-		#_websocket_client.poll()
-		#var state = _websocket_client.get_ready_state()
-		##print(state)
-		#
-		#if (_websocket_stage == 0):
-			#var join_message = {
-				#"topic": "__absinthe__:control",
-				#"event": "phx_join",
-				#"payload": {},
-				#"ref": 0
-			#}
-			#print("Opening Websocket")
-			#_websocket_client.send_text(JSON.stringify(join_message))
-			#_websocket_stage = 1
-		#elif (_websocket_stage == 1):
-			#var subscribe = {
-				#"topic": "__absinthe__:control",
-				#"event": "doc",
-				#"payload": {
-					#"query": _subscription_query
-				#},
-				#"ref": 0
-			#}
-			#print("Subscribing")
-			#_websocket_client.send_text(JSON.stringify(subscribe))
-			#_websocket_stage = 2
-		#else:
-			#if state == WebSocketPeer.State.STATE_OPEN:
-				#while _websocket_client.get_available_packet_count():
-					#print("Packet: ", _websocket_client.get_packet())
-			#elif state == WebSocketPeer.STATE_CLOSING:
-				## Keep polling to achieve proper close.
-				#pass
-			#elif state == WebSocketPeer.STATE_CLOSED:
-				#var code = _websocket_client.get_close_code()
-				#var reason = _websocket_client.get_close_reason()
-				#print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
-				#set_process(false) # Stop processing.
+	_WSA.step()
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Post data in the body to a URL, with headers, and returning the result to the callback function, or an appropriate error
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _POST(url, body, callback, headers):
 	var uri = _URL(url)	
@@ -250,6 +218,7 @@ func _POST(url, body, callback, headers):
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Split a URL into component parts
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _URL(url: String):
 	var pieces = url.split("/")
