@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # A Finite State Machine or Automation
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-class FSM:
+class Automation:
 	var _current_state: String
 	var _transitions = []
 	var _event_queue = []
@@ -14,19 +14,21 @@ class FSM:
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	func _init():
 		_current_state = "start"
-		queue_event("init", {})
+		enqueue("init", {})
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	
 	
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	# Public functions
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	# Part of the setup, to add the transitions
 	func add_transition(from, event, to, actions = []):
 		var transition = {"from": from, "event": event, "to": to, "actions": actions}
 		if (_debug): print("Adding Transition: ", transition)
 		_transitions.push_back(transition)
 
-	func queue_event(event: String, parameters = {}, delay = 0):
+	# An an event to the queue
+	func enqueue(event: String, parameters = {}, delay = 0):
 		if (delay == 0):
 			_event_queue.push_back({"event": event, "parameters": parameters})
 		else:
@@ -38,7 +40,7 @@ class FSM:
 		for i in range(_timed_events.size() - 1, -1, -1):
 			if (_timed_events[i].time <= Time.get_ticks_msec()):
 				if(_debug): print("QUEUEING :", _timed_events[i].event, _timed_events[i].parameters)
-				queue_event(_timed_events[i].event, _timed_events[i].parameters)
+				enqueue(_timed_events[i].event, _timed_events[i].parameters)
 				_timed_events.remove_at(i)
 		
 		# Check the events and perform transitions

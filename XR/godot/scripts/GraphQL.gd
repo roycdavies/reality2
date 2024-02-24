@@ -5,9 +5,9 @@ extends Node
 
 var FSM = preload("res://scripts/FSM.gd")
 
-var _WSC = WebSocketPeer.new()
-var _WSQ: String
-var _WSA = FSM.FSM.new()
+var _socket = WebSocketPeer.new()
+var _subscription_query: String
+var _socket_automation = FSM.Automation.new()
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
@@ -40,11 +40,11 @@ func mutation(url, query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func subscription(url, query, callback, variables={}, headers_dict={}):
 	print ("Websocket: ", url)
-	_WSQ = "subscription {sentantEvent(id: \"" + variables["id"] + "\", event: \"" + variables["event"] + "\") { event parameters sentant { id } } }"
-	print(_WSQ)
-	#_WSC = WebSocketPeer.new()
-	#_WSC.connect_to_url(url, TLSOptions.client_unsafe())
-	_WSA.queue_event("subscribe", {}, 30)
+	_subscription_query = "subscription {sentantEvent(id: \"" + variables["id"] + "\", event: \"" + variables["event"] + "\") { event parameters sentant { id } } }"
+	print(_subscription_query)
+	#_socket = WebSocketPeer.new()
+	#_socket.connect_to_url(url, TLSOptions.client_unsafe())
+	_socket_automation.enqueue("subscribe", {}, 30)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -53,24 +53,24 @@ func subscription(url, query, callback, variables={}, headers_dict={}):
 # Set things up
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
-	_WSA.set_debug(true)
-	_WSC.connect_to_url("wss://localhost:4001/reality2/websocket", TLSOptions.client_unsafe())
+	_socket_automation.set_debug(true)
+	_socket.connect_to_url("wss://localhost:4001/reality2/websocket", TLSOptions.client_unsafe())
 	
-	_WSA.add_transition("start",			"init",				"ready", 			[print_parameters])
-	_WSA.add_transition("ready",			"open",				"joining", 			[send_join_message])
-	_WSA.add_transition("joining",			"check_joined",		"joining", 			[check_joined])
+	_socket_automation.add_transition("start",				"init",					"ready", 			[print_parameters])
+	_socket_automation.add_transition("ready",				"open",					"joining", 			[send_join_message])
+	_socket_automation.add_transition("joining",			"check_joined",			"joining", 			[check_joined])
 	
-	_WSA.add_transition("joining",			"joined", 			"joined",			[])
-	_WSA.add_transition("joined",			"subscribe", 		"subscribing",		[send_subscribe_message])	
-	_WSA.add_transition("subscribing",		"check_subscribed", "subscribing",		[check_subscribed])
-	_WSA.add_transition("subscribing",		"subscribed", 		"open",				[poll])
-	_WSA.add_transition("open",				"polling", 			"open",				[poll])
-	_WSA.add_transition("open",				"receiving", 		"open",				[receive])
-	_WSA.add_transition("open",				"closed", 			"joining",			[func(__): _WSA.queue_event("joined", {}, 1)])
+	_socket_automation.add_transition("joining",			"joined", 				"joined",			[func(__): _socket_automation.enqueue("subscribe", {}, 1)])
+	_socket_automation.add_transition("joined",				"subscribe", 			"subscribing",		[send_subscribe_message])	
+	_socket_automation.add_transition("subscribing",		"check_subscribed", 	"subscribing",		[check_subscribed])
+	_socket_automation.add_transition("subscribing",		"subscribed", 			"open",				[poll])
+	_socket_automation.add_transition("open",				"polling", 				"open",				[poll])
+	_socket_automation.add_transition("open",				"receiving", 			"open",				[receive])
+	_socket_automation.add_transition("open",				"closed", 				"joining",			[func(__): _socket_automation.enqueue("joined", {}, 1)])
 	
-	_WSA.add_transition("*",				"error", 			"ready",			[print_parameters, func(__): _WSA.queue_event("open", {}, 1)])
+	_socket_automation.add_transition("*",					"error", 				"ready",			[print_parameters, func(__): _socket_automation.enqueue("open", {}, 1)])
 
-	_WSA.queue_event("open")
+	_socket_automation.enqueue("open")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -85,75 +85,75 @@ var print_parameters = func(parameters):
 	
 # Send a join message - this is specific to the Phoenix Graphql Web Server
 var send_join_message = func(parameters):
-	if (_WSC != null):
+	if (_socket != null):
 		var join_message = {
 			"topic": "__absinthe__:control",
 			"event": "phx_join",
 			"payload": {},
 			"ref": 0
 		}
-		_WSC.send_text(JSON.stringify(join_message))
-		_WSA.queue_event("check_joined", {}, 0.1)
+		_socket.send_text(JSON.stringify(join_message))
+		_socket_automation.enqueue("check_joined", {}, 0.1)
 	else:
-		_WSA.queue_event("error", {"error": "Could not join"})
+		_socket_automation.enqueue("error", {"error": "Could not join"})
 	return parameters
 
 # Check whether the Join message was successful
 var check_joined = func(parameters):
-	_WSC.poll()
-	if _WSC.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
-		_WSA.queue_event("joined")
+	_socket.poll()
+	if _socket.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
+		_socket_automation.enqueue("joined")
 	else:
-		_WSA.queue_event("check_joined", {}, 0.1)
+		_socket_automation.enqueue("check_joined", {}, 0.1)
 	return parameters
 	
 # Send the subscription message
 var send_subscribe_message = func(parameters):
-	if (_WSC != null):
+	if (_socket != null):
 		var subscribe = {
 			"topic": "__absinthe__:control",
 			"event": "doc",
 			"payload": {
-				"query": _WSQ
+				"query": _subscription_query
 			},
 			"ref": 0
 		}
 		print(JSON.stringify(subscribe))
-		_WSC.send_text(JSON.stringify(subscribe))
-		_WSA.queue_event("check_subscribed", {}, 0.1)
+		_socket.send_text(JSON.stringify(subscribe))
+		_socket_automation.enqueue("check_subscribed", {}, 0.1)
 	else:
-		_WSA.queue_event("error", {"error": "Could not subscribe"})
+		_socket_automation.enqueue("error", {"error": "Could not subscribe"})
 	return parameters
 			
 # Check whether the subscription message was successful
 var check_subscribed = func(parameters):
-	_WSC.poll()
-	if _WSC.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
-		_WSA.queue_event("subscribed")
+	_socket.poll()
+	if _socket.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
+		_socket_automation.enqueue("subscribed")
 	else:
-		_WSA.queue_event("check_subscribed", {}, 0.1)
-		_WSA.queue_event("polling", {}, 0.15)
+		_socket_automation.enqueue("check_subscribed", {}, 0.1)
+		_socket_automation.enqueue("polling", {}, 0.15)
 	return parameters
 
 # Once connected and subscribed, check if anything arrives, and if so, receive it
 var poll = func(parameters):
-	_WSC.poll()
-	if _WSC.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
-		if (_WSC.get_available_packet_count() > 0):
-			_WSA.queue_event("receiving")
+	_socket.poll()
+	if _socket.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
+		if (_socket.get_available_packet_count() > 0):
+			_socket_automation.enqueue("receiving")
 		else:
-			_WSA.queue_event("polling", {}, 0.1)
-	elif _WSC.get_ready_state() == WebSocketPeer.State.STATE_CLOSED:
-		var code = _WSC.get_close_code()
-		var reason = _WSC.get_close_reason()
+			_socket_automation.enqueue("polling", {}, 0.1)
+	elif _socket.get_ready_state() == WebSocketPeer.State.STATE_CLOSED:
+		var code = _socket.get_close_code()
+		var reason = _socket.get_close_reason()
 		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
-		_WSA.queue_event("closed", {}, 0.1)
+		_socket_automation.enqueue("closed", {}, 0.1)
 	return parameters
 			
 var receive = func(parameters):
-	while _WSC.get_available_packet_count() > 0:
-		print("Packet: ", _WSC.get_packet().get_string_from_utf8())
-	_WSA.queue_event("polling", {}, 0.1)
+	while _socket.get_available_packet_count() > 0:
+		print("Packet: ", _socket.get_packet().get_string_from_utf8())
+	_socket_automation.enqueue("polling", {}, 0.1)
 	return parameters
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -163,7 +163,7 @@ var receive = func(parameters):
 # Poll the
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
-	_WSA.step()
+	_socket_automation.step()
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
