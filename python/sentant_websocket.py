@@ -30,7 +30,7 @@ def subscribe(server, sentantid, event):
         "topic": "__absinthe__:control",
         "event": "doc",
         "payload": {
-            "query": "subscription {sentantEvent(id: \"" + sentantid + "\", event: \"" + event + "\") { event parameters sentant { id } } }"
+            "query": "subscription {sentantEvent(id: \"" + sentantid + "\", event: \"" + event + "\") { event parameters sentant { id name } } }"
         },
         "ref": 0
     }

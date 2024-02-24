@@ -3,11 +3,24 @@
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 extends Node
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Public parameters
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+@export var output: RichTextLabel = null
+@export var queueSize: RichTextLabel = null
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Private variables
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 var FSM = preload("res://scripts/FSM.gd")
 
 var _socket = WebSocketPeer.new()
-var _subscription_query: String
-var _socket_automation = FSM.Automation.new()
+var _socket_automation = FSM.Automation.new(true)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
@@ -40,11 +53,17 @@ func mutation(url, query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func subscription(url, query, callback, variables={}, headers_dict={}):
 	print ("Websocket: ", url)
-	_subscription_query = "subscription {sentantEvent(id: \"" + variables["id"] + "\", event: \"" + variables["event"] + "\") { event parameters sentant { id } } }"
-	print(_subscription_query)
+	#var _subscription_query = "subscription {sentantEvent(id: \"" + variables["id"] + "\", event: \"" + variables["event"] + "\") { event parameters sentant { id } } }"
+	var subscription_query = {
+		"query": query,
+		"variables": variables
+	}
+	print("SUBSCRIPTION QUERY: ", subscription_query)
+	_socket_automation.enqueue("subscribe", {"query": subscription_query, "callback": callback}, 1.0)
+	#send_subscribe_message.call({"query": _subscription_query, "callback": callback})
 	#_socket = WebSocketPeer.new()
 	#_socket.connect_to_url(url, TLSOptions.client_unsafe())
-	_socket_automation.enqueue("subscribe", {}, 30)
+
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -60,8 +79,8 @@ func _ready():
 	_socket_automation.add_transition("ready",				"open",					"joining", 			[send_join_message])
 	_socket_automation.add_transition("joining",			"check_joined",			"joining", 			[check_joined])
 	
-	_socket_automation.add_transition("joining",			"joined", 				"joined",			[func(__): _socket_automation.enqueue("subscribe", {}, 1)])
-	_socket_automation.add_transition("joined",				"subscribe", 			"subscribing",		[send_subscribe_message])	
+	_socket_automation.add_transition("joining",			"joined", 				"joined",			[])
+	_socket_automation.add_transition("*",					"subscribe", 			"subscribing",		[send_subscribe_message])	
 	_socket_automation.add_transition("subscribing",		"check_subscribed", 	"subscribing",		[check_subscribed])
 	_socket_automation.add_transition("subscribing",		"subscribed", 			"open",				[poll])
 	_socket_automation.add_transition("open",				"polling", 				"open",				[poll])
@@ -109,18 +128,19 @@ var check_joined = func(parameters):
 	
 # Send the subscription message
 var send_subscribe_message = func(parameters):
+	print ("SUBSCRIBING ***")
 	if (_socket != null):
 		var subscribe = {
 			"topic": "__absinthe__:control",
 			"event": "doc",
 			"payload": {
-				"query": _subscription_query
+				"query": parameters["query"]
 			},
 			"ref": 0
 		}
 		print(JSON.stringify(subscribe))
 		_socket.send_text(JSON.stringify(subscribe))
-		_socket_automation.enqueue("check_subscribed", {}, 0.1)
+		_socket_automation.enqueue("check_subscribed", {"callback": parameters["callback"]}, 0.1)
 	else:
 		_socket_automation.enqueue("error", {"error": "Could not subscribe"})
 	return parameters
@@ -131,8 +151,8 @@ var check_subscribed = func(parameters):
 	if _socket.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
 		_socket_automation.enqueue("subscribed")
 	else:
-		_socket_automation.enqueue("check_subscribed", {}, 0.1)
-		_socket_automation.enqueue("polling", {}, 0.15)
+		_socket_automation.enqueue("check_subscribed", {"callback": parameters["callback"]}, 0.1)
+		#_socket_automation.enqueue("polling", {}, 0.15)
 	return parameters
 
 # Once connected and subscribed, check if anything arrives, and if so, receive it
@@ -164,6 +184,8 @@ var receive = func(parameters):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
 	_socket_automation.step()
+	if (output): output.text = _socket_automation.state()
+	if (queueSize): queueSize.text = str(_socket_automation.queue_size())
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://cc71islaf4sqf"]
+[gd_scene load_steps=20 format=3 uid="uid://cc71islaf4sqf"]
 
 [ext_resource type="Script" path="res://scripts/Selector.gd" id="1_64hbo"]
 [ext_resource type="Script" path="res://addons/orbit-controls/orbit-controls.gd" id="2_tmv0o"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="6_k13sq"]
 [ext_resource type="Script" path="res://scripts/GraphQLTest.gd" id="7_ovdbm"]
 [ext_resource type="PackedScene" uid="uid://cetcxbrte45fj" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
+[ext_resource type="Script" path="res://scenes/SendSubscription.gd" id="9_jnfys"]
 
 [sub_resource type="Theme" id="Theme_rl7gn"]
 
@@ -47,6 +48,8 @@ shader_parameter/fresnel_power = 2.8
 flip_faces = true
 radius = 100.0
 height = 200.0
+
+[sub_resource type="Theme" id="Theme_n3a3a"]
 
 [node name="Node3D" type="Node3D" node_paths=PackedStringArray("orbitControls")]
 script = ExtResource("1_64hbo")
@@ -106,4 +109,41 @@ script = ExtResource("6_k13sq")
 [node name="Node" type="Node" parent="."]
 script = ExtResource("7_ovdbm")
 
-[node name="GraphQl" parent="Node" instance=ExtResource("8_6kerl")]
+[node name="GraphQl" parent="Node" node_paths=PackedStringArray("output", "queueSize") instance=ExtResource("8_6kerl")]
+output = NodePath("../../UX/ColorRect/State")
+queueSize = NodePath("../../UX/ColorRect/QueueSize")
+
+[node name="UX" type="Node2D" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="UX"]
+offset_right = 429.0
+offset_bottom = 265.0
+color = Color(0.34902, 0.34902, 0.34902, 1)
+
+[node name="State" type="RichTextLabel" parent="UX/ColorRect"]
+layout_mode = 2
+offset_left = 13.0
+offset_top = 14.0
+offset_right = 412.0
+offset_bottom = 68.0
+text = "Hello World"
+
+[node name="Subscribe" type="Button" parent="UX/ColorRect"]
+layout_mode = 2
+offset_left = 62.0
+offset_top = 148.0
+offset_right = 359.0
+offset_bottom = 213.0
+theme = SubResource("Theme_n3a3a")
+text = "Do it"
+script = ExtResource("9_jnfys")
+
+[node name="QueueSize" type="RichTextLabel" parent="UX/ColorRect"]
+layout_mode = 0
+offset_left = 171.0
+offset_top = 87.0
+offset_right = 268.0
+offset_bottom = 137.0
+text = "0"
+
+[connection signal="pressed" from="UX/ColorRect/Subscribe" to="Node" method="_on_subscribe_pressed"]

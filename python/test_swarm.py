@@ -1,6 +1,8 @@
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import time
+import threading
+from sentant_websocket import subscribe   
 
 # Select your transport with a defined url endpoint
 transport = RequestsHTTPTransport(url="https://localhost:4001/reality2", verify=False, retries=3)
@@ -32,6 +34,9 @@ result = client.execute(load_swarm, variable_values={"yamlDefinition": yamlDefin
 print(result)
 
 id = result["swarmLoad"]["sentants"][0]["id"]
+
+# Start the subscription to the Sentant
+threading.Thread(target=subscribe, args=("wss://localhost:4001/reality2/websocket", id, "turn_off",)).start()
 
 send_event = gql(
     """

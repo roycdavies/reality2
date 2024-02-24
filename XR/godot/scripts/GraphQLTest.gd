@@ -5,6 +5,8 @@ extends Node
 # Scripts used
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 var GQL = load("res://scripts/GraphQL.gd").new()
+var FSM = preload("res://scripts/FSM.gd")
+var _events = FSM.Automation.new(false)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -125,8 +127,32 @@ func sentantEvent(callback, id: String, event: String, details: String = "id"):
 # Called when the node enters the scene tree for the first time.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
+	_events.add_transition("start",				"init",					"ready", 			[func(__): _events.enqueue("go", {}, 5)])
+	_events.add_transition("ready",				"go",					"ready", 			[do_stuff])
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Poll the
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func _process(_delta):
+	_events.step()
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+var do_stuff = func(_parameters):
 	sentantAll(func(data): sentantAll_response(data), "description id name")
 	sentantGetByName(func(data): sentantGetByName_response(data), "Light Switch", "id")
 	sentantGetByID(func(data): sentantGetByID_response(data), lightSwitchID, "name")
-	sentantEvent(print_result, lightSwitchID, "turn_on")
+	
+	sentantEvent(print_result, lightSwitchID, "turn_off")
 	sentantSend(func(data): sentantSend_response(data), lightSwitchID, "turn_on", "name")
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+func _on_subscribe_pressed():
+	sentantEvent(print_result, lightSwitchID, "turn_off")
