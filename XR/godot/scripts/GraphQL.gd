@@ -14,10 +14,8 @@ extends Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Private variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-var FSM = preload("res://scripts/FSM.gd")
-
 var _socket = WebSocketPeer.new()
-var _socket_automation 
+var _socket_heartbeat_time
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -54,11 +52,21 @@ func mutation(url, query, callback, variables={}, headers_dict={}):
 func subscription(url, query, callback, variables={}, headers_dict={}):
 	print ("Websocket: ", url)
 	print("SUBSCRIPTION QUERY: ", query)
-	self._socket_automation.enqueue("subscribe", {"query": query, "callback": callback})
-	#send_subscribe_message.call({"query": _subscription_query, "callback": callback})
-	#_socket = WebSocketPeer.new()
-	#_socket.connect_to_url(url, TLSOptions.client_unsafe())
+	
+	var subscribe = {
+		"topic": "__absinthe__:control",
+		"event": "doc",
+		"payload": {
+			"query": "subscription { sentantEvent(id: \"a42589c4-d270-11ee-a7ac-18c04dee389e\", event: \"turn_off\") { event parameters sentant { id name } } }"
+		},
+		"ref": 0
+	}
+	print(JSON.stringify(subscribe))
+	_socket.send_text(JSON.stringify(subscribe))
 
+	_socket.poll()
+	while _socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN:
+		_socket.poll()
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -67,121 +75,65 @@ func subscription(url, query, callback, variables={}, headers_dict={}):
 # Set things up
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
-	_socket_automation = FSM.Automation.new(true)
-	#_socket_automation.set_debug(true)
-	_socket.connect_to_url("wss://localhost:4001/reality2/websocket", TLSOptions.client_unsafe())
-	
-	_socket_automation.add_transition("start",				"init",					"ready", 			[print_parameters])
-	_socket_automation.add_transition("ready",				"open",					"joining", 			[send_join_message])
-	_socket_automation.add_transition("joining",			"check_joined",			"joining", 			[check_joined])
-	
-	_socket_automation.add_transition("joining",			"joined", 				"subscribing",		[])
-	_socket_automation.add_transition("subscribing",		"subscribe", 			"subscribing",		[send_subscribe_message])	
-	_socket_automation.add_transition("subscribing",		"check_subscribed", 	"subscribing",		[check_subscribed])
-	_socket_automation.add_transition("subscribing",		"subscribed", 			"open",				[poll])
-	_socket_automation.add_transition("open",				"polling", 				"open",				[poll])
-	_socket_automation.add_transition("open",				"receiving", 			"open",				[receive])
-	_socket_automation.add_transition("open",				"closed", 				"joining",			[func(__): _socket_automation.enqueue("joined", {}, 1)])
-	
-	_socket_automation.add_transition("*",					"error", 				"ready",			[print_parameters, func(__): _socket_automation.enqueue("open", {}, 1)])
-
-	_socket_automation.enqueue("open")
+	_SOCKET_connect("wss://localhost:4001/reality2/websocket")
+	_socket_heartbeat_time = Time.get_ticks_msec() + 30000
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Actions for the Automations
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Print the parameters
-var print_parameters = func(parameters):
-	print (parameters)
-	return parameters
-	
-# Send a join message - this is specific to the Phoenix Graphql Web Server
-var send_join_message = func(parameters):
-	if (_socket != null):
-		var join_message = {
-			"topic": "__absinthe__:control",
-			"event": "phx_join",
-			"payload": {},
-			"ref": 0
-		}
-		_socket.send_text(JSON.stringify(join_message))
-		_socket_automation.enqueue("check_joined", {}, 0.1)
-	else:
-		_socket_automation.enqueue("error", {"error": "Could not join"})
-	return parameters
-
-# Check whether the Join message was successful
-var check_joined = func(parameters):
-	_socket.poll()
-	if _socket.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
-		_socket_automation.enqueue("joined")
-	else:
-		_socket_automation.enqueue("check_joined", {}, 0.1)
-	return parameters
-	
-# Send the subscription message
-var send_subscribe_message = func(parameters):
-	print ("SUBSCRIBING ***")
-	if (_socket != null):
-		var subscribe = {
-			"topic": "__absinthe__:control",
-			"event": "doc",
-			"payload": {
-				"query": parameters["query"]
-			},
-			"ref": 0
-		}
-		print(JSON.stringify(subscribe))
-		_socket.send_text(JSON.stringify(subscribe))
-		_socket_automation.enqueue("check_subscribed", {"callback": parameters["callback"]}, 0.1)
-	else:
-		_socket_automation.enqueue("error", {"error": "Could not subscribe"})
-	return parameters
-			
-# Check whether the subscription message was successful
-var check_subscribed = func(parameters):
-	_socket.poll()
-	if _socket.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
-		_socket_automation.enqueue("subscribed")
-	else:
-		_socket_automation.enqueue("check_subscribed", {"callback": parameters["callback"]}, 0.1)
-		#_socket_automation.enqueue("polling", {}, 0.15)
-	return parameters
-
-# Once connected and subscribed, check if anything arrives, and if so, receive it
-var poll = func(parameters):
-	_socket.poll()
-	if _socket.get_ready_state() == WebSocketPeer.State.STATE_OPEN:
-		if (_socket.get_available_packet_count() > 0):
-			_socket_automation.enqueue("receiving")
-		else:
-			_socket_automation.enqueue("polling", {}, 0.1)
-	elif _socket.get_ready_state() == WebSocketPeer.State.STATE_CLOSED:
-		var code = _socket.get_close_code()
-		var reason = _socket.get_close_reason()
-		print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
-		_socket_automation.enqueue("closed", {}, 0.1)
-	return parameters
-			
-var receive = func(parameters):
-	while _socket.get_available_packet_count() > 0:
-		print("Packet: ", _socket.get_packet().get_string_from_utf8())
-	_socket_automation.enqueue("polling", {}, 0.1)
-	return parameters
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Poll the
+# Poll the Websocket
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
-	_socket_automation.step()
-	if (output): output.text = _socket_automation.state()
-	if (queueSize): queueSize.text = str(_socket_automation.queue_size()) + " | " + str(_socket_automation.timers_size())
+	_socket.poll()
+	while _socket.get_available_packet_count() > 0:
+		print("Packet: ", _socket.get_packet().get_string_from_utf8())
+		
+	if (Time.get_ticks_msec() > _socket_heartbeat_time):
+		_SOCKET_heartbeat()
+		_socket_heartbeat_time = Time.get_ticks_msec() + 30000
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Connect to the websocket in preparation for a subscription call
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func _SOCKET_connect(url):
+	_socket.connect_to_url(url, TLSOptions.client_unsafe())
+	
+	_socket.poll()
+	while _socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN:
+		_socket.poll()
+	
+	var join_message = {
+		"topic": "__absinthe__:control",
+		"event": "phx_join",
+		"payload": {},
+		"ref": 0
+	}
+	_socket.send_text(JSON.stringify(join_message))
+	
+	_socket.poll()
+	while _socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN:
+		_socket.poll()
+		
+	print ("Websocket Connected")
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func _SOCKET_heartbeat():
+	var heartbeat = {
+		"topic": "phoenix",
+		"event": "heartbeat",
+		"payload": {},
+		"ref": 0
+	}
+	_socket.send_text(JSON.stringify(heartbeat))
+	print("heartbeat")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

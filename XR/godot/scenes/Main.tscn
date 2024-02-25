@@ -8,7 +8,6 @@
 [ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="6_k13sq"]
 [ext_resource type="Script" path="res://scripts/GraphQLTest.gd" id="7_ovdbm"]
 [ext_resource type="PackedScene" uid="uid://cetcxbrte45fj" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
-[ext_resource type="Script" path="res://scenes/SendSubscription.gd" id="9_jnfys"]
 
 [sub_resource type="Theme" id="Theme_rl7gn"]
 
@@ -50,6 +49,24 @@ radius = 100.0
 height = 200.0
 
 [sub_resource type="Theme" id="Theme_n3a3a"]
+
+[sub_resource type="GDScript" id="GDScript_8kn1a"]
+script/source = "extends Button
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	pass
+
+
+func _on_pressed():
+	print(\"PRESSED\")
+"
 
 [node name="Node3D" type="Node3D" node_paths=PackedStringArray("orbitControls")]
 script = ExtResource("1_64hbo")
@@ -135,7 +152,7 @@ offset_right = 359.0
 offset_bottom = 213.0
 theme = SubResource("Theme_n3a3a")
 text = "Do it"
-script = ExtResource("9_jnfys")
+script = SubResource("GDScript_8kn1a")
 
 [node name="QueueSize" type="RichTextLabel" parent="UX/ColorRect"]
 layout_mode = 0

@@ -148,7 +148,7 @@ var do_stuff = func(_parameters):
 	sentantGetByName(func(data): sentantGetByName_response(data), "Light Switch", "id")
 	sentantGetByID(func(data): sentantGetByID_response(data), lightSwitchID, "name")
 	
-	sentantEvent(func(data): print(data), lightSwitchID, "turn_off")
+	#sentantEvent(func(data): print(data), lightSwitchID, "turn_off")
 	sentantSend(func(data): sentantSend_response(data), lightSwitchID, "turn_on", "name")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
