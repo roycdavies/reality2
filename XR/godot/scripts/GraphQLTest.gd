@@ -114,10 +114,11 @@ func sentantSend_response(data):
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# "subscription { sentantEvent(id: \"a42589c4-d270-11ee-a7ac-18c04dee389e\", event: \"turn_off\") { event parameters sentant { id name } } }"
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantEvent(callback, id: String, event: String, details: String = "id"):
-	var query = 'subscription { sentantEvent(id: \"' + id + '\", event: \"' + event + '\") {' + details + '} }'
-	GQL.subscription(ws_url, query, callback, {})
+	var query = 'subscription SentantEvent($id: UUID4!, $event: String!) { sentantEvent(id: $id, event: $event) { event parameters sentant {' + details + '} } }'
+	GQL.subscription(ws_url, query, callback, {"id": id, "event": event})
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

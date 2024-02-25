@@ -48,6 +48,7 @@ func mutation(url, query, callback, variables={}, headers_dict={}):
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # GraphQL subscription via Websockets
+# "subscription { sentantEvent(id: \"a42589c4-d270-11ee-a7ac-18c04dee389e\", event: \"turn_off\") { event parameters sentant { id name } } }"
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func subscription(url, query, callback, variables={}, headers_dict={}):
 	print ("Websocket: ", url)
@@ -57,7 +58,8 @@ func subscription(url, query, callback, variables={}, headers_dict={}):
 		"topic": "__absinthe__:control",
 		"event": "doc",
 		"payload": {
-			"query": "subscription { sentantEvent(id: \"a42589c4-d270-11ee-a7ac-18c04dee389e\", event: \"turn_off\") { event parameters sentant { id name } } }"
+			"query": query,
+			"variables": variables
 		},
 		"ref": 0
 	}
