@@ -55,13 +55,19 @@ height = 200.0
 script = ExtResource("1_64hbo")
 orbitControls = NodePath("OrbitControls")
 
+[node name="Reality2Node2" parent="." node_paths=PackedStringArray("output", "queueSize") instance=ExtResource("8_6kerl")]
+output = NodePath("../UX/ColorRect/State")
+queueSize = NodePath("../UX/ColorRect/QueueSize")
+
+[node name="GraphQLTest" type="Node" parent="." node_paths=PackedStringArray("GQL")]
+script = ExtResource("7_ovdbm")
+GQL = NodePath("../Reality2Node2")
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70)
 current = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
-light_intensity_lux = 100000.0
-light_temperature = 6500.0
 
 [node name="OrbitControls" type="Control" parent="."]
 layout_mode = 3
@@ -106,13 +112,6 @@ material_override = SubResource("ShaderMaterial_awh1k")
 mesh = SubResource("SphereMesh_03wrp")
 script = ExtResource("6_k13sq")
 
-[node name="Node" type="Node" parent="."]
-script = ExtResource("7_ovdbm")
-
-[node name="GraphQl" parent="Node" node_paths=PackedStringArray("output", "queueSize") instance=ExtResource("8_6kerl")]
-output = NodePath("../../UX/ColorRect/State")
-queueSize = NodePath("../../UX/ColorRect/QueueSize")
-
 [node name="UX" type="Node2D" parent="."]
 
 [node name="ColorRect" type="ColorRect" parent="UX"]
@@ -146,4 +145,4 @@ offset_right = 268.0
 offset_bottom = 137.0
 text = "0"
 
-[connection signal="pressed" from="UX/ColorRect/Subscribe" to="Node" method="_on_subscribe_pressed"]
+[connection signal="pressed" from="UX/ColorRect/Subscribe" to="GraphQLTest" method="_on_subscribe_pressed"]

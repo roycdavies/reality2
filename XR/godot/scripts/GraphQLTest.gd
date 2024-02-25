@@ -1,10 +1,10 @@
 extends Node
 
+@export var GQL: Node
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Scripts used
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-var GQL = load("res://scripts/GraphQL.gd").new()
 var FSM = preload("res://scripts/FSM.gd")
 var _events = FSM.Automation.new(false)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -116,9 +116,8 @@ func sentantSend_response(data):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantEvent(callback, id: String, event: String, details: String = "id"):
-	var query = 'subscription SentantEvent($id: UUID4!, $event: String!) { sentantEvent(id: $id, event: $event) {' + details + '} }'
-	var variables = {"id": id, "event": event}
-	GQL.subscription(ws_url, query, callback, variables)
+	var query = 'subscription { sentantEvent(id: \"' + id + '\", event: \"' + event + '\") {' + details + '} }'
+	GQL.subscription(ws_url, query, callback, {})
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -149,10 +148,10 @@ var do_stuff = func(_parameters):
 	sentantGetByName(func(data): sentantGetByName_response(data), "Light Switch", "id")
 	sentantGetByID(func(data): sentantGetByID_response(data), lightSwitchID, "name")
 	
-	sentantEvent(print_result, lightSwitchID, "turn_off")
+	sentantEvent(func(data): print(data), lightSwitchID, "turn_off")
 	sentantSend(func(data): sentantSend_response(data), lightSwitchID, "turn_on", "name")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 func _on_subscribe_pressed():
-	sentantEvent(print_result, lightSwitchID, "turn_off")
+	sentantEvent(func(data): print(data), lightSwitchID, "turn_off")

@@ -17,7 +17,7 @@ extends Node
 var FSM = preload("res://scripts/FSM.gd")
 
 var _socket = WebSocketPeer.new()
-var _socket_automation = FSM.Automation.new(true)
+var _socket_automation 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -53,13 +53,8 @@ func mutation(url, query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func subscription(url, query, callback, variables={}, headers_dict={}):
 	print ("Websocket: ", url)
-	#var _subscription_query = "subscription {sentantEvent(id: \"" + variables["id"] + "\", event: \"" + variables["event"] + "\") { event parameters sentant { id } } }"
-	var subscription_query = {
-		"query": query,
-		"variables": variables
-	}
-	print("SUBSCRIPTION QUERY: ", subscription_query)
-	_socket_automation.enqueue("subscribe", {"query": subscription_query, "callback": callback}, 1.0)
+	print("SUBSCRIPTION QUERY: ", query)
+	self._socket_automation.enqueue("subscribe", {"query": query, "callback": callback})
 	#send_subscribe_message.call({"query": _subscription_query, "callback": callback})
 	#_socket = WebSocketPeer.new()
 	#_socket.connect_to_url(url, TLSOptions.client_unsafe())
@@ -72,15 +67,16 @@ func subscription(url, query, callback, variables={}, headers_dict={}):
 # Set things up
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
-	_socket_automation.set_debug(true)
+	_socket_automation = FSM.Automation.new(true)
+	#_socket_automation.set_debug(true)
 	_socket.connect_to_url("wss://localhost:4001/reality2/websocket", TLSOptions.client_unsafe())
 	
 	_socket_automation.add_transition("start",				"init",					"ready", 			[print_parameters])
 	_socket_automation.add_transition("ready",				"open",					"joining", 			[send_join_message])
 	_socket_automation.add_transition("joining",			"check_joined",			"joining", 			[check_joined])
 	
-	_socket_automation.add_transition("joining",			"joined", 				"joined",			[])
-	_socket_automation.add_transition("*",					"subscribe", 			"subscribing",		[send_subscribe_message])	
+	_socket_automation.add_transition("joining",			"joined", 				"subscribing",		[])
+	_socket_automation.add_transition("subscribing",		"subscribe", 			"subscribing",		[send_subscribe_message])	
 	_socket_automation.add_transition("subscribing",		"check_subscribed", 	"subscribing",		[check_subscribed])
 	_socket_automation.add_transition("subscribing",		"subscribed", 			"open",				[poll])
 	_socket_automation.add_transition("open",				"polling", 				"open",				[poll])
@@ -185,7 +181,7 @@ var receive = func(parameters):
 func _process(_delta):
 	_socket_automation.step()
 	if (output): output.text = _socket_automation.state()
-	if (queueSize): queueSize.text = str(_socket_automation.queue_size())
+	if (queueSize): queueSize.text = str(_socket_automation.queue_size()) + " | " + str(_socket_automation.timers_size())
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
