@@ -14,8 +14,6 @@ extends Node
 @export var websocket_connection_timeout = 10
 ## How often to check the websocket connection to keep it open
 @export var websocket_heartbeat = 30
-## Is this a Phoenix Framework Server?
-@export var phoenix_server: bool = false
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -36,9 +34,9 @@ var _callbacks_counter = 0
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func query(query, callback, variables={}, headers={}):
+func query(query, callback, variables={}, headers_dict={}):
 	# Queries and Mutations are sent the same way if using POST.
-	mutation(query, callback, variables, headers)
+	mutation(query, callback, variables, headers_dict)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -72,9 +70,10 @@ func subscription(query, callback, variables={}, headers_dict={}):
 		# Create a reference to save the callback for later
 		var reference = str(_callbacks_counter)
 		
-		# The subscription message
+		# The subscription message (with the reference that is returned later)
 		var subscribe = {
 			"topic": "__absinthe__:control",
+			"headers": headers_dict,
 			"event": "doc",
 			"payload": {
 				"query": query,
@@ -128,7 +127,8 @@ func _process(_delta):
 				var subscriptionID = data_dict.payload.subscriptionId
 				if (_callbacks.has(subscriptionID)):
 					_callbacks[subscriptionID].call(data_dict.payload.result)
-		
+	
+	# Check if it is time for a hearbeat.
 	if (Time.get_ticks_msec() > _socket_heartbeat_time):
 		_SOCKET_heartbeat()
 		_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
@@ -149,26 +149,25 @@ func _SOCKET_connect():
 		_socket.poll()
 	
 	if (Time.get_ticks_msec() < timeout):
-		if (phoenix_server):		
-			var join_message = {
-				"topic": "__absinthe__:control",
-				"event": "phx_join",
-				"payload": {},
-				"ref": 0
-			}
-			_socket.send_text(JSON.stringify(join_message))
-		
-			timeout = Time.get_ticks_msec() + websocket_connection_timeout * 500
+		var join_message = {
+			"topic": "__absinthe__:control",
+			"event": "phx_join",
+			"payload": {},
+			"ref": 0
+		}
+		_socket.send_text(JSON.stringify(join_message))
+	
+		timeout = Time.get_ticks_msec() + websocket_connection_timeout * 500
+		_socket.poll()
+		while (_socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN) and (Time.get_ticks_msec() < timeout):
 			_socket.poll()
-			while (_socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN) and (Time.get_ticks_msec() < timeout):
-				_socket.poll()
-				
-			if (Time.get_ticks_msec() < timeout):		
-				_socket_connected = true
-				print ("Websocket Connected")
-			else:
-				_socket_connected = false
-				print ("Websocket Timed out")				
+			
+		if (Time.get_ticks_msec() < timeout):		
+			_socket_connected = true
+			print ("Websocket Connected")
+		else:
+			_socket_connected = false
+			print ("Websocket Timed out")
 	else:
 		_socket_connected = false
 		print ("Websocket Timed out")
@@ -180,16 +179,13 @@ func _SOCKET_connect():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _SOCKET_heartbeat():
 	if (_socket_connected):
-		if (phoenix_server):		
-			var heartbeat = {
-				"topic": "phoenix",
-				"event": "heartbeat",
-				"payload": {},
-				"ref": 0
-			}
-			_socket.send_text(JSON.stringify(heartbeat))
-		else:
-			_socket.send_text("ping")
+		var heartbeat = {
+			"topic": "phoenix",
+			"event": "heartbeat",
+			"payload": {},
+			"ref": 0
+		}
+		_socket.send_text(JSON.stringify(heartbeat))
 		print("heartbeat")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 

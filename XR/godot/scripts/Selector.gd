@@ -38,5 +38,3 @@ func _input(event):
 				print(object.name)
 				print(object.position)
 				currentObject = object
-
-				
