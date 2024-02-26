@@ -126,14 +126,14 @@ func sentantEvent_response(data):
 # Called when the node enters the scene tree for the first time.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
-	_events.add_transition("start",				"init",					"ready", 			[func(__): _events.enqueue("go", {}, 5)])
+	_events.add_transition("start",				"init",					"ready", 			[func(__): _events.enqueue("go", {}, 1)])
 	_events.add_transition("ready",				"go",					"ready", 			[do_stuff])
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Poll the
+# Poll the FSM
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
 	_events.step()
@@ -142,16 +142,21 @@ func _process(_delta):
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Do some things to test the GraphQL
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 var do_stuff = func(_parameters):
 	sentantAll(func(data): sentantAll_response(data), "description id name")
 	sentantGetByName(func(data): sentantGetByName_response(data), "Light Switch", "id")
 	sentantGetByID(func(data): sentantGetByID_response(data), lightSwitchID, "name")
 	
-	#sentantEvent(func(data): print(data), lightSwitchID, "turn_off")
+	sentantEvent(func(data): sentantEvent_response(data), lightSwitchID, "turn_on")
 	sentantSend(func(data): sentantSend_response(data), lightSwitchID, "turn_on", "name")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Do something when the subscribe button is pressed
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _on_subscribe_pressed():
 	sentantEvent(func(data): sentantEvent_response(data), lightSwitchID, "turn_off")
+# ------------------------------------------------------------------------------------------------------------------------------------------------------

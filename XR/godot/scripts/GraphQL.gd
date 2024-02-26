@@ -68,25 +68,28 @@ func mutation(query, callback, variables={}, headers_dict={}):
 # GraphQL subscription via Websockets
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func subscription(query, callback, variables={}, headers_dict={}):
-	# Create a reference to save the callback for later
-	var reference = str(_callbacks_counter)
-	
-	# The subscription message
-	var subscribe = {
-		"topic": "__absinthe__:control",
-		"event": "doc",
-		"payload": {
-			"query": query,
-			"variables": variables
-		},
-		"ref": reference
-	}
-	
-	# Save the callback reference
-	_callbacks[reference] = callback
-	_callbacks_counter = _callbacks_counter + 1
-	# Send to the websocket
-	_socket.send_text(JSON.stringify(subscribe))
+	if (_socket_connected):
+		# Create a reference to save the callback for later
+		var reference = str(_callbacks_counter)
+		
+		# The subscription message
+		var subscribe = {
+			"topic": "__absinthe__:control",
+			"event": "doc",
+			"payload": {
+				"query": query,
+				"variables": variables
+			},
+			"ref": reference
+		}
+		
+		# Save the callback reference
+		_callbacks[reference] = callback
+		_callbacks_counter = _callbacks_counter + 1
+		# Send to the websocket
+		_socket.send_text(JSON.stringify(subscribe))
+	else:
+		callback.call({"errors": [{"message": "Websocket not connected"}]})
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
