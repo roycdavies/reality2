@@ -94,12 +94,12 @@ func _ready():
 func _set_drawing(val:bool):
 	enabled = val
 	set_process(val)
-	set_process_unhandled_input(mouse_enabled if val else false)
+	#set_process_unhandled_input(mouse_enabled if val else false)
 
 
 func _set_mouse_enabled(val:bool):
 	mouse_enabled = val
-	set_process_unhandled_input(val)
+	#set_process_unhandled_input(val)
 	if !val:		selection = -1
 
 func _set_children_rotate(val:bool):
@@ -318,10 +318,11 @@ func _process(_delta):
 		elif !first_in_center and child_count == 1:
 			if mouse_radius < radius:
 				selection= 0
-		else:
+		elif mouse_radius < radius:
 			var mouse_rads = fposmod(-mouse_pos.angle(), TAU) + deg_to_rad(line_rotation_offset)
 			
 			selection = wrap(      ceil(((mouse_rads / TAU) * child_count)),   0,    child_count      )
+			
 	
 	
 	queue_redraw()
@@ -330,11 +331,18 @@ func _process(_delta):
 
 
 
-func _input(event):
-	if (event.is_action_released(select_action_name)if action_released else event.is_action_pressed(select_action_name)): 
-		if selection != -2:
-			emit_signal('slot_selected', childs[str(selection)]if childs.has(str(selection))else null, selection)
+func _unhandled_input(event):
+
+	#if (event.is_action_released(select_action_name)if action_released else event.is_action_pressed(select_action_name)): 
+	if (event is InputEventMouseButton) || (event is InputEventScreenTouch):
+		print("here")
+		print(event["button_index"], event["pressed"])
+		if event["button_index"] == 1 && event["pressed"]:
+			print (selection)
+			if selection != -2:
+				emit_signal('slot_selected', childs[str(selection)]if childs.has(str(selection))else null, selection)
 	
 	if event.is_action_pressed('ui_cancel'):
 		emit_signal('selection_canceled')
+	
 	

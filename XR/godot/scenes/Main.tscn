@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://cc71islaf4sqf"]
+[gd_scene load_steps=19 format=3 uid="uid://cc71islaf4sqf"]
 
 [ext_resource type="Script" path="res://scripts/Selector.gd" id="1_64hbo"]
 [ext_resource type="Script" path="res://addons/orbit-controls/orbit-controls.gd" id="2_tmv0o"]
@@ -7,11 +7,8 @@
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="5_ikgce"]
 [ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="6_k13sq"]
 [ext_resource type="Script" path="res://scripts/GraphQLTest.gd" id="7_ovdbm"]
-[ext_resource type="PackedScene" uid="uid://b4gje7ot3h305" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
-[ext_resource type="Script" path="res://scripts/Radial Menus.gd" id="9_dpnna"]
-[ext_resource type="Script" path="res://addons/advanced_radial_menu/radial_menu_class.gd" id="9_w2kcu"]
-[ext_resource type="Texture2D" uid="uid://bpd7ufctoykm6" path="res://icons/check-solid.png" id="10_qiouw"]
-[ext_resource type="Texture2D" uid="uid://bys3swl71k3mn" path="res://icons/x-solid.png" id="12_3vwfv"]
+[ext_resource type="PackedScene" uid="uid://cetcxbrte45fj" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
+[ext_resource type="PackedScene" uid="uid://b2bw3n4qi7omp" path="res://scenes/UX.tscn" id="9_84jqk"]
 
 [sub_resource type="Theme" id="Theme_rl7gn"]
 
@@ -68,6 +65,9 @@ current = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
 
+[node name="Ux" parent="." instance=ExtResource("9_84jqk")]
+script = null
+
 [node name="OrbitControls" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
@@ -110,72 +110,3 @@ outline_size = 0
 material_override = SubResource("ShaderMaterial_awh1k")
 mesh = SubResource("SphereMesh_03wrp")
 script = ExtResource("6_k13sq")
-
-[node name="Radial Menus" type="Node" parent="."]
-script = ExtResource("9_dpnna")
-
-[node name="Bg" type="ColorRect" parent="Radial Menus"]
-clip_contents = true
-custom_minimum_size = Vector2(400, 400)
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.470588, 0.470588, 0.470588, 1)
-
-[node name="Main" type="Control" parent="Radial Menus"]
-layout_mode = 3
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("9_w2kcu")
-auto_sizing = false
-color = Color(0.792157, 0.192157, 0.411765, 0.211765)
-circle_radius = 75
-arc_color = Color(0.517647, 0.517647, 0.517647, 1)
-arc_inner_radius = 200
-arc_line_width = 1
-line_color = Color(0.517647, 0.517647, 0.517647, 1)
-line_width = 1
-children_auto_sizing = true
-hover_color = Color(0.137255, 0.572549, 0.627451, 1)
-hover_offset_start = 20
-hover_offset_end = 100
-stroke_enabled = true
-stroke_color = Color(0.517647, 0.517647, 0.517647, 1)
-stroke_width = 1
-animated_pulse_enabled = true
-animated_pulse_speed = 5
-animated_pulse_color = Color(0.517647, 0.517647, 0.517647, 1)
-
-[node name="TextureRect" type="TextureRect" parent="Radial Menus/Main"]
-layout_mode = 0
-offset_left = -5.00001
-offset_top = -142.5
-offset_right = 45.0
-offset_bottom = -92.5
-pivot_offset = Vector2(25, 25)
-texture = ExtResource("10_qiouw")
-expand_mode = 1
-
-[node name="TextureRect2" type="TextureRect" parent="Radial Menus/Main"]
-offset_left = -5.0
-offset_top = 132.5
-offset_right = 45.0
-offset_bottom = 182.5
-pivot_offset = Vector2(25, 25)
-texture = ExtResource("12_3vwfv")
-expand_mode = 2
-
-[connection signal="slot_selected" from="Radial Menus/Main" to="Radial Menus" method="_on_main_slot_selected"]

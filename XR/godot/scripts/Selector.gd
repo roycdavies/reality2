@@ -15,7 +15,7 @@ func _process(_delta):
 		orbitControls.target = currentObject.global_position
 		orbitControls.update()
 	
-func _input(event):
+func _unhandled_input(event):
 	if (event is InputEventMouseButton) || (event is InputEventScreenTouch):
 		if event["button_index"] == 1 && event["pressed"]:
 			var space = get_world_3d().get_direct_space_state()
