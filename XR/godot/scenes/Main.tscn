@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://cc71islaf4sqf"]
+[gd_scene load_steps=19 format=3 uid="uid://cc71islaf4sqf"]
 
 [ext_resource type="Script" path="res://scripts/Selector.gd" id="1_64hbo"]
 [ext_resource type="Script" path="res://addons/orbit-controls/orbit-controls.gd" id="2_tmv0o"]
@@ -7,7 +7,8 @@
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="5_ikgce"]
 [ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="6_k13sq"]
 [ext_resource type="Script" path="res://scripts/GraphQLTest.gd" id="7_ovdbm"]
-[ext_resource type="PackedScene" uid="uid://b4gje7ot3h305" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
+[ext_resource type="PackedScene" uid="uid://cetcxbrte45fj" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
+[ext_resource type="PackedScene" uid="uid://b2bw3n4qi7omp" path="res://scenes/UX.tscn" id="9_84jqk"]
 
 [sub_resource type="Theme" id="Theme_rl7gn"]
 
@@ -48,26 +49,6 @@ flip_faces = true
 radius = 100.0
 height = 200.0
 
-[sub_resource type="Theme" id="Theme_n3a3a"]
-
-[sub_resource type="GDScript" id="GDScript_8kn1a"]
-script/source = "extends Button
-
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
-
-
-func _on_pressed():
-	print(\"PRESSED\")
-"
-
 [node name="Node3D" type="Node3D" node_paths=PackedStringArray("orbitControls")]
 script = ExtResource("1_64hbo")
 orbitControls = NodePath("OrbitControls")
@@ -84,6 +65,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70)
 current = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
+
+[node name="Ux" parent="." instance=ExtResource("9_84jqk")]
+script = null
 
 [node name="OrbitControls" type="Control" parent="."]
 layout_mode = 3
@@ -127,22 +111,3 @@ outline_size = 0
 material_override = SubResource("ShaderMaterial_awh1k")
 mesh = SubResource("SphereMesh_03wrp")
 script = ExtResource("6_k13sq")
-
-[node name="UX" type="Node2D" parent="."]
-
-[node name="ColorRect" type="ColorRect" parent="UX"]
-offset_right = 429.0
-offset_bottom = 126.0
-color = Color(0.34902, 0.34902, 0.34902, 1)
-
-[node name="Subscribe" type="Button" parent="UX/ColorRect"]
-layout_mode = 2
-offset_left = 66.0
-offset_top = 30.0
-offset_right = 363.0
-offset_bottom = 95.0
-theme = SubResource("Theme_n3a3a")
-text = "Subscribe"
-script = SubResource("GDScript_8kn1a")
-
-[connection signal="pressed" from="UX/ColorRect/Subscribe" to="GraphQLTest" method="_on_subscribe_pressed"]
