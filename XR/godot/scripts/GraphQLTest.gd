@@ -14,18 +14,7 @@ var _events = FSM.Automation.new(false)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Private Variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-var url = "https://localhost:4001/reality2"
-var ws_url = "wss://localhost:4001/reality2/websocket"
 var lightSwitchID = ""
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Generic Printout function
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-var print_result = func(data):
-	print(data)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -35,7 +24,7 @@ var print_result = func(data):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantAll(callback, details: String = "id"):
 	var body = 'query {  sentantAll { ' + details + ' } }'
-	GQL.query(url, body, callback)
+	GQL.query(body, callback)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantAll_response(data):
 	var response = {}
@@ -45,7 +34,7 @@ func sentantAll_response(data):
 		print("ERROR: ", errors)
 	else:
 		response = data["data"]["sentantAll"]
-		print ("RESPONSE: ", response)
+		print ("SENTANT_ALL: ", response)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -55,7 +44,7 @@ func sentantAll_response(data):
 func sentantGetByID(callback, id: String, details: String = "id"):
 	var query = 'query SentantGet($id: UUID4!) { sentantGet(id: $id) {' + details + '} }'
 	var variables = {"id": id}
-	GQL.query(url, query, callback, variables)
+	GQL.query(query, callback, variables)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantGetByID_response(data):
 	var response = {}
@@ -65,7 +54,7 @@ func sentantGetByID_response(data):
 		print("ERROR: ", errors)
 	else:
 		response = data["data"]["sentantGet"]
-		print ("RESPONSE: ", response)
+		print ("SENTANT_GET: ", response)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -76,7 +65,7 @@ func sentantGetByID_response(data):
 func sentantGetByName(callback, name: String, details: String = "id"):
 	var query = 'query SentantGet($name: String!) { sentantGet(name: $name) {' + details + '} }'
 	var variables = {"name": name}
-	GQL.query(url, query, callback, variables)
+	GQL.query(query, callback, variables)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantGetByName_response(data):
 	var response = {}
@@ -87,7 +76,7 @@ func sentantGetByName_response(data):
 	else:
 		response = data["data"]["sentantGet"]
 		lightSwitchID = response["id"]
-		print ("RESPONSE: ", response)
+		print ("SENTANT_GET: ", response)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -98,7 +87,7 @@ func sentantGetByName_response(data):
 func sentantSend(callback, id: String, event: String, details: String = "id"):
 	var query = 'mutation SentantSend($id: UUID4!, $event: String!) { sentantSend(id: $id, event: $event) {' + details + '} }'
 	var variables = {"id": id, "event": event}
-	GQL.query(url, query, callback, variables)
+	GQL.query(query, callback, variables)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantSend_response(data):
 	var response = {}
@@ -108,7 +97,7 @@ func sentantSend_response(data):
 		print("ERROR: ", errors)
 	else:
 		response = data["data"]["sentantSend"]
-		print ("RESPONSE: ", response)
+		print ("SENTANT_SEND: ", response)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -118,7 +107,17 @@ func sentantSend_response(data):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantEvent(callback, id: String, event: String, details: String = "id"):
 	var query = 'subscription SentantEvent($id: UUID4!, $event: String!) { sentantEvent(id: $id, event: $event) { event parameters sentant {' + details + '} } }'
-	GQL.subscription(ws_url, query, callback, {"id": id, "event": event})
+	GQL.subscription(query, callback, {"id": id, "event": event})
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantEvent_response(data):
+	var response = {}
+	var errors = {}
+	if (data.has("errors")):
+		errors = data["errors"]
+		print("ERROR: ", errors)
+	else:
+		response = data["data"]["sentantEvent"]
+		print ("SENTANT_EVENT: ", response)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -155,4 +154,4 @@ var do_stuff = func(_parameters):
 
 
 func _on_subscribe_pressed():
-	sentantEvent(func(data): print(data), lightSwitchID, "turn_off")
+	sentantEvent(func(data): sentantEvent_response(data), lightSwitchID, "turn_off")

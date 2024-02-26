@@ -6,8 +6,16 @@ extends Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Public parameters
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-@export var output: RichTextLabel = null
-@export var queueSize: RichTextLabel = null
+## URL to main GraphQL API
+@export var graphql_URL: String = "https://localhost:4001/reality2"
+## URL to Websocket used for subscriptions
+@export var websocket_URL: String = "wss://localhost:4001/reality2/websocket"
+## Time to wait before concluding websocket connection is not working
+@export var websocket_connection_timeout = 10
+## How often to check the websocket connection to keep it open
+@export var websocket_heartbeat = 30
+## Is this a Phoenix Framework Server?
+@export var phoenix_server: bool = false
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -16,6 +24,11 @@ extends Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 var _socket = WebSocketPeer.new()
 var _socket_heartbeat_time
+var _socket_connected = false
+func websocket_connected(): return _socket_connected
+
+var _callbacks = {}
+var _callbacks_counter = 0
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -23,8 +36,9 @@ var _socket_heartbeat_time
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func query(url, query, callback, variables={}, headers={}):
-	mutation(url, query, callback, variables, headers)
+func query(query, callback, variables={}, headers={}):
+	# Queries and Mutations are sent the same way if using POST.
+	mutation(query, callback, variables, headers)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -32,15 +46,19 @@ func query(url, query, callback, variables={}, headers={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Mutation POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func mutation(url, query, callback, variables={}, headers_dict={}):
+func mutation(query, callback, variables={}, headers_dict={}):
+	# Add the standard headers (or overwrite)
 	headers_dict["Content-Type"] = "application/json"
 	headers_dict["Accept"] = "*/*"
+	
+	# Convert the headers to the required format
 	var headers = []
 	for key in headers_dict.keys():
 		headers.append(key + ":" + str(headers_dict[key]))
-		
+	
+	# Create the body and POST it.
 	var body = JSON.stringify({ "query": query, "variables": variables })
-	await _POST(url, body, callback, headers)
+	_POST(body, callback, headers)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -48,12 +66,12 @@ func mutation(url, query, callback, variables={}, headers_dict={}):
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # GraphQL subscription via Websockets
-# "subscription { sentantEvent(id: \"a42589c4-d270-11ee-a7ac-18c04dee389e\", event: \"turn_off\") { event parameters sentant { id name } } }"
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func subscription(url, query, callback, variables={}, headers_dict={}):
-	print ("Websocket: ", url)
-	print("SUBSCRIPTION QUERY: ", query)
+func subscription(query, callback, variables={}, headers_dict={}):
+	# Create a reference to save the callback for later
+	var reference = str(_callbacks_counter)
 	
+	# The subscription message
 	var subscribe = {
 		"topic": "__absinthe__:control",
 		"event": "doc",
@@ -61,14 +79,14 @@ func subscription(url, query, callback, variables={}, headers_dict={}):
 			"query": query,
 			"variables": variables
 		},
-		"ref": 0
+		"ref": reference
 	}
-	print(JSON.stringify(subscribe))
+	
+	# Save the callback reference
+	_callbacks[reference] = callback
+	_callbacks_counter = _callbacks_counter + 1
+	# Send to the websocket
 	_socket.send_text(JSON.stringify(subscribe))
-
-	_socket.poll()
-	while _socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN:
-		_socket.poll()
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -77,8 +95,8 @@ func subscription(url, query, callback, variables={}, headers_dict={}):
 # Set things up
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
-	_SOCKET_connect("wss://localhost:4001/reality2/websocket")
-	_socket_heartbeat_time = Time.get_ticks_msec() + 30000
+	_SOCKET_connect()
+	_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -89,11 +107,28 @@ func _ready():
 func _process(_delta):
 	_socket.poll()
 	while _socket.get_available_packet_count() > 0:
-		print("Packet: ", _socket.get_packet().get_string_from_utf8())
+		var data = _socket.get_packet().get_string_from_utf8()
+		var data_dict = JSON.parse_string(data)
+		
+		if data_dict.has("payload"):
+			if (data_dict.payload.has("status") and data_dict.payload.has("response")):
+				if data_dict.payload.response.has("subscriptionId"):
+					# Move the reference to the callback from the 'ref' position in the callbacks dict to the subscriptionId position
+					_callbacks[data_dict.payload.response.subscriptionId] = _callbacks[data_dict.ref]
+					_callbacks.erase(data_dict.ref)
+				elif (data_dict.payload.status == "error"):
+					if (data_dict.has("ref")):
+						_callbacks[data_dict.ref].call({"errors": [{"message": data_dict.payload.response.reason}]})
+					
+			elif (data_dict.payload.has("result") and data_dict.payload.has("subscriptionId")):
+				# Using the subscriptionId, call the callback routine with the result
+				var subscriptionID = data_dict.payload.subscriptionId
+				if (_callbacks.has(subscriptionID)):
+					_callbacks[subscriptionID].call(data_dict.payload.result)
 		
 	if (Time.get_ticks_msec() > _socket_heartbeat_time):
 		_SOCKET_heartbeat()
-		_socket_heartbeat_time = Time.get_ticks_msec() + 30000
+		_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -101,26 +136,39 @@ func _process(_delta):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Connect to the websocket in preparation for a subscription call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func _SOCKET_connect(url):
-	_socket.connect_to_url(url, TLSOptions.client_unsafe())
+func _SOCKET_connect():
+	# Open the connection
+	_socket.connect_to_url(websocket_URL, TLSOptions.client_unsafe())
 	
+	var timeout = Time.get_ticks_msec() + websocket_connection_timeout * 500
 	_socket.poll()
-	while _socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN:
+	while (_socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN) and (Time.get_ticks_msec() < timeout):
 		_socket.poll()
 	
-	var join_message = {
-		"topic": "__absinthe__:control",
-		"event": "phx_join",
-		"payload": {},
-		"ref": 0
-	}
-	_socket.send_text(JSON.stringify(join_message))
-	
-	_socket.poll()
-	while _socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN:
-		_socket.poll()
+	if (Time.get_ticks_msec() < timeout):
+		if (phoenix_server):		
+			var join_message = {
+				"topic": "__absinthe__:control",
+				"event": "phx_join",
+				"payload": {},
+				"ref": 0
+			}
+			_socket.send_text(JSON.stringify(join_message))
 		
-	print ("Websocket Connected")
+			timeout = Time.get_ticks_msec() + websocket_connection_timeout * 500
+			_socket.poll()
+			while (_socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN) and (Time.get_ticks_msec() < timeout):
+				_socket.poll()
+				
+			if (Time.get_ticks_msec() < timeout):		
+				_socket_connected = true
+				print ("Websocket Connected")
+			else:
+				_socket_connected = false
+				print ("Websocket Timed out")				
+	else:
+		_socket_connected = false
+		print ("Websocket Timed out")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -128,14 +176,18 @@ func _SOCKET_connect(url):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _SOCKET_heartbeat():
-	var heartbeat = {
-		"topic": "phoenix",
-		"event": "heartbeat",
-		"payload": {},
-		"ref": 0
-	}
-	_socket.send_text(JSON.stringify(heartbeat))
-	print("heartbeat")
+	if (_socket_connected):
+		if (phoenix_server):		
+			var heartbeat = {
+				"topic": "phoenix",
+				"event": "heartbeat",
+				"payload": {},
+				"ref": 0
+			}
+			_socket.send_text(JSON.stringify(heartbeat))
+		else:
+			_socket.send_text("ping")
+		print("heartbeat")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -143,8 +195,8 @@ func _SOCKET_heartbeat():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Post data in the body to a URL, with headers, and returning the result to the callback function, or an appropriate error
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func _POST(url, body, callback, headers):
-	var uri = _URL(url)	
+func _POST(body, callback, headers):
+	var uri = _URL(graphql_URL)	
 	var err = 0
 	var http = HTTPClient.new() # Create the Client.
 
