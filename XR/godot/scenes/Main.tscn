@@ -73,7 +73,6 @@ script = ExtResource("1_64hbo")
 orbitControls = NodePath("OrbitControls")
 
 [node name="Reality2" parent="." instance=ExtResource("8_6kerl")]
-websocket_URL = "wss://localhost:4001/reality2/websockets"
 phoenix_server = true
 
 [node name="GraphQLTest" type="Node" parent="." node_paths=PackedStringArray("GQL")]
