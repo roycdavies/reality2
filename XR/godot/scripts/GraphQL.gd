@@ -2,6 +2,7 @@
 # A very simple GraphQL set of functions
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 extends Node
+class_name GraphQL
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Public parameters
@@ -34,9 +35,9 @@ var _callbacks_counter = 0
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func query(query, callback, variables={}, headers_dict={}):
+func query(the_query, callback, variables={}, headers_dict={}):
 	# Queries and Mutations are sent the same way if using POST.
-	mutation(query, callback, variables, headers_dict)
+	mutation(the_query, callback, variables, headers_dict)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -44,7 +45,7 @@ func query(query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Mutation POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func mutation(query, callback, variables={}, headers_dict={}):
+func mutation(the_query, callback, variables={}, headers_dict={}):
 	# Add the standard headers (or overwrite)
 	headers_dict["Content-Type"] = "application/json"
 	headers_dict["Accept"] = "*/*"
@@ -55,7 +56,7 @@ func mutation(query, callback, variables={}, headers_dict={}):
 		headers.append(key + ":" + str(headers_dict[key]))
 	
 	# Create the body and POST it.
-	var body = JSON.stringify({ "query": query, "variables": variables })
+	var body = JSON.stringify({ "query": the_query, "variables": variables })
 	_POST(body, callback, headers)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -65,7 +66,7 @@ func mutation(query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # GraphQL subscription via Websockets
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func subscription(query, callback, variables={}, headers_dict={}):
+func subscription(the_query, callback, variables={}, headers_dict={}):
 	if (_socket_connected):
 		# Create a reference to save the callback for later
 		var reference = str(_callbacks_counter)
@@ -76,7 +77,7 @@ func subscription(query, callback, variables={}, headers_dict={}):
 			"headers": headers_dict,
 			"event": "doc",
 			"payload": {
-				"query": query,
+				"query": the_query,
 				"variables": variables
 			},
 			"ref": reference

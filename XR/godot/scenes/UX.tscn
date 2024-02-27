@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://b2bw3n4qi7omp"]
+[gd_scene load_steps=9 format=3 uid="uid://b2bw3n4qi7omp"]
 
-[ext_resource type="Script" path="res://scenes/UX.gd" id="1_6dfe7"]
+[ext_resource type="Script" path="res://scripts/UX.gd" id="1_6dfe7"]
 [ext_resource type="Script" path="res://addons/advanced_radial_menu/radial_menu_class.gd" id="1_11hd1"]
 [ext_resource type="Texture2D" uid="uid://bpd7ufctoykm6" path="res://icons/check-solid.png" id="2_wxmkm"]
 [ext_resource type="Texture2D" uid="uid://bys3swl71k3mn" path="res://icons/x-solid.png" id="3_rd3ty"]
@@ -10,18 +10,19 @@
 font_size = 20
 font_color = Color(0.243137, 0.243137, 0.243137, 1)
 
-[node name="Ux" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
+[sub_resource type="Gradient" id="Gradient_8ncrv"]
+colors = PackedColorArray(0.415686, 0.415686, 0.415686, 0.415686, 0.415686, 0.415686, 0.415686, 0.415686)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_caxei"]
+gradient = SubResource("Gradient_8ncrv")
+
+[node name="Ux" type="Node"]
+
+[node name="Radial Menus" type="Node" parent="."]
 script = ExtResource("1_6dfe7")
 
-[node name="YesNoMaybe" type="Control" parent="."]
-layout_mode = 1
+[node name="YesNoMaybe" type="Control" parent="Radial Menus"]
+layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -56,7 +57,7 @@ animated_pulse_offset = 7
 animated_pulse_speed = 2
 animated_pulse_color = Color(0.431373, 0.431373, 0.431373, 1)
 
-[node name="Label" type="Label" parent="YesNoMaybe"]
+[node name="Label" type="Label" parent="Radial Menus/YesNoMaybe"]
 layout_mode = 0
 offset_left = -17.5
 offset_top = -17.5
@@ -69,19 +70,20 @@ label_settings = SubResource("LabelSettings_qop2r")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Yes" type="TextureRect" parent="YesNoMaybe"]
+[node name="Yes" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
 layout_mode = 0
-offset_left = -17.5
-offset_top = 120.0
-offset_right = 57.5
-offset_bottom = 195.0
+offset_left = 101.578
+offset_top = 51.25
+offset_right = 176.578
+offset_bottom = 126.25
 pivot_offset = Vector2(37.5, 37.5)
 mouse_filter = 2
 mouse_default_cursor_shape = 3
 texture = ExtResource("2_wxmkm")
 expand_mode = 1
 
-[node name="No" type="TextureRect" parent="YesNoMaybe"]
+[node name="No" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
+layout_mode = 0
 offset_left = 101.578
 offset_top = -86.25
 offset_right = 176.578
@@ -91,14 +93,81 @@ mouse_filter = 2
 texture = ExtResource("3_rd3ty")
 expand_mode = 1
 
-[node name="Maybe" type="TextureRect" parent="YesNoMaybe"]
+[node name="Maybe" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
+layout_mode = 0
+offset_left = -17.5
+offset_top = -155.0
+offset_right = 57.5
+offset_bottom = -80.0
+pivot_offset = Vector2(37.5, 37.5)
+mouse_filter = 2
+texture = ExtResource("5_a40qx")
+expand_mode = 1
+
+[node name="Yes2" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
 offset_left = -136.578
 offset_top = -86.25
 offset_right = -61.5785
 offset_bottom = -11.25
 pivot_offset = Vector2(37.5, 37.5)
 mouse_filter = 2
+mouse_default_cursor_shape = 3
+texture = ExtResource("2_wxmkm")
+expand_mode = 1
+
+[node name="No2" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
+offset_left = -136.578
+offset_top = 51.25
+offset_right = -61.5785
+offset_bottom = 126.25
+pivot_offset = Vector2(37.5, 37.5)
+mouse_filter = 2
+texture = ExtResource("3_rd3ty")
+expand_mode = 1
+
+[node name="Maybe2" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
+offset_left = -17.5
+offset_top = 120.0
+offset_right = 57.5
+offset_bottom = 195.0
+pivot_offset = Vector2(37.5, 37.5)
+mouse_filter = 2
 texture = ExtResource("5_a40qx")
 expand_mode = 1
 
-[connection signal="slot_selected" from="YesNoMaybe" to="." method="_on_radial_menu_advanced_slot_selected"]
+[node name="MenuBar" type="MenuBar" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+
+[node name="TextureRect" type="TextureRect" parent="MenuBar"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.38
+grow_horizontal = 2
+texture = SubResource("GradientTexture1D_caxei")
+metadata/_edit_use_anchors_ = true
+
+[node name="Hide" type="MenuButton" parent="MenuBar"]
+layout_mode = 0
+offset_right = 169.0
+offset_bottom = 68.0
+text = "Hide Menus"
+icon = ExtResource("3_rd3ty")
+expand_icon = true
+
+[node name="Show" type="MenuButton" parent="MenuBar"]
+offset_left = 169.0
+offset_top = 1.0
+offset_right = 338.0
+offset_bottom = 69.0
+text = "Show Menus"
+icon = ExtResource("2_wxmkm")
+expand_icon = true
+
+[connection signal="slot_selected" from="Radial Menus/YesNoMaybe" to="Radial Menus" method="_on_yes_no_maybe_slot_selected"]
+[connection signal="pressed" from="MenuBar/Hide" to="Radial Menus" method="_on_menu_button_pressed" binds= [-1]]
+[connection signal="pressed" from="MenuBar/Show" to="Radial Menus" method="_on_menu_button_pressed" binds= [0]]

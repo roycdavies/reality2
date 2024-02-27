@@ -1,72 +1,75 @@
-class Planet:
-	
-	## Closest Distance between Sentants
-	var closestDistance = 30.0
-	## Stiffness of Spring between Sentants
-	var springStiffness = 0.1
-	## Stiffness of Spring to centre object
-	var centreSpringStiffness = 10.0
-	## Distance to centre object
-	var centreDistance = 10.0
-	## Damping / friction
-	var damping = 0.1
+extends RigidBody3D
 
-	var _velocity = Vector3(0,0,0)
-	var _force = Vector3(0,0,0)
-	var _friction = 0.5
-	var _mass = 1.0
-	
-	var _sentant: Node3D
-	func get_sentant():
-		return _sentant
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Public Variables
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+@export_group("GraphQL")
+@export var GQL: Node
+
+@export_group("Debugging Parameters")
+## Debug Mode
+@export var debug : bool = true
+## Number of Swarms and the number of Sentants in each Swarm
+@export var numSwarms : int = 5
+@export var numSentantsInSwarm : int = 10
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-	# Called when the node enters the scene tree for the first time.
-	func _init(parent, name = "Test", color = Color.CADET_BLUE):
-		#var sphere = MeshInstance3D.new()
-		#var sphere_mesh = SphereMesh.new()
-		#var material = StandardMaterial3D.new()
-		#material.albedo_color = color
-		#sphere.material_override = material
-		#sphere.mesh = sphere_mesh
-		
-		var area = Area3D.new()
-		area.set_ray_pickable(true)
-		var collider = CollisionShape3D.new()
-		collider.set_shape(SphereShape3D.new())
-		collider.shape.set_radius(0.5)
-		
-		area.add_child(collider)
-		#sphere.add_child(area)
-		parent.add_child(area)
 
-		# A little randomness to make sure the objects move around OK
-		parent.position = Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5) * 0.1
-		#self.name = name
-		
-		#parent.add_child(sphere)
-		_sentant = parent
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Private Variables
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+var swarm_scene = preload("res://scenes/R2Node.tscn")
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-	# Called every frame. 'delta' is the elapsed time since the previous frame.
-	func update(delta):
-		_force = Vector3(0,0,0)
-		
-		var siblings = _sentant.get_parent().get_children()
-		
-		for sibling in siblings:
-			if (sibling != self) && (sibling is Node3D):
-				var direction = _sentant.position - sibling.position
-				var forceValue = direction.length() - closestDistance
-				var normalizedDirection = direction.normalized()
-				var thisForce = (normalizedDirection * -springStiffness * forceValue) - (_velocity * damping)
-				_force += thisForce
-				
-		var directionCentre = _sentant.position
-		var forceValueCentre = directionCentre.length() - centreDistance
-		var normalizedDirectionCentre = directionCentre.normalized()
-		_force += (normalizedDirectionCentre * -centreSpringStiffness * forceValueCentre) - (_velocity * damping)
 
-		var frictionForce = _velocity * -_friction
-		_velocity = ((_force + frictionForce) / _mass) * delta
-		_sentant.position = _sentant.position + _velocity
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Get a list of all the Sentants
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantAll(callback, details: String = "id"):
+	var body = 'query {  sentantAll { ' + details + ' } }'
+	GQL.query(body, callback)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func sentantAll_response(data):
+	var response = {}
+	var errors = {}
+	if (data.has("errors")):
+		errors = data["errors"]
+		print("ERROR: ", errors)
+	else:
+		response = data["data"]["sentantAll"]
+		print ("SENTANT_ALL: ", response)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Called when the node enters the scene tree for the first time.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func _ready():
+	if debug:
+		for i in range(0, numSwarms):
+			add_swarm()
+	else:
+		sentantAll(func(data): sentantAll_response(data), "description id name")
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func _process(_delta):
+	pass
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Add a Swarm
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func add_swarm():
+	var new_swarm = swarm_scene.instantiate()
+	new_swarm.numSentants = numSentantsInSwarm
+	add_child(new_swarm)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------

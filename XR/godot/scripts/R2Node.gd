@@ -8,15 +8,13 @@ extends Node3D
 
 
 var sentant_scene = preload("res://scenes/Sentant.tscn")
-var R2 = load("res://scripts/Reality2.gd").new()
 var angularVelocity = Vector3(0,0,0)
 var shape
-var Shapes = load("res://scripts/Shapes.gd").new()
 var connecting_line
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	shape = R2.Planet.new(self, "Swarm", Color.BLUE)
+	shape = FloatySprings.Planet.new(self, "Reality2Node", Color.BLUE)
 	shape.centreDistance = 20.0
 	shape.closestDistance = 40.0
 	connecting_line = Shapes.Line.new(self, Color.DIM_GRAY)

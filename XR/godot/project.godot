@@ -15,9 +15,13 @@ run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/mode=2
+
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/advanced_radial_menu/plugin.cfg", "res://addons/orbit-controls/plugin.cfg", "res://addons/radial_menu/plugin.cfg")
+enabled=PackedStringArray("res://addons/advanced_radial_menu/plugin.cfg", "res://addons/orbit-controls/plugin.cfg")
 
 [rendering]
 

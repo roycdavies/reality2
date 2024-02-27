@@ -3,6 +3,7 @@ extends Node3D
 @export var orbitControls :Node
 
 var currentObject: Node3D
+var lerper = 0.0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -10,10 +11,11 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
+func _process(delta):
 	if (currentObject && orbitControls):
-		orbitControls.target = currentObject.global_position
+		orbitControls.target = orbitControls.target.lerp(currentObject.global_position, lerper)
 		orbitControls.update()
+		lerper = min(1.0, (lerper + 3.0) * delta)
 	
 func _unhandled_input(event):
 	if (event is InputEventMouseButton) || (event is InputEventScreenTouch):
@@ -38,3 +40,4 @@ func _unhandled_input(event):
 				print(object.name)
 				print(object.position)
 				currentObject = object
+				lerper = 0.0

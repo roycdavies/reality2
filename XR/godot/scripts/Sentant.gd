@@ -1,13 +1,11 @@
 extends Node3D
 
-var R2 = load("res://scripts/Reality2.gd").new()
-var Shapes = load("res://scripts/Shapes.gd").new()
 var connecting_line
 var shape
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	shape = R2.Planet.new(self)
+	shape = FloatySprings.Planet.new(self)
 	shape.centreDistance = 5.0
 	shape.closestDistance = 8.0
 	connecting_line = Shapes.Line.new(self, Color.DIM_GRAY)

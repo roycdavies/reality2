@@ -335,10 +335,7 @@ func _unhandled_input(event):
 
 	#if (event.is_action_released(select_action_name)if action_released else event.is_action_pressed(select_action_name)): 
 	if (event is InputEventMouseButton) || (event is InputEventScreenTouch):
-		print("here")
-		print(event["button_index"], event["pressed"])
 		if event["button_index"] == 1 && event["pressed"]:
-			print (selection)
 			if selection != -2:
 				emit_signal('slot_selected', childs[str(selection)]if childs.has(str(selection))else null, selection)
 	
