@@ -35,7 +35,6 @@ editor_description = "A Reality2 Node"
 gravity_scale = 1.629
 freeze = true
 script = ExtResource("1_g57xc")
-numSentantsInSwarm = 5
 
 [node name="CSGSphere3D" type="CSGSphere3D" parent="."]
 visible = false

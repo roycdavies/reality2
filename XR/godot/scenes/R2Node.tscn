@@ -22,6 +22,7 @@ shader_parameter/fresnel_power = 2.0
 
 [node name="R2Node" type="Node3D"]
 script = ExtResource("1_qts07")
+debug = false
 
 [node name="MaterialMesh" type="MeshInstance3D" parent="."]
 material_override = SubResource("ShaderMaterial_ciird")

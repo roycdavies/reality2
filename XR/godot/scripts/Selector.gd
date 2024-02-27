@@ -13,9 +13,13 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if (currentObject && orbitControls):
-		orbitControls.target = orbitControls.target.lerp(currentObject.global_position, lerper)
+		lerper = min(1.0, lerper + 0.5 * delta)
+		if (lerper == 1.0):
+			orbitControls.target = currentObject.global_position
+		else:
+			orbitControls.target = orbitControls.target.lerp(currentObject.global_position, lerper)
 		orbitControls.update()
-		lerper = min(1.0, (lerper + 3.0) * delta)
+
 	
 func _unhandled_input(event):
 	if (event is InputEventMouseButton) || (event is InputEventScreenTouch):

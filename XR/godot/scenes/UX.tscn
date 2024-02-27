@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://b2bw3n4qi7omp"]
+[gd_scene load_steps=10 format=3 uid="uid://b2bw3n4qi7omp"]
 
 [ext_resource type="Script" path="res://scripts/UX.gd" id="1_6dfe7"]
 [ext_resource type="Script" path="res://addons/advanced_radial_menu/radial_menu_class.gd" id="1_11hd1"]
 [ext_resource type="Texture2D" uid="uid://bpd7ufctoykm6" path="res://icons/check-solid.png" id="2_wxmkm"]
 [ext_resource type="Texture2D" uid="uid://bys3swl71k3mn" path="res://icons/x-solid.png" id="3_rd3ty"]
 [ext_resource type="Texture2D" uid="uid://cqg7rnhtxgmgc" path="res://icons/question-solid.png" id="5_a40qx"]
+[ext_resource type="Texture2D" uid="uid://dpue8uh8cfwly" path="res://icons/rotate-right-solid.png" id="6_f7fd1"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_qop2r"]
 font_size = 20
@@ -16,7 +17,7 @@ colors = PackedColorArray(0.415686, 0.415686, 0.415686, 0.415686, 0.415686, 0.41
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_caxei"]
 gradient = SubResource("Gradient_8ncrv")
 
-[node name="Ux" type="Node"]
+[node name="UX" type="Node"]
 
 [node name="Radial Menus" type="Node" parent="."]
 script = ExtResource("1_6dfe7")
@@ -40,14 +41,14 @@ action_released = true
 auto_sizing = false
 first_in_center = true
 color = Color(0.188235, 0, 0, 0.0941176)
-circle_radius = 200
+circle_radius = 100
 arc_color = Color(0.431373, 0.431373, 0.431373, 1)
-arc_inner_radius = 75
+arc_inner_radius = 40
 arc_detail = 48
 arc_line_width = 1
 line_color = Color(0.431373, 0.431373, 0.431373, 1)
 line_width = 1
-children_size = 75
+children_size = 40
 hover_color = Color(1, 0.301961, 0.301961, 0.2)
 stroke_enabled = true
 stroke_color = Color(0.431373, 0.431373, 0.431373, 1)
@@ -59,24 +60,21 @@ animated_pulse_color = Color(0.431373, 0.431373, 0.431373, 1)
 
 [node name="Label" type="Label" parent="Radial Menus/YesNoMaybe"]
 layout_mode = 0
-offset_left = -17.5
-offset_top = -17.5
-offset_right = 57.5
-offset_bottom = 57.5
-pivot_offset = Vector2(37.5, 37.5)
+offset_right = 40.0
+offset_bottom = 40.0
+pivot_offset = Vector2(20, 20)
 mouse_default_cursor_shape = 2
-text = "Hello"
 label_settings = SubResource("LabelSettings_qop2r")
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Yes" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
 layout_mode = 0
-offset_left = 101.578
-offset_top = 51.25
-offset_right = 176.578
-offset_bottom = 126.25
-pivot_offset = Vector2(37.5, 37.5)
+offset_left = 60.6218
+offset_top = 35.0
+offset_right = 100.622
+offset_bottom = 75.0
+pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 mouse_default_cursor_shape = 3
 texture = ExtResource("2_wxmkm")
@@ -84,53 +82,54 @@ expand_mode = 1
 
 [node name="No" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
 layout_mode = 0
-offset_left = 101.578
-offset_top = -86.25
-offset_right = 176.578
-offset_bottom = -11.25
-pivot_offset = Vector2(37.5, 37.5)
+offset_left = 60.6218
+offset_top = -35.0
+offset_right = 100.622
+offset_bottom = 5.0
+pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 texture = ExtResource("3_rd3ty")
 expand_mode = 1
 
 [node name="Maybe" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
 layout_mode = 0
-offset_left = -17.5
-offset_top = -155.0
-offset_right = 57.5
-offset_bottom = -80.0
-pivot_offset = Vector2(37.5, 37.5)
+offset_top = -70.0
+offset_right = 40.0
+offset_bottom = -30.0
+pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 texture = ExtResource("5_a40qx")
 expand_mode = 1
 
 [node name="Yes2" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
-offset_left = -136.578
-offset_top = -86.25
-offset_right = -61.5785
-offset_bottom = -11.25
-pivot_offset = Vector2(37.5, 37.5)
+layout_mode = 0
+offset_left = -60.6218
+offset_top = -35.0
+offset_right = -20.6218
+offset_bottom = 5.0
+pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 mouse_default_cursor_shape = 3
 texture = ExtResource("2_wxmkm")
 expand_mode = 1
 
 [node name="No2" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
-offset_left = -136.578
-offset_top = 51.25
-offset_right = -61.5785
-offset_bottom = 126.25
-pivot_offset = Vector2(37.5, 37.5)
+layout_mode = 0
+offset_left = -60.6218
+offset_top = 35.0
+offset_right = -20.6218
+offset_bottom = 75.0
+pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 texture = ExtResource("3_rd3ty")
 expand_mode = 1
 
 [node name="Maybe2" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
-offset_left = -17.5
-offset_top = 120.0
-offset_right = 57.5
-offset_bottom = 195.0
-pivot_offset = Vector2(37.5, 37.5)
+layout_mode = 0
+offset_top = 70.0
+offset_right = 40.0
+offset_bottom = 110.0
+pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 texture = ExtResource("5_a40qx")
 expand_mode = 1
@@ -138,36 +137,46 @@ expand_mode = 1
 [node name="MenuBar" type="MenuBar" parent="."]
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 50.0
+offset_bottom = 100.0
 grow_horizontal = 2
 size_flags_horizontal = 3
 
 [node name="TextureRect" type="TextureRect" parent="MenuBar"]
 layout_mode = 1
-anchors_preset = -1
+anchors_preset = 15
 anchor_right = 1.0
-anchor_bottom = 1.38
+anchor_bottom = 1.0
 grow_horizontal = 2
+grow_vertical = 2
 texture = SubResource("GradientTexture1D_caxei")
 metadata/_edit_use_anchors_ = true
 
 [node name="Hide" type="MenuButton" parent="MenuBar"]
 layout_mode = 0
-offset_right = 169.0
-offset_bottom = 68.0
+offset_left = 400.0
+offset_right = 600.0
+offset_bottom = 100.0
 text = "Hide Menus"
 icon = ExtResource("3_rd3ty")
 expand_icon = true
 
 [node name="Show" type="MenuButton" parent="MenuBar"]
-offset_left = 169.0
-offset_top = 1.0
-offset_right = 338.0
-offset_bottom = 69.0
+layout_mode = 0
+offset_left = 600.0
+offset_right = 800.0
+offset_bottom = 100.0
 text = "Show Menus"
 icon = ExtResource("2_wxmkm")
+expand_icon = true
+
+[node name="Reload" type="MenuButton" parent="MenuBar"]
+offset_right = 200.0
+offset_bottom = 100.0
+text = "Reload"
+icon = ExtResource("6_f7fd1")
 expand_icon = true
 
 [connection signal="slot_selected" from="Radial Menus/YesNoMaybe" to="Radial Menus" method="_on_yes_no_maybe_slot_selected"]
 [connection signal="pressed" from="MenuBar/Hide" to="Radial Menus" method="_on_menu_button_pressed" binds= [-1]]
 [connection signal="pressed" from="MenuBar/Show" to="Radial Menus" method="_on_menu_button_pressed" binds= [0]]
+[connection signal="pressed" from="MenuBar/Reload" to="Radial Menus" method="_on_menu_button_pressed" binds= [0]]

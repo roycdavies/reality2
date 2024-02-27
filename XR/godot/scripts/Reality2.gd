@@ -9,9 +9,9 @@ extends RigidBody3D
 @export_group("Debugging Parameters")
 ## Debug Mode
 @export var debug : bool = true
-## Number of Swarms and the number of Sentants in each Swarm
-@export var numSwarms : int = 5
-@export var numSentantsInSwarm : int = 10
+## Number of Nodes and the number of Sentants in each Node
+@export var numNodes : int = 5
+@export var numSentantsInNode : int = 10
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -19,7 +19,7 @@ extends RigidBody3D
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Private Variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-var swarm_scene = preload("res://scenes/R2Node.tscn")
+var node_scene = preload("res://scenes/R2Node.tscn")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -32,13 +32,14 @@ func sentantAll(callback, details: String = "id"):
 	GQL.query(body, callback)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func sentantAll_response(data):
-	var response = {}
+	var response = []
 	var errors = {}
 	if (data.has("errors")):
 		errors = data["errors"]
 		print("ERROR: ", errors)
 	else:
 		response = data["data"]["sentantAll"]
+		add_node(response)
 		print ("SENTANT_ALL: ", response)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -48,8 +49,8 @@ func sentantAll_response(data):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
 	if debug:
-		for i in range(0, numSwarms):
-			add_swarm()
+		for i in range(0, numNodes):
+			add_node()
 	else:
 		sentantAll(func(data): sentantAll_response(data), "description id name")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -66,10 +67,14 @@ func _process(_delta):
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Add a Swarm
+# Add a Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func add_swarm():
-	var new_swarm = swarm_scene.instantiate()
-	new_swarm.numSentants = numSentantsInSwarm
-	add_child(new_swarm)
+func add_node(sentants = []):
+	var new_node = node_scene.instantiate()
+	if(debug):
+		new_node.numSentants = numSentantsInNode
+	else:
+		new_node.load_sentants(sentants)
+	new_node.name = "this"
+	add_child(new_node)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
