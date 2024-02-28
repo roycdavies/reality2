@@ -1,6 +1,14 @@
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-# A very simple GraphQL set of functions
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# ======================================================================================================================================================
+# GraphQL
+# -------
+#
+# A very simple GraphQL set of functions designed for the Reality2 Node, but could be adapted for other GraphQL scenarios.
+# To use it, create a Node object and add this as its script.  If you need multiple GraphQL connections, create one for each.
+#
+# roycdavies.github.io
+# March 2024
+# ======================================================================================================================================================
+
 extends Node
 class_name GraphQL
 
@@ -24,10 +32,17 @@ class_name GraphQL
 var _socket = WebSocketPeer.new()
 var _socket_heartbeat_time
 var _socket_connected = false
-func websocket_connected(): return _socket_connected
-
 var _callbacks = {}
 var _callbacks_counter = 0
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Is connected to the websocket
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func connected():
+	return _socket_connected
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -110,6 +125,7 @@ func _ready():
 func _process(_delta):
 	_socket.poll()
 	while _socket.get_available_packet_count() > 0:
+		# TODO: what happens if there is more than 1 packet?
 		var data = _socket.get_packet().get_string_from_utf8()
 		var data_dict = JSON.parse_string(data)
 		
@@ -177,6 +193,7 @@ func _SOCKET_connect():
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Called regularly to keep the websocket alive
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _SOCKET_heartbeat():
 	if (_socket_connected):
@@ -193,7 +210,7 @@ func _SOCKET_heartbeat():
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Post data in the body to a URL, with headers, and returning the result to the callback function, or an appropriate error
+# Post data in the body to a URL, with headers, and return the result to the callback function, or an appropriate error
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _POST(body, callback, headers):
 	var uri = _URL(graphql_URL)	

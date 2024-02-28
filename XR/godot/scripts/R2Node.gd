@@ -59,34 +59,8 @@ func _process(delta):
 	# Update the shapes
 	shape.update(delta)
 	
-	# Create some gentle sway-y motion
-	var stepValue = delta / 1000
-	var maxValue = stepValue * 30.0
-	
-	var xDirection = randf() > 0.5
-	var yDirection = randf() > 0.5
-	var zDirection = randf() > 0.5
-	
-	if (xDirection):
-		angularVelocity.x += stepValue
-	else:
-		angularVelocity.x -= stepValue
-	angularVelocity.x = max(-maxValue, min(maxValue, angularVelocity.x))
-		
-	if (yDirection):
-		angularVelocity.y += stepValue
-	else:
-		angularVelocity.y -= stepValue	
-	angularVelocity.y = max(-maxValue, min(maxValue, angularVelocity.y))
-		
-	if (zDirection):
-		angularVelocity.z += stepValue
-	else:
-		angularVelocity.z -= stepValue
-	angularVelocity.z = max(-maxValue, min(maxValue, angularVelocity.z))
-	
-	# Set the rotation of this node	
-	rotation = (rotation + angularVelocity)
+	# Add a bit of gentel motion
+	rotation = Useful.gentle_twist(delta, angularVelocity, rotation)
 	
 	# Update the connecting line between this node and its parent
 	connecting_line.adjust_line(Vector3(0,0,0), to_local(get_parent().global_position))

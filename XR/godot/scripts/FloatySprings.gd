@@ -1,6 +1,24 @@
+# ======================================================================================================================================================
+# Floaty Springs
+# --------------
+#
+# A way to create objects with children that encircle them, keeping on average a specified distance from each other and the centre object, in a springy,
+# floaty way.
+#
+# roycdavies.github.io
+# March 2024
+# ======================================================================================================================================================
+
 class_name FloatySprings
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# The main class
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 class Planet:
 	
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	# Public Attributes
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	## Closest Distance between Sentants
 	var closestDistance = 30.0
 	## Stiffness of Spring between Sentants
@@ -11,18 +29,26 @@ class Planet:
 	var centreDistance = 10.0
 	## Damping / friction
 	var damping = 0.1
-
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	
+	
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	# Private Attributes
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	var _velocity = Vector3(0,0,0)
 	var _force = Vector3(0,0,0)
 	var _friction = 0.5
 	var _mass = 1.0
 	
-	var _sentant: Node3D
-	func get_sentant():
-		return _sentant
+	var _core: Node3D
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-	# Called when the node enters the scene tree for the first time.
+
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	# Constructor
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	func _init(parent, _name = "Test", _color = Color.CADET_BLUE):
 		# Something to interact with
 		var area = Area3D.new()
@@ -39,27 +65,31 @@ class Planet:
 		parent.position = Vector3(randf() - 0.5, randf() - 0.5, randf() - 0.5) * 0.1
 		
 		# Set for later
-		_sentant = parent
+		_core = parent
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	
 
-
-	# Called every frame. 'delta' is the elapsed time since the previous frame.
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	# Call this every frame to update the positions of each object
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	func update(delta):
 		_force = Vector3(0,0,0)
 		
 		# The children of my parent must be siblings...
-		var siblings = _sentant.get_parent().get_children()
+		var siblings = _core.get_parent().get_children()
 		
 		# Iterate through, ignoring myself, and set a force to each other sibling
 		for sibling in siblings:
 			if (sibling != self) && (sibling is Node3D):
-				var direction = _sentant.position - sibling.position
+				var direction = _core.position - sibling.position
 				var forceValue = direction.length() - closestDistance
 				var normalizedDirection = direction.normalized()
 				var thisForce = (normalizedDirection * -springStiffness * forceValue) - (_velocity * damping)
 				_force += thisForce
 		
 		# Calculate a force to the centre (parent)
-		var directionCentre = _sentant.position
+		var directionCentre = _core.position
 		var forceValueCentre = directionCentre.length() - centreDistance
 		var normalizedDirectionCentre = directionCentre.normalized()
 		_force += (normalizedDirectionCentre * -centreSpringStiffness * forceValueCentre) - (_velocity * damping)
@@ -71,4 +101,5 @@ class Planet:
 		_velocity = ((_force + frictionForce) / _mass) * delta
 		
 		# Set the new position
-		_sentant.position = _sentant.position + _velocity
+		_core.position = _core.position + _velocity
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
