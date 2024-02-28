@@ -1,22 +1,35 @@
 extends Node3D
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Public variables
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 @export_group("Debugging Parameters")
 ## Debug Mode
-@export var debug = true
+@export var debug = false
 ## Number of Sentants in this Swarm
 @export var numSentants = 5
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Private variables
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 var sentant_scene = preload("res://scenes/Sentant.tscn")
 var angularVelocity = Vector3(0,0,0)
 var shape
 var connecting_line
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Called when the node enters the scene tree for the first time.
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Set up various aspects of the shape, and the initial floaty springs stuff
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
 	shape = FloatySprings.Planet.new(self, "Reality2Node", Color.BLUE)
-	shape.centreDistance = 20.0
-	shape.closestDistance = 40.0
+	shape.centreDistance = 10.0
+	shape.closestDistance = 20.0
 	connecting_line = Shapes.Line.new(self, Color.DIM_GRAY)
 	
 	var title = Label3D.new()
@@ -35,12 +48,18 @@ func _ready():
 	if debug:
 		for i in range(0, numSentants):
 			add_sentant("Sentant_" + str(i))
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Called every frame. 'delta' is the elapsed time since the previous frame.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(delta):
+	# Update the shapes
 	shape.update(delta)
 	
+	# Create some gentle sway-y motion
 	var stepValue = delta / 1000
 	var maxValue = stepValue * 30.0
 	
@@ -65,17 +84,29 @@ func _process(delta):
 	else:
 		angularVelocity.z -= stepValue
 	angularVelocity.z = max(-maxValue, min(maxValue, angularVelocity.z))
-			
+	
+	# Set the rotation of this node	
 	rotation = (rotation + angularVelocity)
+	
+	# Update the connecting line between this node and its parent
 	connecting_line.adjust_line(Vector3(0,0,0), to_local(get_parent().global_position))
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 	
-	
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Given an array of Sentant details, create the sentant graphical representations connected to this Node.
+# TODO: Delete existing sentant graphical representations first.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func load_sentants(sentants = []):
 	for sentant in sentants:
 		add_sentant(sentant.name)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 	
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Add a Sentant to the Swarm
+# Add a Sentant to the Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func add_sentant(name):
 	var new_sentant = sentant_scene.instantiate()

@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://b2bw3n4qi7omp"]
+[gd_scene load_steps=11 format=3 uid="uid://b2bw3n4qi7omp"]
 
 [ext_resource type="Script" path="res://scripts/UX.gd" id="1_6dfe7"]
 [ext_resource type="Script" path="res://addons/advanced_radial_menu/radial_menu_class.gd" id="1_11hd1"]
 [ext_resource type="Texture2D" uid="uid://bpd7ufctoykm6" path="res://icons/check-solid.png" id="2_wxmkm"]
 [ext_resource type="Texture2D" uid="uid://bys3swl71k3mn" path="res://icons/x-solid.png" id="3_rd3ty"]
 [ext_resource type="Texture2D" uid="uid://cqg7rnhtxgmgc" path="res://icons/question-solid.png" id="5_a40qx"]
+[ext_resource type="Theme" uid="uid://bw3p0gp08clgk" path="res://themes/UX theme.tres" id="5_rn40b"]
 [ext_resource type="Texture2D" uid="uid://dpue8uh8cfwly" path="res://icons/rotate-right-solid.png" id="6_f7fd1"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_qop2r"]
@@ -41,9 +42,9 @@ action_released = true
 auto_sizing = false
 first_in_center = true
 color = Color(0.188235, 0, 0, 0.0941176)
-circle_radius = 100
+circle_radius = 150
 arc_color = Color(0.431373, 0.431373, 0.431373, 1)
-arc_inner_radius = 40
+arc_inner_radius = 80
 arc_detail = 48
 arc_line_width = 1
 line_color = Color(0.431373, 0.431373, 0.431373, 1)
@@ -70,10 +71,9 @@ vertical_alignment = 1
 
 [node name="Yes" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
 layout_mode = 0
-offset_left = 60.6218
-offset_top = 35.0
-offset_right = 100.622
-offset_bottom = 75.0
+offset_top = 115.0
+offset_right = 40.0
+offset_bottom = 155.0
 pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 mouse_default_cursor_shape = 3
@@ -82,10 +82,10 @@ expand_mode = 1
 
 [node name="No" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
 layout_mode = 0
-offset_left = 60.6218
-offset_top = -35.0
-offset_right = 100.622
-offset_bottom = 5.0
+offset_left = 99.5929
+offset_top = -57.5
+offset_right = 139.593
+offset_bottom = -17.5
 pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 texture = ExtResource("3_rd3ty")
@@ -93,44 +93,13 @@ expand_mode = 1
 
 [node name="Maybe" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
 layout_mode = 0
-offset_top = -70.0
-offset_right = 40.0
-offset_bottom = -30.0
+offset_left = -99.5929
+offset_top = -57.5
+offset_right = -59.5929
+offset_bottom = -17.5
 pivot_offset = Vector2(20, 20)
 mouse_filter = 2
-texture = ExtResource("5_a40qx")
-expand_mode = 1
-
-[node name="Yes2" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
-layout_mode = 0
-offset_left = -60.6218
-offset_top = -35.0
-offset_right = -20.6218
-offset_bottom = 5.0
-pivot_offset = Vector2(20, 20)
-mouse_filter = 2
-mouse_default_cursor_shape = 3
-texture = ExtResource("2_wxmkm")
-expand_mode = 1
-
-[node name="No2" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
-layout_mode = 0
-offset_left = -60.6218
-offset_top = 35.0
-offset_right = -20.6218
-offset_bottom = 75.0
-pivot_offset = Vector2(20, 20)
-mouse_filter = 2
-texture = ExtResource("3_rd3ty")
-expand_mode = 1
-
-[node name="Maybe2" type="TextureRect" parent="Radial Menus/YesNoMaybe"]
-layout_mode = 0
-offset_top = 70.0
-offset_right = 40.0
-offset_bottom = 110.0
-pivot_offset = Vector2(20, 20)
-mouse_filter = 2
+theme = ExtResource("5_rn40b")
 texture = ExtResource("5_a40qx")
 expand_mode = 1
 
@@ -156,6 +125,8 @@ layout_mode = 0
 offset_left = 400.0
 offset_right = 600.0
 offset_bottom = 100.0
+theme = ExtResource("5_rn40b")
+button_pressed = true
 text = "Hide Menus"
 icon = ExtResource("3_rd3ty")
 expand_icon = true
@@ -165,13 +136,16 @@ layout_mode = 0
 offset_left = 600.0
 offset_right = 800.0
 offset_bottom = 100.0
+theme = ExtResource("5_rn40b")
 text = "Show Menus"
 icon = ExtResource("2_wxmkm")
 expand_icon = true
 
 [node name="Reload" type="MenuButton" parent="MenuBar"]
-offset_right = 200.0
+layout_mode = 0
+offset_right = 150.0
 offset_bottom = 100.0
+theme = ExtResource("5_rn40b")
 text = "Reload"
 icon = ExtResource("6_f7fd1")
 expand_icon = true

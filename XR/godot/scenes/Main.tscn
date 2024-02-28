@@ -1,11 +1,10 @@
-[gd_scene load_steps=16 format=3 uid="uid://cc71islaf4sqf"]
+[gd_scene load_steps=15 format=3 uid="uid://cc71islaf4sqf"]
 
 [ext_resource type="Script" path="res://scripts/Selector.gd" id="1_64hbo"]
 [ext_resource type="Script" path="res://addons/orbit-controls/orbit-controls.gd" id="2_tmv0o"]
 [ext_resource type="PackedScene" uid="uid://m3vri17l8600" path="res://scenes/Reality2.tscn" id="3_reumx"]
 [ext_resource type="Shader" path="res://materials/iridescent/source/star_shader.gdshader" id="4_midff"]
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="5_ikgce"]
-[ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="6_k13sq"]
 [ext_resource type="PackedScene" uid="uid://b4gje7ot3h305" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
 [ext_resource type="PackedScene" uid="uid://b2bw3n4qi7omp" path="res://scenes/UX.tscn" id="9_84jqk"]
 
@@ -63,7 +62,7 @@ _camera = NodePath("../Camera3D")
 max_zoom = 75.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 70)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 20)
 current = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
@@ -71,7 +70,6 @@ current = true
 [node name="Reality2" parent="." node_paths=PackedStringArray("GQL") instance=ExtResource("3_reumx")]
 mass = 0.01
 GQL = NodePath("../GraphQL")
-debug = false
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_qsxco")
@@ -80,4 +78,3 @@ camera_attributes = SubResource("CameraAttributesPractical_xwnjh")
 [node name="OuterShell" type="MeshInstance3D" parent="."]
 material_override = SubResource("ShaderMaterial_awh1k")
 mesh = SubResource("SphereMesh_03wrp")
-script = ExtResource("6_k13sq")
