@@ -20,6 +20,7 @@ extends RigidBody3D
 # Private Variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 var node_scene = preload("res://scenes/R2Node.tscn")
+var angularVelocity = Vector3(0,0,0)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -60,8 +61,37 @@ func _ready():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func _process(_delta):
-	pass
+func _process(delta):
+	# Create some gentle sway-y motion
+	#rotation = Useful.gentle_twist(delta, angularVelocity, rotation)
+	
+	var stepValue = delta / 1000
+	var maxValue = stepValue * 30.0
+	
+	var xDirection = randf() > 0.5
+	var yDirection = randf() > 0.5
+	var zDirection = randf() > 0.5
+	
+	if (xDirection):
+		angularVelocity.x += stepValue
+	else:
+		angularVelocity.x -= stepValue
+	angularVelocity.x = clampf(angularVelocity.x, -maxValue, maxValue)
+		
+	if (yDirection):
+		angularVelocity.y += stepValue
+	else:
+		angularVelocity.y -= stepValue	
+	angularVelocity.y = clampf(angularVelocity.y, -maxValue, maxValue)
+		
+	if (zDirection):
+		angularVelocity.z += stepValue
+	else:
+		angularVelocity.z -= stepValue
+	angularVelocity.z = clampf(angularVelocity.z, -maxValue, maxValue)
+	
+	# Set the rotation of this node	
+	rotation = rotation + angularVelocity
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

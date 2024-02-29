@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/rdav031/.gradle/daemon/7.4.2/com.godot.game-mergeDebugResources-9:/values-zh/values-zh.xml",
+            "outputFile": "com.godot.game-mergeDebugResources-9:/values-zh/values-zh.xml",
             "map": [
                 {
                     "source": "/Volumes/Storage/Development/Reality2/Reality2/XR/godot/android/build/res/values-zh/godot_project_name_string.xml",
@@ -18,28 +18,6 @@
                         "startOffsets": "55",
                         "endColumns": "71",
                         "endOffsets": "122"
-                    }
-                }
-            ]
-        },
-        {
-            "outputFile": "com.godot.game-mergeDebugResources-9:/values-zh/values-zh.xml",
-            "map": [
-                {
-                    "source": "/Volumes/Storage/Development/Reality2/Reality2/XR/godot/android/build/res/values-zh/godot_project_name_string.xml",
-                    "from": {
-                        "startLines": "3",
-                        "startColumns": "1",
-                        "startOffsets": "112",
-                        "endColumns": "69",
-                        "endOffsets": "180"
-                    },
-                    "to": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "72",
-                        "endOffsets": "123"
                     }
                 }
             ]

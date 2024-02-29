@@ -1,9 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://dyoe3gu7vhwbq"]
+[gd_scene load_steps=6 format=3 uid="uid://dyoe3gu7vhwbq"]
 
 [ext_resource type="Script" path="res://scripts/Sentant.gd" id="1_msip7"]
 [ext_resource type="Shader" path="res://materials/iridescent/source/star_shader.gdshader" id="2_mhw06"]
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="3_sg80s"]
-[ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="4_ihpkb"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jscou"]
 render_priority = 0
@@ -26,4 +25,3 @@ script = ExtResource("1_msip7")
 [node name="MaterialMesh" type="MeshInstance3D" parent="."]
 material_override = SubResource("ShaderMaterial_jscou")
 mesh = SubResource("SphereMesh_wvkfr")
-script = ExtResource("4_ihpkb")

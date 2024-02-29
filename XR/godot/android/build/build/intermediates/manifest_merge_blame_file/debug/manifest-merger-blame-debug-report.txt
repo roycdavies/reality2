@@ -1,13 +1,13 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-3    package="ai.reality2.sentantvisualiser"
+3    package="com.example.sentantvisualiser"
 4    android:installLocation="auto"
 5    android:versionCode="1"
-6    android:versionName="1.0" >
+6    android:versionName="1.0.0" >
 7
 8    <uses-sdk
 9        android:minSdkVersion="24"
-10        android:targetSdkVersion="32" />
+10        android:targetSdkVersion="33" />
 11
 12    <supports-screens
 12-->/Volumes/Storage/Development/Reality2/Reality2/XR/godot/android/build/AndroidManifest.xml:9:5-13:40
@@ -111,7 +111,7 @@
 66-->[godot-lib.template_debug.aar] /Users/rdav031/.gradle/caches/transforms-3/9a2d4eb6c6396b495fa445404429297b/transformed/jetified-godot-lib.template_debug/AndroidManifest.xml:26:9-34:20
 67            android:name="androidx.core.content.FileProvider"
 67-->[godot-lib.template_debug.aar] /Users/rdav031/.gradle/caches/transforms-3/9a2d4eb6c6396b495fa445404429297b/transformed/jetified-godot-lib.template_debug/AndroidManifest.xml:27:13-62
-68            android:authorities="ai.reality2.sentantvisualiser.fileprovider"
+68            android:authorities="com.example.sentantvisualiser.fileprovider"
 68-->[godot-lib.template_debug.aar] /Users/rdav031/.gradle/caches/transforms-3/9a2d4eb6c6396b495fa445404429297b/transformed/jetified-godot-lib.template_debug/AndroidManifest.xml:28:13-64
 69            android:exported="false"
 69-->[godot-lib.template_debug.aar] /Users/rdav031/.gradle/caches/transforms-3/9a2d4eb6c6396b495fa445404429297b/transformed/jetified-godot-lib.template_debug/AndroidManifest.xml:29:13-37

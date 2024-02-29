@@ -28,8 +28,8 @@ var connecting_line
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
 	shape = FloatySprings.Planet.new(self, "Reality2Node", Color.BLUE)
-	shape.centreDistance = 20.0
-	shape.closestDistance = 40.0
+	shape.centreDistance = 10.0
+	shape.closestDistance = 20.0
 	connecting_line = Shapes.Line.new(self, Color.DIM_GRAY)
 	
 	var title = Label3D.new()
@@ -59,7 +59,9 @@ func _process(delta):
 	# Update the shapes
 	shape.update(delta)
 	
-	# Create some gentle sway-y motion
+	# Add a bit of gentel motion
+	#self.rotation = Useful.gentle_twist(delta, angularVelocity, self.rotation)
+	
 	var stepValue = delta / 1000
 	var maxValue = stepValue * 30.0
 	
@@ -71,22 +73,22 @@ func _process(delta):
 		angularVelocity.x += stepValue
 	else:
 		angularVelocity.x -= stepValue
-	angularVelocity.x = max(-maxValue, min(maxValue, angularVelocity.x))
+	angularVelocity.x = clampf(angularVelocity.x, -maxValue, maxValue)
 		
 	if (yDirection):
 		angularVelocity.y += stepValue
 	else:
 		angularVelocity.y -= stepValue	
-	angularVelocity.y = max(-maxValue, min(maxValue, angularVelocity.y))
+	angularVelocity.y = clampf(angularVelocity.y, -maxValue, maxValue)
 		
 	if (zDirection):
 		angularVelocity.z += stepValue
 	else:
 		angularVelocity.z -= stepValue
-	angularVelocity.z = max(-maxValue, min(maxValue, angularVelocity.z))
+	angularVelocity.z = clampf(angularVelocity.z, -maxValue, maxValue)
 	
 	# Set the rotation of this node	
-	rotation = (rotation + angularVelocity)
+	rotation = rotation + angularVelocity
 	
 	# Update the connecting line between this node and its parent
 	connecting_line.adjust_line(Vector3(0,0,0), to_local(get_parent().global_position))

@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://brxtxpkv3pxes"]
+
+[ext_resource type="Script" path="res://scripts/XRTest.gd" id="1_4nceu"]
+
+[node name="XRTest" type="Node3D"]
+script = ExtResource("1_4nceu")
+
+[node name="XROrigin3D" type="XROrigin3D" parent="."]
+
+[node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.17517)

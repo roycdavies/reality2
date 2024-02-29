@@ -1,8 +1,38 @@
+# ======================================================================================================================================================
+# A Finite State Machine or Automation
+# ------------------------------------
+#
+# First, instantiate a FSM.Automation, then use add_transition to add Transitions.  Note that the actions parameter is an array of callback functions.
+# Such functions can be defined as
+# var my_func = func(params):
+# 	Do your stuff, use the parameters, etc
+#	return modified_params
+#
+# The params variable is a Dictionary where the first function in the list gets the parameters that were sent with the event, and each action in the
+# array is passed the returned result of the previosu action.
+#
+# So, a transition would be added like this:
+# my_automation.add_transition("init", "start", "ready", [my_func])
+#
+# Note that a 'from' state of "*" matches any state, and a 'to' state of "*" leaves the state as it was (but stil executes the actions).
+#
+# The step function has to be called regularly, such as in a _process function of a node.
+#
+# When enqueuing an event, you can specify that it will happen in the future, by giving a delay (in seconds).
+#
+# roycdavies.github.io
+# March 2024
+# ======================================================================================================================================================
+
+class_name FSM
+
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # A Finite State Machine or Automation
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-class_name FSM
 class Automation:
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	# Attributes
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	var _current_state: String
 	func state(): return _current_state
 	var _transitions = []
@@ -12,15 +42,19 @@ class Automation:
 	func timers_size(): return _timed_events.size()
 	var _debug = false
 	func set_debug(val): _debug = val
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	
+	
+		
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 	# Constructor
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
-	func _init(debug):
+	func _init(debug = false):
 		_current_state = "start"
 		enqueue("init", {})
 		_debug = debug
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	
 	
 	
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -56,6 +90,7 @@ class Automation:
 			if (_debug): print("EVENT:      ", event_and_parameters.event, ", ", event_and_parameters.parameters)
 			_check_transitions(event_and_parameters)
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	
 	
 	
 	# --------------------------------------------------------------------------------------------------------------------------------------------------

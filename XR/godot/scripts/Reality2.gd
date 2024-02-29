@@ -63,7 +63,35 @@ func _ready():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(delta):
 	# Create some gentle sway-y motion
-	rotation = Useful.gentle_twist(delta, angularVelocity, rotation)
+	#rotation = Useful.gentle_twist(delta, angularVelocity, rotation)
+	
+	var stepValue = delta / 1000
+	var maxValue = stepValue * 30.0
+	
+	var xDirection = randf() > 0.5
+	var yDirection = randf() > 0.5
+	var zDirection = randf() > 0.5
+	
+	if (xDirection):
+		angularVelocity.x += stepValue
+	else:
+		angularVelocity.x -= stepValue
+	angularVelocity.x = clampf(angularVelocity.x, -maxValue, maxValue)
+		
+	if (yDirection):
+		angularVelocity.y += stepValue
+	else:
+		angularVelocity.y -= stepValue	
+	angularVelocity.y = clampf(angularVelocity.y, -maxValue, maxValue)
+		
+	if (zDirection):
+		angularVelocity.z += stepValue
+	else:
+		angularVelocity.z -= stepValue
+	angularVelocity.z = clampf(angularVelocity.z, -maxValue, maxValue)
+	
+	# Set the rotation of this node	
+	rotation = rotation + angularVelocity
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

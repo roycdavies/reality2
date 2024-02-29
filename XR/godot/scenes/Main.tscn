@@ -17,7 +17,7 @@ sky_material = SubResource("ShaderMaterial_mxip7")
 
 [sub_resource type="Environment" id="Environment_qsxco"]
 background_mode = 1
-background_color = Color(0.0980392, 0.0941176, 0.270588, 1)
+background_color = Color(0.6, 0.654902, 0.690196, 1)
 sky = SubResource("Sky_yja41")
 ambient_light_source = 2
 reflected_light_source = 2
@@ -44,6 +44,7 @@ radius = 100.0
 height = 200.0
 
 [node name="Node3D" type="Node3D" node_paths=PackedStringArray("orbitControls")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
 script = ExtResource("1_64hbo")
 orbitControls = NodePath("OrbitControls")
 
@@ -63,9 +64,11 @@ max_zoom = 75.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 20)
+doppler_tracking = 2
 current = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
+light_temperature = 7500.0
 
 [node name="Reality2" parent="." node_paths=PackedStringArray("GQL") instance=ExtResource("3_reumx")]
 mass = 0.01

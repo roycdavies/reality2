@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ai.reality2.sentantvisualiser"
+    package="com.example.sentantvisualiser"
     android:installLocation="auto"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0.0" >
 
     <uses-sdk
         android:minSdkVersion="24"
-        android:targetSdkVersion="32" />
+        android:targetSdkVersion="33" />
 
     <supports-screens
         android:largeScreens="true"
@@ -65,7 +65,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="ai.reality2.sentantvisualiser.fileprovider"
+            android:authorities="com.example.sentantvisualiser.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true" >
             <meta-data
