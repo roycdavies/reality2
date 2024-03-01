@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://bwgk43p5qcrey"]
+[gd_scene load_steps=7 format=3 uid="uid://bwgk43p5qcrey"]
 
 [ext_resource type="Script" path="res://scripts/R2Node.gd" id="1_qts07"]
 [ext_resource type="Shader" path="res://materials/iridescent/source/star_shader.gdshader" id="2_qorst"]
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="3_hhfmt"]
+[ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="4_ltiqn"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ciird"]
 render_priority = 0
@@ -25,3 +26,4 @@ script = ExtResource("1_qts07")
 [node name="MaterialMesh" type="MeshInstance3D" parent="."]
 material_override = SubResource("ShaderMaterial_ciird")
 mesh = SubResource("SphereMesh_iet1o")
+script = ExtResource("4_ltiqn")

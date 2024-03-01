@@ -1,3 +1,13 @@
+# ======================================================================================================================================================
+# Floaty Springs
+# --------------
+#
+# A test of the GraphQL module.  You will need to load the appropriate sentants first (eg using one of the python scripts in the Reality2 folder).
+#
+# roycdavies.github.io
+# March 2024
+# ======================================================================================================================================================
+
 extends Node
 
 ## A node with the GraphQL script on it.
