@@ -184,30 +184,6 @@ defmodule Reality2Web.Schema.Sentant do
       end
     end
 
-    # ----------------------------------------------------------------------------------------------------
-    @desc "Subscribe to node events"
-    # ----------------------------------------------------------------------------------------------------
-    field :node_event, :event_parameters do
-      arg :event, non_null(:string)
-
-      config fn %{event: event}, _ ->
-        IO.puts("node_event event: #{inspect(event)}")
-        {:ok, topic: "node|" <> event}
-      end
-    end
-
-    # ----------------------------------------------------------------------------------------------------
-    @desc "Subscribe to transient network events"
-    # ----------------------------------------------------------------------------------------------------
-    field :network_event, :event_parameters do
-      arg :event, non_null(:string)
-
-      config fn %{event: event}, _ ->
-        IO.puts("network_event event: #{inspect(event)}")
-        {:ok, topic: "network|" <> event}
-      end
-    end
-
   end
   # ------------------------------------------------------------------------------------------------------
 end
