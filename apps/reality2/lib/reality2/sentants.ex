@@ -113,6 +113,8 @@ defmodule Reality2.Sentants do
 
                       add_plugins_to_sentant(id, sentant_map)
                       add_automations_to_sentant(id, sentant_map)
+
+                      sendto_all(%{event: "_sentant_created", parameters: %{id: id, name: name}})
                       {:ok, id}
                     error -> error
                 end
@@ -125,6 +127,8 @@ defmodule Reality2.Sentants do
                 # Add the updated automations and plugins to the Sentant
                 add_plugins_to_sentant(existing_id, sentant_map)
                 add_automations_to_sentant(existing_id, sentant_map)
+
+                sendto_all(%{event: "_sentant_created", parameters: %{id: id, name: name}})
                 {:ok, existing_id}
             end
           error -> error

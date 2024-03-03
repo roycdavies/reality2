@@ -81,16 +81,16 @@ defmodule Reality2.Sentant.Comms do
           :ok
         pid ->
           # Build the subscription data
-          event = Helpers.Map.get(command_and_parameters, "event", "")
-          subscription_data = %{
-            sentant: convert_key_strings_to_atoms(sentant_map),
-            event: event,
-            parameters: Helpers.Map.get(command_and_parameters, "parameters", %{})
-          }
+          # event = Helpers.Map.get(command_and_parameters, "event", "")
+          # subscription_data = %{
+          #   sentant: convert_key_strings_to_atoms(sentant_map),
+          #   event: event,
+          #   parameters: Helpers.Map.get(command_and_parameters, "parameters", %{})
+          # }
           # IO.puts("subscription_data: " <> inspect(subscription_data, pretty: true))
 
-          # Send off to any event subscriptions
-          Subscription.publish(Reality2Web.Endpoint, subscription_data, sentant_event: id <> "|" <> event)
+          # # Send off to any event subscriptions
+          # Subscription.publish(Reality2Web.Endpoint, subscription_data, sentant_event: id <> "|" <> event)
 
           # Send to each automation
           GenServer.cast(pid, command_and_parameters)

@@ -1,7 +1,7 @@
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import threading
-from sentant_websocket import subscribe   
+from reality2_ws import subscribe   
    
 if __name__ == '__main__':
     # Select your transport with a defined url endpoint
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     id = result["sentantLoad"]["id"]
     
     # Start the subscription to the Sentant
-    threading.Thread(target=subscribe, args=("wss://localhost:4001/reality2/websocket", id, "chatgpt_response",)).start()
+    threading.Thread(target=subscribe, args=("wss://localhost:4001/reality2/websocket", id, "chatgpt_answer",)).start()
 
     # Set up the send event mutation
     send_event = gql(

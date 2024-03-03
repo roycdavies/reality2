@@ -10,6 +10,7 @@ defmodule Reality2.Automation do
 
   @doc false
   use GenServer, restart: :transient
+  alias Absinthe.Subscription
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
@@ -59,6 +60,9 @@ defmodule Reality2.Automation do
     # IO.puts("Automation.handle_cast: #{inspect(name)} : #{inspect(state)} : #{inspect(args)}")
     parameters = Helpers.Map.get(args, :parameters, %{})
     passthrough = Helpers.Map.get(args, :passthrough, %{})
+
+    IO.puts("Parameters  = #{inspect(parameters)}")
+    IO.puts("Passthrough = #{inspect(passthrough)}")
 
     case Helpers.Map.get(args, :event) do
       nil -> {:noreply, {name, id, automation_map, state}}
@@ -239,11 +243,13 @@ defmodule Reality2.Automation do
 
     # The parameters for the plugin are the accumulated parameters, merged with the action parameters merged with the parameters passed to the Sentant
     joint_parameters = Map.merge(Map.merge(action_parameters, parameters), acc)
+    acc_and_parameters = Map.merge(parameters, acc)
 
     case action do
       "send" -> send(id, action_map, action_parameters, joint_parameters, passthrough)
       "print" -> print(id, action_map, action_parameters, joint_parameters, passthrough)
       "set" -> set(id, action_map, action_parameters, joint_parameters, passthrough)
+      "signal" -> signal(id, action_map, action_parameters, acc_and_parameters, passthrough)
       _ -> %{}
     end
   end
@@ -291,6 +297,37 @@ defmodule Reality2.Automation do
     end
 
     %{}
+  end
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Send a signal on the Sentant's subscription channel
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  defp signal(id, _action_map, action_parameters, parameters, passthrough) do
+    IO.puts("Action: signal #{inspect(id)} : #{inspect(action_parameters)} #{inspect(parameters)}")
+
+    # Send off a signal to any listening device
+    case Helpers.Map.get(action_parameters, "event") do
+      nil -> %{}
+      event ->
+        sentant = case Process.whereis(String.to_atom(id <> "|comms")) do
+          nil ->
+            %{}
+          pid ->
+            sentant_map = convert_key_strings_to_atoms(GenServer.call(pid, :definition))
+            subscription_data = %{
+              sentant: sentant_map,
+              event: event,
+              parameters: parameters,
+              passthrough: passthrough
+            }
+            IO.puts("subscription_data: " <> inspect(subscription_data, pretty: true))
+            Subscription.publish(Reality2Web.Endpoint, subscription_data, sentant_event: id <> "|" <> event)
+            %{}
+        end
+    end
   end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -350,5 +387,23 @@ defmodule Reality2.Automation do
     end
   end
   def to_number(value), do: value
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Helper Functions
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  defp convert_key_strings_to_atoms(data) when is_map(data) do
+    Enum.reduce(data, %{}, fn {key, value}, acc ->
+      Map.put(acc, String.to_atom(key), convert_key_strings_to_atoms(value))
+    end)
+  end
+  defp convert_key_strings_to_atoms(data) when is_list(data) do
+    Enum.map(data, &convert_key_strings_to_atoms/1)
+  end
+  defp convert_key_strings_to_atoms(data) do
+    data
+  end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

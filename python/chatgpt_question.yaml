@@ -80,5 +80,8 @@ sentant:
                 key: answer
                 value: "The answer is: __chatgpt_says__"
             - command: print # Prints to the console
+            - command: signal
+              parameters:
+                event: chatgpt_answer
 
   # ----------------------------------------------------------------------------------------------------

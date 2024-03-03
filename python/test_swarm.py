@@ -2,7 +2,7 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 import time
 import threading
-from sentant_websocket import subscribe   
+from Reality2.python.reality2_ws import subscribe   
 
 # Select your transport with a defined url endpoint
 transport = RequestsHTTPTransport(url="https://localhost:4001/reality2", verify=False, retries=3)
@@ -33,10 +33,11 @@ load_swarm = gql(
 result = client.execute(load_swarm, variable_values={"yamlDefinition": yamlDefinition})
 print(result)
 
-id = result["swarmLoad"]["sentants"][0]["id"]
+id_switch = result["swarmLoad"]["sentants"][0]["id"]
+id_bulb = result["swarmLoad"]["sentants"][1]["id"]
 
 # Start the subscription to the Sentant
-threading.Thread(target=subscribe, args=("wss://localhost:4001/reality2/websocket", id, "turn_off",)).start()
+threading.Thread(target=subscribe, args=("wss://localhost:4001/reality2/websocket", id_bulb, "turn_off",)).start()
 
 send_event = gql(
     """
@@ -49,4 +50,4 @@ send_event = gql(
     """
 )
 
-client.execute(send_event, variable_values={"id": id, "event": "turn_on"})
+client.execute(send_event, variable_values={"id": id_switch, "event": "turn_on"})

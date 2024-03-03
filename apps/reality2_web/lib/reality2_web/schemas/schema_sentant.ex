@@ -18,6 +18,7 @@ defmodule Reality2Web.Schema.Sentant do
     field :sentant, non_null(:sentant),         description: "Sentant"
     field :event, non_null(:string),            description: "Event name"
     field :parameters, :json,                   description: "Event parameters"
+    field :passthrough, :json,                  description: "Passed through parameters"
   end
 
   object :plugin_output do
@@ -171,7 +172,7 @@ defmodule Reality2Web.Schema.Sentant do
   object :sentant_subscriptions do
 
     # ----------------------------------------------------------------------------------------------------
-    @desc "Subscribe to sentant events"
+    @desc "Subscribe to sentant signal events"
     # ----------------------------------------------------------------------------------------------------
     field :sentant_event, :event_parameters do
       arg :id, non_null(:uuid4)
