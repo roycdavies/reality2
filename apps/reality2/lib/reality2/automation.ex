@@ -312,7 +312,7 @@ defmodule Reality2.Automation do
     case Helpers.Map.get(action_parameters, "event") do
       nil -> %{}
       event ->
-        sentant = case Process.whereis(String.to_atom(id <> "|comms")) do
+        case Process.whereis(String.to_atom(id <> "|comms")) do
           nil ->
             %{}
           pid ->
@@ -324,7 +324,7 @@ defmodule Reality2.Automation do
               passthrough: passthrough
             }
             IO.puts("subscription_data: " <> inspect(subscription_data, pretty: true))
-            Subscription.publish(Reality2Web.Endpoint, subscription_data, sentant_event: id <> "|" <> event)
+            Subscription.publish(Reality2Web.Endpoint, subscription_data, await_signal: id <> "|" <> event)
             %{}
         end
     end

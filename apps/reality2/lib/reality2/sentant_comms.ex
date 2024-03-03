@@ -8,7 +8,7 @@ defmodule Reality2.Sentant.Comms do
 # - [roycdavies.github.io](https://roycdavies.github.io/)
 # *******************************************************************************************************************************************
   use GenServer
-  alias Absinthe.Subscription
+  # alias Absinthe.Subscription
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
@@ -115,16 +115,16 @@ defmodule Reality2.Sentant.Comms do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Helper Functions
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  defp convert_key_strings_to_atoms(data) when is_map(data) do
-    Enum.reduce(data, %{}, fn {key, value}, acc ->
-      Map.put(acc, String.to_atom(key), convert_key_strings_to_atoms(value))
-    end)
-  end
-  defp convert_key_strings_to_atoms(data) when is_list(data) do
-    Enum.map(data, &convert_key_strings_to_atoms/1)
-  end
-  defp convert_key_strings_to_atoms(data) do
-    data
-  end
+  # defp convert_key_strings_to_atoms(data) when is_map(data) do
+  #   Enum.reduce(data, %{}, fn {key, value}, acc ->
+  #     Map.put(acc, String.to_atom(key), convert_key_strings_to_atoms(value))
+  #   end)
+  # end
+  # defp convert_key_strings_to_atoms(data) when is_list(data) do
+  #   Enum.map(data, &convert_key_strings_to_atoms/1)
+  # end
+  # defp convert_key_strings_to_atoms(data) do
+  #   data
+  # end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

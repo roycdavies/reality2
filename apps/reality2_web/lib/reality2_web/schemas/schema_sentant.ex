@@ -14,10 +14,10 @@ defmodule Reality2Web.Schema.Sentant do
 
   alias Reality2Web.SentantResolver
 
-  object :event_parameters do
+  object :signal do
     field :sentant, non_null(:sentant),         description: "Sentant"
-    field :event, non_null(:string),            description: "Event name"
-    field :parameters, :json,                   description: "Event parameters"
+    field :event, non_null(:string),            description: "Signal event"
+    field :parameters, :json,                   description: "Signal parameters"
     field :passthrough, :json,                  description: "Passed through parameters"
   end
 
@@ -174,14 +174,14 @@ defmodule Reality2Web.Schema.Sentant do
     # ----------------------------------------------------------------------------------------------------
     @desc "Subscribe to sentant signal events"
     # ----------------------------------------------------------------------------------------------------
-    field :sentant_event, :event_parameters do
+    field :await_signal, :signal do
       arg :id, non_null(:uuid4)
-      arg :event, non_null(:string)
+      arg :signal, non_null(:string)
 
-      config fn %{id: sentantid, event: event}, _ ->
-        IO.puts("sentant_event sentantid: #{inspect(sentantid)}")
-        IO.puts("sentant_event event: #{inspect(event)}")
-        {:ok, topic: sentantid <> "|" <> event}
+      config fn %{id: sentantid, signal: signal}, _ ->
+        IO.puts("await_signal sentantid: #{inspect(sentantid)}")
+        IO.puts("await_signal signal: #{inspect(signal)}")
+        {:ok, topic: sentantid <> "|" <> signal}
       end
     end
 

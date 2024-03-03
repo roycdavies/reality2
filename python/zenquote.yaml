@@ -1,39 +1,35 @@
 sentant:
-  - name: Zen Quote
-    desciprtion: Get a quote for the day
-    plugins:
-      - name: com.zenquote.api
-        url: https://zenquotes.io/api/random
-        method: GET
-        headers:
-          "Content-Type": "application/json"
-        body:
-        
-        output:
-          key: zenquote
-          value: "0.q"
-          event: zenquote_response
+  name: Zen Quote
+  description: Get a quote for the day
+  plugins:
+    - name: com.zenquote.api
+      url: https://zenquotes.io/api/random
+      method: GET
+      headers:
+        "Content-Type": "application/json"        
+      output:
+        key: zenquote
+        value: "0.q"
+        event: zenquote_response
 
-    automations:
-      - name: Zen Quote
-        description: Get quote
-        transitions:
-          - from: start
-            event: init
-            to: ready
-          - from: "*"
-            event: zenquote
-            to: ready
-            actions:
-              - plugin: com.zenquote.api
-                command: send
-          - from: ready
-            event: zenquote_response
-            to: ready
-            actions:
-              - command: set
-                parameters:
-                  key: zenquote
-                  value: zenquote
-                  event: zenquote
+  automations:
+    - name: Zen Quote
+      description: Get quote
+      transitions:
+        - from: start
+          event: init
+          to: ready
+        - from: "*"
+          event: zenquote
+          to: ready
+          actions:
+            - plugin: com.zenquote.api
+              command: send
+        - from: ready
+          event: zenquote_response
+          to: ready
+          actions:
+            - command: signal
+              parameters:
+                event: zenquote_response
  

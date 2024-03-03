@@ -8,7 +8,7 @@ def printout(data):
 reality2_node = Reality2("localhost", 4001)
   
 # Read the files
-with open('zenquote.yaml', 'r') as file:
+with open('zenquote_to_chatgpt.yaml', 'r') as file:
     yamlDefinition = file.read()  
     
 # Load the Sentant
@@ -19,7 +19,8 @@ print(result)
 id = result["sentantLoad"]["id"]
 
 # Start the subscription to the Sentant
-reality2_node.awaitSignal(id, "zenquote_response", printout)
+reality2_node.awaitSignal(id, "zenquote_answer", printout)
+reality2_node.awaitSignal(id, "chatgpt_answer", printout)
 
 time.sleep(1)
 # Send the event to the Sentant

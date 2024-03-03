@@ -1,60 +1,35 @@
-from gql import gql, Client
-from gql.transport.requests import RequestsHTTPTransport
-import threading
-from reality2_ws import subscribe   
-   
-if __name__ == '__main__':
-    # Select your transport with a defined url endpoint
-    transport = RequestsHTTPTransport(url="https://localhost:4001/reality2", verify=False, retries=3)
+from reality2 import Reality2
+import time
 
-    # Create a GraphQL client using the defined transport
-    client = Client(transport=transport, fetch_schema_from_transport=True)
-
-    # Read the files
-    with open('../../OPENAI_API_KEY.txt', 'r') as file:
-        OPENAI_API_KEY = file.read()
-    with open('chatgpt_question.yaml', 'r') as file:
-        yamlDefinition = file.read()  
-        
-    # Replace the OPENAI_API_KEY in the YAML file
-    yamlDefinition = yamlDefinition.replace("__openai_api_key__", OPENAI_API_KEY)
-        
-    # Print it out for checking
-    print (yamlDefinition)
-
-    # Create a GraphQL mutation for loading the sentant
-    load_sentant = gql(
-        """
-        mutation SentantLoad($yamlDefinition: String!) {
-            sentantLoad(yamlDefinition: $yamlDefinition) {
-                id
-            }
-        }
-        """
-    )
-
-    # Create the Sentant from the YAML file
-    result = client.execute(load_sentant, variable_values={"yamlDefinition": yamlDefinition})
-    print(result)
-
-    # Grab the ID of the Sentant
-    id = result["sentantLoad"]["id"]
+def printout(data):
+    print(data["awaitSignal"]["parameters"]["answer"])
     
-    # Start the subscription to the Sentant
-    threading.Thread(target=subscribe, args=("wss://localhost:4001/reality2/websocket", id, "chatgpt_answer",)).start()
 
-    # Set up the send event mutation
-    send_event = gql(
-        """
-        mutation SentantSend($id: UUID4!, $event: String!) {
-            sentantSend(id: $id, event: $event) {
-                description
-                name
-            }
-        }
-        """
-    )
+reality2_node = Reality2("localhost", 4001)
+  
+# Read the files
+with open('../../OPENAI_API_KEY.txt', 'r') as file:
+    OPENAI_API_KEY = file.read()
+with open('chatgpt_question.yaml', 'r') as file:
+    yamlDefinition = file.read()  
+    
+# Replace the OPENAI_API_KEY in the YAML file
+yamlDefinition = yamlDefinition.replace("__openai_api_key__", OPENAI_API_KEY)
 
-    # Send the event to the Sentant
-    client.execute(send_event, variable_values={"id": id, "event": "chatgpt"})
+# Load the Sentant
+result = reality2_node.loadSentant(yamlDefinition)
+print(result)
 
+# Grab the ID of the Sentant
+id = result["sentantLoad"]["id"]
+
+# Start the subscription to the Sentant
+reality2_node.awaitSignal(id, "chatgpt_answer", printout)
+
+# Wait a moment
+time.sleep(1)
+
+# Send the event to the Sentant
+reality2_node.sendEvent(id, "chatgpt")
+reality2_node.sendEvent(id, "chatgpt", {"message": "What is the meaning of life?"})
+reality2_node.sendEvent(id, "chatgpt", {"message": "Give me 10 topics for teaching about 3D printers"})

@@ -1,17 +1,6 @@
-# ------------------------------------------------------------------------------------------------------
-# A Sentant to illustrate how a plugin to an external API can be used.
-#
-# Author: Dr. Roy C. Davies
-# Date: 2024-01-13
-# Contant: http://roycdavies.github.io
-# ------------------------------------------------------------------------------------------------------
-
 sentant:
-  # ----------------------------------------------------------------------------------------------------
-  # Sentant details
-  # ----------------------------------------------------------------------------------------------------
-  name: Ask Question
-  description: This is a test sentant for ChatGPT Plugin
+  name: Zen Quote
+  description: Get a quote for the day
 
   # ----------------------------------------------------------------------------------------------------
   # Plugins (A list, so begin with a dash)
@@ -41,47 +30,67 @@ sentant:
         key: chatgpt_says
         value: "choices.0.message.content"
         event: chatgpt_response
+
+    - name: com.zenquote.api
+      url: https://zenquotes.io/api/random
+      method: GET
+      headers:
+        "Content-Type": "application/json"        
+      output:
+        key: zenquote
+        value: "0.q"
+        event: zenquote_response
   # ----------------------------------------------------------------------------------------------------
 
+
+
   # ----------------------------------------------------------------------------------------------------
-  # Automations (Also a list, so begin with a dash)
   # ----------------------------------------------------------------------------------------------------
   automations:
-    - name: ChatGPT # This is the name of the automation.
-      description: This is a test automation. # This is the description of the automation.
-      transitions: # This is a list of transitions, so begin with a dash.
-
-          # The initial transition when the automation starts
+    - name: Zen Quote
+      description: Get quote
+      transitions:
         - from: start
           event: init
           to: ready
 
-          # The transition that initiaties the call to the plugin
         - from: "*"
-          event: chatgpt
+          event: zenquote
+          to: ready
+          actions:
+            - plugin: com.zenquote.api
+              command: send
+
+        # Take the output from the zenquote plugin and send it to chatgpt
+        - from: "*"
+          event: zenquote_response
           to: ready
           actions:
             - plugin: com.openai.api
               command: send
-              parameters: # The message below is the default, but is overridden by a message passed in.
-                message: "Translate this sentence into Swedish: Hello, my name is John."
+              parameters:
+                message: "What does '__zenquote__' mean?"
 
-          # Deals with the answer from chatgpt and illustrates how to use the output.
+            - command: print
+
+            - command: signal
+              parameters:
+                event: zenquote_answer
+
+        # Deals with the answer from chatgpt and illustrates how to use the output.
         - from: "*"
           event: chatgpt_response
           to: ready
           actions:
-            - command: set # Set the variable: test (to test passing through of results from one action to the next)
-              parameters:
-                key: test
-                value: 42
             - command: set # Set the variable: answer
               parameters:
                 key: answer
                 value: "The answer is: __chatgpt_says__"
-            - command: print # Prints to the console
+
+            - command: print
+
             - command: signal
               parameters:
                 event: chatgpt_answer
-
   # ----------------------------------------------------------------------------------------------------
+ 

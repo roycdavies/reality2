@@ -35,9 +35,9 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Constructor
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __init__(self, graphql_http_url, graphql_webs_url):
-        self.__graphql_http_url = graphql_http_url
-        self.__graphql_webs_url = graphql_webs_url
+    def __init__(self, domain_name, port):
+        self.__graphql_http_url = "https://" + domain_name + ":" + str(port) + "/reality2"
+        self.__graphql_webs_url = "wss://" + domain_name + ":" + str(port) + "/reality2/websocket"
         
         # Select your transport with a defined url endpoint
         self.__transport = RequestsHTTPTransport(url=self.__graphql_http_url, verify=False, retries=3)
@@ -51,14 +51,17 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Public methods
     # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def loadSentant(self, yamlDefinition, details = "id name"):
+        return self.__client.execute(self.__sentant_load(details), variable_values={"yamlDefinition": yamlDefinition})
+    
     def loadSwarm(self, yamlDefinition, details = "id name"):
-        return self.__client.execute(self.__load_swarm(details), variable_values={"yamlDefinition": yamlDefinition})
+        return self.__client.execute(self.__swarm_load(details), variable_values={"yamlDefinition": yamlDefinition})
     
-    def sendEvent(self, id, event, details = "description name"):
-        return self.__client.execute(self.__send_event(details), variable_values={"id": id, "event": event})
+    def sendEvent(self, id, event, parameters = {}, details = "description name"):
+        return self.__client.execute(self.__send_event(details), variable_values={"id": id, "event": event, "parameters": json.dumps(parameters)})
     
-    def sentantEvent(self, id, event, callback=None):
-        threading.Thread(target=self.__subscribe, args=(self.__graphql_webs_url, id, event, callback,)).start()
+    def awaitSignal(self, id, signal, callback=None, details="event parameters passthrough sentant { id name }"):
+        threading.Thread(target=self.__subscribe, args=(self.__graphql_webs_url, id, signal, callback, details, )).start()
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
         
@@ -109,7 +112,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Scubscribe to the Node channel representing the sentant and signal
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __subscribe(self, server, sentantid, event, callback):
+    def __subscribe(self, server, sentantid, signal, callback, details):
         join_message = {
             "topic": "__absinthe__:control",
             "event": "phx_join",
@@ -121,7 +124,11 @@ class Reality2:
             "topic": "__absinthe__:control",
             "event": "doc",
             "payload": {
-                "query": "subscription {sentantEvent(id: \"" + sentantid + "\", event: \"" + event + "\") { event parameters sentant { id name } } }"
+                "query": self.__await_signal(details),
+                "variables": {
+                    "id": sentantid,
+                    "signal": signal
+                }
             },
             "ref": 0
         }
@@ -146,9 +153,9 @@ class Reality2:
             websocket.send(json.dumps(subscribe))
             message = websocket.recv()
             if (self.__check_status(message)): 
-                print(f"Subscribed to {sentantid}|{event}")
+                print(f"Subscribed to {sentantid}|{signal}")
             else:
-                print(f"Failed to subscribe to {sentantid}|{event}")
+                print(f"Failed to subscribe to {sentantid}|{signal}")
                 return
                         
             # Start the heartbeat thread
@@ -177,9 +184,27 @@ class Reality2:
 
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # Await Signal definition (note the lack of gql() is on purpose as this is a subscription to the websocket
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def __await_signal(self, details):
+        return (
+        """
+        subscription AwaitSignal($id: UUID4!, $signal: String!) {
+            awaitSignal(id: $id, signal: $signal) {
+                """ + details + """
+            }
+        }
+        """
+    )
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Load Swarm definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __load_swarm (self, details):
+    def __swarm_load (self, details):
         return (gql(
         """
         mutation SwarmLoad($yamlDefinition: String!) {
@@ -203,12 +228,29 @@ class Reality2:
     def __send_event (self, details):
         return (gql(
         """
-        mutation SentantSend($id: UUID4!, $event: String!) {
-            sentantSend(id: $id, event: $event) {
+        mutation SentantSend($id: UUID4!, $event: String!, $parameters: Json) {
+            sentantSend(id: $id, event: $event, parameters: $parameters) {
             """ + details + """
             }
         }
         """
     ))
     # --------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def __sentant_load(self, details):
+        return (gql(
+        """
+        mutation SentantLoad($yamlDefinition: String!) {
+            sentantLoad(yamlDefinition: $yamlDefinition) {
+                """ + details + """
+            }
+        }
+        """
+    ))
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
