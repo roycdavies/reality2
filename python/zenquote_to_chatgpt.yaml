@@ -39,7 +39,7 @@ sentant:
       output:
         key: zenquote
         value: "0.q"
-        event: zenquote_response
+        event: chatgpt
   # ----------------------------------------------------------------------------------------------------
 
 
@@ -63,13 +63,16 @@ sentant:
 
         # Take the output from the zenquote plugin and send it to chatgpt
         - from: "*"
-          event: zenquote_response
+          event: chatgpt
           to: ready
           actions:
+            - command: set
+              parameters:
+                key: message
+                value: "what is the meaning of '__zenquote__'?"
+                
             - plugin: com.openai.api
               command: send
-              parameters:
-                message: "What does '__zenquote__' mean?"
 
             - command: print
 

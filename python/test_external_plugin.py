@@ -6,6 +6,7 @@ def printout(data):
     
 
 reality2_node = Reality2("localhost", 4001)
+reality2_node.sentantUnloadByName("Ask Question")
   
 # Read the files
 with open('../../OPENAI_API_KEY.txt', 'r') as file:
@@ -17,7 +18,7 @@ with open('chatgpt_question.yaml', 'r') as file:
 yamlDefinition = yamlDefinition.replace("__openai_api_key__", OPENAI_API_KEY)
 
 # Load the Sentant
-result = reality2_node.loadSentant(yamlDefinition)
+result = reality2_node.sentantLoad(yamlDefinition)
 print(result)
 
 # Grab the ID of the Sentant
@@ -30,6 +31,6 @@ reality2_node.awaitSignal(id, "chatgpt_answer", printout)
 time.sleep(1)
 
 # Send the event to the Sentant
-reality2_node.sendEvent(id, "chatgpt")
-reality2_node.sendEvent(id, "chatgpt", {"message": "What is the meaning of life?"})
-reality2_node.sendEvent(id, "chatgpt", {"message": "Give me 10 topics for teaching about 3D printers"})
+reality2_node.sentantSend(id, "chatgpt")
+reality2_node.sentantSend(id, "chatgpt", {"message": "What is the meaning of life?"})
+reality2_node.sentantSend(id, "chatgpt", {"message": "Give me 10 topics for teaching about 3D printers"})

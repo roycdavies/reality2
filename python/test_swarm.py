@@ -2,6 +2,7 @@ import time
 from reality2 import Reality2
 
 reality2_node = Reality2("localhost", 4001)
+reality2_node.sentantUnloadAll()
 
 def printout(data):
     print(data)
@@ -9,7 +10,7 @@ def printout(data):
 with open('light_and_switch.yaml', 'r') as file:
     yamlDefinition = file.read()
     
-result = reality2_node.loadSwarm(yamlDefinition)
+result = reality2_node.swarmLoad(yamlDefinition)
 print(result)
 
 # Get the resulting IDs
@@ -23,4 +24,4 @@ reality2_node.awaitSignal(id_bulb, "turn_off", printout)
 time.sleep(1)
 
 # Send an event
-reality2_node.sendEvent(id_switch, "turn_on")
+reality2_node.sentantSend(id_switch, "turn_on")

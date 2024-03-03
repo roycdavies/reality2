@@ -51,15 +51,40 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Public methods
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def loadSentant(self, yamlDefinition, details = "id name"):
+    # Queries
+    def sentantAll(self):
+        return self.__client.execute(self.__sentant_all("id name"))
+    
+    def sentantGet(self, id="", name = "", details = "id name"):
+        if (id != ""):
+            return self.__client.execute(self.__sentant_get_by_id(details), variable_values={"id": id})
+        else:
+            return self.__client.execute(self.__sentant_get_by_name(details), variable_values={"name": name})
+    
+    # Mutations
+    def sentantLoad(self, yamlDefinition, details = "id name"):
         return self.__client.execute(self.__sentant_load(details), variable_values={"yamlDefinition": yamlDefinition})
     
-    def loadSwarm(self, yamlDefinition, details = "id name"):
+    def swarmLoad(self, yamlDefinition, details = "id name"):
         return self.__client.execute(self.__swarm_load(details), variable_values={"yamlDefinition": yamlDefinition})
     
-    def sendEvent(self, id, event, parameters = {}, details = "description name"):
-        return self.__client.execute(self.__send_event(details), variable_values={"id": id, "event": event, "parameters": json.dumps(parameters)})
+    def sentantSend(self, id, event, parameters = {}, details = "description name"):
+        return self.__client.execute(self.__sentant_send(details), variable_values={"id": id, "event": event, "parameters": json.dumps(parameters)})
     
+    def sentantUnload(self, id, details = "id name"):
+        return self.__client.execute(self.__sentant_unload(details), variable_values={"id": id})
+    
+    def sentantUnloadByName(self, name, details = "id name"):
+        sentant = self.sentantGet(name=name, details="id")
+        print(sentant)
+        return self.__client.execute(self.__sentant_unload(details), variable_values={"id": sentant["sentantGet"]["id"]})
+    
+    def sentantUnloadAll(self):
+        sentants = self.sentantAll()
+        for sentant in sentants["sentantAll"]:
+            self.sentantUnload(sentant["id"])
+    
+    # Subscriptions
     def awaitSignal(self, id, signal, callback=None, details="event parameters passthrough sentant { id name }"):
         threading.Thread(target=self.__subscribe, args=(self.__graphql_webs_url, id, signal, callback, details, )).start()
     # --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -225,7 +250,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Send Event definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __send_event (self, details):
+    def __sentant_send (self, details):
         return (gql(
         """
         mutation SentantSend($id: UUID4!, $event: String!, $parameters: Json) {
@@ -240,12 +265,81 @@ class Reality2:
 
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # Load a Sentant definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __sentant_load(self, details):
         return (gql(
         """
         mutation SentantLoad($yamlDefinition: String!) {
             sentantLoad(yamlDefinition: $yamlDefinition) {
+                """ + details + """
+            }
+        }
+        """
+    ))
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # Unload a Sentant
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def __sentant_unload(self, details):
+        return (gql(
+        """
+        mutation SentantUnload($id: UUID4!) {
+            sentantUnload(id: $id) {
+                """ + details + """
+            }
+        }
+        """
+    ))
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # Get a Sentant's details
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def __sentant_get_by_id(self, details):
+        return (gql(
+        """
+        query SentantGet($id: UUID4) {
+            sentantGet(id: $id) {
+                """ + details + """
+            }
+        }
+        """
+    ))
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # Get a Sentant's details
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def __sentant_get_by_name(self, details):
+        return (gql(
+        """
+        query SentantGet($name: String) {
+            sentantGet(name: $name) {
+                """ + details + """
+            }
+        }
+        """
+    ))
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # Get all Sentant's details
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def __sentant_all(self, details):
+        return (gql(
+        """
+        query SentantAll {
+            sentantAll {
                 """ + details + """
             }
         }
