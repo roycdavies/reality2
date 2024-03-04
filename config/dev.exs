@@ -19,12 +19,12 @@ config :reality2, Reality2.Repo,
 config :reality2_web, Reality2Web.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  # http: [ip: {0, 0, 0, 0}, port: 8080],
-  # check_origin: false,
-  # code_reloader: true,
-  # debug_errors: true,
-  # secret_key_base: "2yz7/4pkTLPlQ54tltF1IOW37oNzSae4+8rmK4KF3LbZWzBfJfAi1y0RKxD5FI4b",
-  # watchers: []
+  http: [ip: {0, 0, 0, 0}, port: 4002],
+  check_origin: false,
+  code_reloader: true,
+  debug_errors: true,
+  secret_key_base: "2yz7/4pkTLPlQ54tltF1IOW37oNzSae4+8rmK4KF3LbZWzBfJfAi1y0RKxD5FI4b",
+  watchers: [],
 
 # ## SSL Support
 #
@@ -37,8 +37,8 @@ config :reality2_web, Reality2Web.Endpoint,
 # Run `mix help phx.gen.cert` for more information.
 #
 # The `http:` config above can be replaced with:
-#
   https: [
+    ip: {0, 0, 0, 0},
     port: 4001,
     cipher_suite: :strong,
     keyfile: "priv/cert/selfsigned_key.pem",

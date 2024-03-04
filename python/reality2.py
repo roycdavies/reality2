@@ -25,6 +25,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     __graphql_http_url: str
     __graphql_webs_url: str
+    __secure: True
     
     __client: Client
     __transport: RequestsHTTPTransport
@@ -35,9 +36,14 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Constructor
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __init__(self, domain_name, port):
-        self.__graphql_http_url = "https://" + domain_name + ":" + str(port) + "/reality2"
-        self.__graphql_webs_url = "wss://" + domain_name + ":" + str(port) + "/reality2/websocket"
+    def __init__(self, domain_name, port, ssl = True):
+        self.__secure = ssl
+        if (ssl):
+            self.__graphql_http_url = "https://" + domain_name + ":" + str(port) + "/reality2"
+            self.__graphql_webs_url = "wss://" + domain_name + ":" + str(port) + "/reality2/websocket"
+        else:
+            self.__graphql_http_url = "http://" + domain_name + ":" + str(port) + "/reality2"
+            self.__graphql_webs_url = "ws://" + domain_name + ":" + str(port) + "/reality2/websocket"
         
         # Select your transport with a defined url endpoint
         self.__transport = RequestsHTTPTransport(url=self.__graphql_http_url, verify=False, retries=3)
@@ -53,7 +59,10 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Queries
     def sentantAll(self, details = "id name"):
-        return self.__client.execute(self.__sentant_all(details))
+        try:
+            return self.__client.execute(self.__sentant_all(details))
+        except:
+            return None
     
     def sentantGet(self, id="", name = "", details = "id name"):
         try:
@@ -181,52 +190,60 @@ class Reality2:
             "ref": 0
         }
         
-        # Create the SSL context
-        ssl_context = ssl.create_default_context() 
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-
-        # Connect to the server, join the channel and subscribe to the sentant event        
-        with connect(server, ssl_context=ssl_context) as websocket:
-            # Join the channel
-            websocket.send(json.dumps(join_message))
-            message = websocket.recv()
-            if (self.__check_status(message)): 
-                print(f"Joined: {server}")
-            else:
-                print(f"Failed to join: {server}")
-                return
-                
-            # Subscribe to the Sentant and event    
-            websocket.send(json.dumps(subscribe))
-            message = websocket.recv()
-            if (self.__check_status(message)): 
-                print(f"Subscribed to {sentantid}|{signal}")
-            else:
-                print(f"Failed to subscribe to {sentantid}|{signal}")
-                return
-                        
-            # Start the heartbeat thread
-            threading.Thread(target=self.__heartbeat_thread, args=(websocket,)).start()
+        # Connect to the server, join the channel and subscribe to the sentant event
+        if (self.__secure):
+            # Create the SSL context
+            ssl_context = ssl.create_default_context() 
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
             
-            # Listen for messages
-            while True:
-                message = websocket.recv()
-                message_json = json.loads(message)
-                payload = message_json["payload"]
-                
-                if self.__check_status(message):
-                    print(f"heartbeat")
-                else:       
-                    if "result" in payload:
-                        data = payload["result"]["data"]
-                        if callback:
-                            callback(data)
-                    elif "errors" in payload:
-                        if callback:
-                            callback(payload["errors"])
-                    else:
-                        print(f"Received: {payload}")
+            with connect(server, ssl_context=ssl_context) as websocket:
+                self.__after_connect(websocket, join_message, subscribe, sentantid, signal, callback, server)
+        else:
+            with connect(server) as websocket:
+                self.__after_connect(websocket, join_message, subscribe, sentantid, signal, callback, server)
+            
+            
+    def __after_connect(self, websocket, join_message, subscribe, sentantid, signal, callback, server):
+        # Join the channel
+        websocket.send(json.dumps(join_message))
+        message = websocket.recv()
+        if (self.__check_status(message)): 
+            print(f"Joined: {server}")
+        else:
+            print(f"Failed to join: {server}")
+            return
+            
+        # Subscribe to the Sentant and event    
+        websocket.send(json.dumps(subscribe))
+        message = websocket.recv()
+        if (self.__check_status(message)): 
+            print(f"Subscribed to {sentantid}|{signal}")
+        else:
+            print(f"Failed to subscribe to {sentantid}|{signal}")
+            return
+                    
+        # Start the heartbeat thread
+        threading.Thread(target=self.__heartbeat_thread, args=(websocket,)).start()
+        
+        # Listen for messages
+        while True:
+            message = websocket.recv()
+            message_json = json.loads(message)
+            payload = message_json["payload"]
+            
+            if self.__check_status(message):
+                print(f"heartbeat")
+            else:       
+                if "result" in payload:
+                    data = payload["result"]["data"]
+                    if callback:
+                        callback(data)
+                elif "errors" in payload:
+                    if callback:
+                        callback(payload["errors"])
+                else:
+                    print(f"Received: {payload}")
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 

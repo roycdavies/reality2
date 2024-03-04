@@ -137,8 +137,8 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<!-- <svelte:window on:beforeunload={beforeunload} /> -->
-<!-- <main>
+<svelte:window on:beforeunload={beforeunload} />
+<main>
     {#await allSentants}
         <p>Loading...</p>
     {:then response}
@@ -151,13 +151,13 @@ Layout
     {:catch error}
         <p>Error: {error.message}</p>
     {/await}
-</main> -->
+</main>
 
 
 
 <!-- <div class="threejs_canvas"> -->
-    <Canvas>
+    <!-- <Canvas>
         <Scene />
-    </Canvas>
+    </Canvas> -->
 <!-- </div> -->
 <!----------------------------------------------------------------------------------------------------->

@@ -5,7 +5,7 @@ def printout(data):
     print(data["awaitSignal"]["parameters"]["answer"])
     
 
-reality2_node = Reality2("localhost", 4001)
+reality2_node = Reality2("localhost", 4002, False)
 reality2_node.sentantUnloadByName("Ask Question")
   
 # Read the files

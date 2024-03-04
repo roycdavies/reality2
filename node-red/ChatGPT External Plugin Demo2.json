@@ -1,13 +1,5 @@
 [
     {
-        "id": "5a7bd05a8fdb782c",
-        "type": "tab",
-        "label": "Flow 1",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
         "id": "1a2f5269b1078a40",
         "type": "tab",
         "label": "Ask ChatGPT a Question",
@@ -18,7 +10,7 @@
     {
         "id": "845fc0d6c01a7d33",
         "type": "subflow",
-        "name": "SentantEvent",
+        "name": "AwaitSignal",
         "info": "",
         "category": "",
         "in": [
@@ -279,13 +271,13 @@
         "id": "b0f951c25b9c0e67",
         "type": "graphql-server",
         "name": "reality2",
-        "endpoint": "http://localhost:4000/reality2",
+        "endpoint": "http://localhost:4002/reality2",
         "token": ""
     },
     {
         "id": "3a6f6ce74a5a5468",
         "type": "websocket-client",
-        "path": "ws://localhost:4000/reality2/websocket",
+        "path": "ws://localhost:4002/reality2/websocket",
         "tls": "",
         "wholemsg": "false",
         "hb": "30",
@@ -332,7 +324,7 @@
     {
         "id": "4074ed4f7a1d2d7c",
         "type": "ui-group",
-        "name": "Reality2",
+        "name": "ChatGPT Plugin",
         "page": "2c9b56ff96f06a76",
         "width": "6",
         "height": "1",
@@ -341,6 +333,14 @@
         "className": "",
         "visible": "true",
         "disabled": "false"
+    },
+    {
+        "id": "44145b07ad07f571",
+        "type": "graphql-config",
+        "name": "Reality2",
+        "endpoint": "ws://localhost:4002/reality2/websocket",
+        "authorizationHeader": "",
+        "authorizationToken": ""
     },
     {
         "id": "4db9013399b3fbed",
@@ -389,7 +389,7 @@
         "type": "function",
         "z": "845fc0d6c01a7d33",
         "name": "Interpret Response",
-        "func": "// Get the data and sentantID\nlet data = msg.payload;\nlet sentantid = flow.get(\"$parent.sentantid\");\nlet the_event = env.get(\"event\");\n\n// This gets called during the join, subscription and subsequent return of the message from ChatGPT.\n// The data.ref field helps determine which stage of the process we are in.\nif (data)\n{\n    if (data.ref == \"join\")\n    {\n        // The join command was set in the Subscribe Button - this is the next command for the Subscription\n        let the_message = {\n            \"topic\": \"__absinthe__:control\",\n            \"event\": \"doc\",\n            \"payload\": {\n                \"query\": \"subscription {sentantEvent(id: \\\"\" + sentantid + \"\\\", event: \\\"\" + the_event + \"\\\") { event parameters sentant { id } } }\"\n            },\n            \"ref\": \"subscribe\"\n        };\n        return({payload: the_message});\n    }\n    else if (data.ref == \"subscribe\")\n    {\n        // If we have successfully subscribed, stop further messages.\n        return(null); \n    }\n    else if (data.event == \"subscription:data\")\n    {\n        // A result from Chat GPT has arrived.\n        return { payload: { chatgpt_says: data.payload.result.data.sentantEvent.parameters.chatgpt_says }};\n    }\n}",
+        "func": "// Get the data and sentantID\nlet data = msg.payload;\nlet sentantid = flow.get(\"$parent.sentantid\");\nlet the_event = env.get(\"event\");\n\n// This gets called during the join, subscription and subsequent return of the message from ChatGPT.\n// The data.ref field helps determine which stage of the process we are in.\nif (data)\n{\n    if (data.ref == \"join\")\n    {\n        // The join command was set in the Subscribe Button - this is the next command for the Subscription\n        let the_message = {\n            \"topic\": \"__absinthe__:control\",\n            \"event\": \"doc\",\n            \"payload\": {\n                \"query\": \"subscription {awaitSignal(id: \\\"\" + sentantid + \"\\\", event: \\\"\" + the_event + \"\\\") { event parameters sentant { id } } }\"\n            },\n            \"ref\": \"subscribe\"\n        };\n        return({payload: the_message});\n    }\n    else if (data.ref == \"subscribe\")\n    {\n        // If we have successfully subscribed, stop further messages.\n        return(null); \n    }\n    else if (data.event == \"subscription:data\")\n    {\n        // A result from Chat GPT has arrived.\n        return { payload: { chatgpt_says: data.payload.result.data.sentantEvent.parameters.chatgpt_says }};\n    }\n}",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -725,7 +725,7 @@
         "wires": [
             [
                 "e37f5314d4b4b659",
-                "9b3f03de440e23c4"
+                "3edbfd336fbca0b9"
             ],
             []
         ]
@@ -820,10 +820,10 @@
         ]
     },
     {
-        "id": "9b3f03de440e23c4",
+        "id": "3edbfd336fbca0b9",
         "type": "debug",
         "z": "800b653b02783641",
-        "name": "debug 1",
+        "name": "debug 4",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -833,7 +833,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 1110,
-        "y": 20,
+        "y": 40,
         "wires": []
     },
     {
@@ -1086,8 +1086,8 @@
         "id": "0ab650c8b4a14738",
         "type": "subflow:845fc0d6c01a7d33",
         "z": "1a2f5269b1078a40",
-        "name": "Websocket - SentantEvent",
-        "x": 600,
+        "name": "Websocket - AwaitSignal",
+        "x": 590,
         "y": 480,
         "wires": [
             [
@@ -1100,13 +1100,6 @@
         "type": "subflow:0642542a5da9d32f",
         "z": "1a2f5269b1078a40",
         "name": "GraphQL - SentantLoad",
-        "env": [
-            {
-                "name": "home_dir",
-                "value": "/root/Development/Reality2",
-                "type": "str"
-            }
-        ],
         "x": 590,
         "y": 160,
         "wires": [
@@ -1335,6 +1328,103 @@
         "wires": [
             [
                 "7b365b66bd66a0a6"
+            ]
+        ]
+    },
+    {
+        "id": "0f1026d3c5ac35dd",
+        "type": "graphql-query",
+        "z": "1a2f5269b1078a40",
+        "name": "SentantAll",
+        "graphql": "44145b07ad07f571",
+        "template": "query SentantAll {\n  sentantAll {\n    id name\n  }\n}",
+        "x": 590,
+        "y": 880,
+        "wires": [
+            [
+                "b64042e164e22ee8"
+            ],
+            [
+                "62a14595952c9df9"
+            ]
+        ]
+    },
+    {
+        "id": "7bdb5a334bb66a8f",
+        "type": "inject",
+        "z": "1a2f5269b1078a40",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 400,
+        "y": 880,
+        "wires": [
+            [
+                "0f1026d3c5ac35dd"
+            ]
+        ]
+    },
+    {
+        "id": "b64042e164e22ee8",
+        "type": "debug",
+        "z": "1a2f5269b1078a40",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 840,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "62a14595952c9df9",
+        "type": "debug",
+        "z": "1a2f5269b1078a40",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 840,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "d06f3f7bdb0e36c6",
+        "type": "graphql-subscribe",
+        "z": "1a2f5269b1078a40",
+        "name": "awaitSignal",
+        "graphql": "44145b07ad07f571",
+        "template": "subscription AwaitSignal($id: UUID4!, $signal: String!) {\n  awaitSignal(id: $id, signal: $signal) {\n    sentant { id name }\n    event\n  }\n}",
+        "x": 410,
+        "y": 1100,
+        "wires": [
+            [
+                "b64042e164e22ee8"
+            ],
+            [
+                "62a14595952c9df9"
             ]
         ]
     }

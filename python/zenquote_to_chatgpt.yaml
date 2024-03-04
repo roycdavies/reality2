@@ -1,5 +1,5 @@
 sentant:
-  name: Zen Quote
+  name: Zen ChatGPT
   description: Get a quote for the day
 
   # ----------------------------------------------------------------------------------------------------
@@ -70,11 +70,9 @@ sentant:
               parameters:
                 key: message
                 value: "what is the meaning of '__zenquote__'?"
-                
+
             - plugin: com.openai.api
               command: send
-
-            - command: print
 
             - command: signal
               parameters:
@@ -89,8 +87,6 @@ sentant:
               parameters:
                 key: answer
                 value: "The answer is: __chatgpt_says__"
-
-            - command: print
 
             - command: signal
               parameters:

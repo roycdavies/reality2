@@ -6,8 +6,8 @@ def printout(data):
     # print(data["awaitSignal"]["parameters"]["zenquote"])
     
 
-reality2_node = Reality2("localhost", 4001)
-reality2_node.sentantUnloadByName("Zen Quote")
+reality2_node = Reality2("localhost", 4001, True)
+reality2_node.sentantUnloadByName("Zen ChatGPT")
 
 # Read the files
 with open('../../OPENAI_API_KEY.txt', 'r') as file:
