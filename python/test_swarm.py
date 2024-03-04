@@ -2,7 +2,8 @@ import time
 from reality2 import Reality2
 
 reality2_node = Reality2("localhost", 4001)
-reality2_node.sentantUnloadAll()
+reality2_node.sentantUnloadByName("Light Switch")
+reality2_node.sentantUnloadByName("Light Bulb")
 
 def printout(data):
     print(data)

@@ -19,7 +19,6 @@ yamlDefinition = yamlDefinition.replace("__openai_api_key__", OPENAI_API_KEY)
 
 # Load the Sentant
 result = reality2_node.sentantLoad(yamlDefinition)
-print(result)
 
 # Grab the ID of the Sentant
 id = result["sentantLoad"]["id"]

@@ -7,7 +7,7 @@ def printout(data):
     
 
 reality2_node = Reality2("localhost", 4001)
-reality2_node.sentantUnloadAll()
+reality2_node.sentantUnloadByName("Zen Quote")
 
 # Read the files
 with open('../../OPENAI_API_KEY.txt', 'r') as file:

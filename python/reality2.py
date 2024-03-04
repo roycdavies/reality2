@@ -56,33 +56,56 @@ class Reality2:
         return self.__client.execute(self.__sentant_all("id name"))
     
     def sentantGet(self, id="", name = "", details = "id name"):
-        if (id != ""):
-            return self.__client.execute(self.__sentant_get_by_id(details), variable_values={"id": id})
-        else:
-            return self.__client.execute(self.__sentant_get_by_name(details), variable_values={"name": name})
+        try:
+            if (id != ""):
+                return self.__client.execute(self.__sentant_get_by_id(details), variable_values={"id": id})
+            else:
+                return self.__client.execute(self.__sentant_get_by_name(details), variable_values={"name": name})
+        except:
+            return None
     
     # Mutations
     def sentantLoad(self, yamlDefinition, details = "id name"):
-        return self.__client.execute(self.__sentant_load(details), variable_values={"yamlDefinition": yamlDefinition})
+        try:
+            return self.__client.execute(self.__sentant_load(details), variable_values={"yamlDefinition": yamlDefinition})
+        except:
+            return None
     
     def swarmLoad(self, yamlDefinition, details = "id name"):
-        return self.__client.execute(self.__swarm_load(details), variable_values={"yamlDefinition": yamlDefinition})
+        try:
+            return self.__client.execute(self.__swarm_load(details), variable_values={"yamlDefinition": yamlDefinition})
+        except:
+            return None
     
     def sentantSend(self, id, event, parameters = {}, details = "description name"):
-        return self.__client.execute(self.__sentant_send(details), variable_values={"id": id, "event": event, "parameters": json.dumps(parameters)})
+        try:
+            return self.__client.execute(self.__sentant_send(details), variable_values={"id": id, "event": event, "parameters": json.dumps(parameters)})
+        except:
+            return None
     
     def sentantUnload(self, id, details = "id name"):
-        return self.__client.execute(self.__sentant_unload(details), variable_values={"id": id})
+        try:
+            return self.__client.execute(self.__sentant_unload(details), variable_values={"id": id})
+        except:
+            return None
     
     def sentantUnloadByName(self, name, details = "id name"):
         sentant = self.sentantGet(name=name, details="id")
-        print(sentant)
-        return self.__client.execute(self.__sentant_unload(details), variable_values={"id": sentant["sentantGet"]["id"]})
+        if (sentant and sentant["sentantGet"]):
+            try:
+                return self.__client.execute(self.__sentant_unload(details), variable_values={"id": sentant["sentantGet"]["id"]})
+            except:
+                return None
+        else:
+            return None
     
     def sentantUnloadAll(self):
-        sentants = self.sentantAll()
-        for sentant in sentants["sentantAll"]:
-            self.sentantUnload(sentant["id"])
+        try:
+            sentants = self.sentantAll()
+            for sentant in sentants["sentantAll"]:
+                self.sentantUnload(sentant["id"])
+        except:
+            return None
     
     # Subscriptions
     def awaitSignal(self, id, signal, callback=None, details="event parameters passthrough sentant { id name }"):
