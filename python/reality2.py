@@ -52,8 +52,8 @@ class Reality2:
     # Public methods
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Queries
-    def sentantAll(self):
-        return self.__client.execute(self.__sentant_all("id name"))
+    def sentantAll(self, details = "id name"):
+        return self.__client.execute(self.__sentant_all(details))
     
     def sentantGet(self, id="", name = "", details = "id name"):
         try:
