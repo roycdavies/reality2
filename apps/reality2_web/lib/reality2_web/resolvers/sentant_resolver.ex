@@ -27,7 +27,7 @@ defmodule Reality2Web.SentantResolver do
           sentantid ->
             case Reality2.Sentants.read(%{id: sentantid}, :definition) do
               {:ok, sentant} ->
-                {:ok, convert_map_keys(sentant)}
+                {:ok, sentant |> convert_map_keys |> convert_for_output}
               {:error, reason} ->
                 {:error, reason}
             end
@@ -35,7 +35,7 @@ defmodule Reality2Web.SentantResolver do
       name ->
         case Reality2.Sentants.read(%{name: name}, :definition) do
           {:ok, sentant} ->
-            {:ok, convert_map_keys(sentant)}
+            {:ok, sentant |> convert_map_keys |> convert_for_output}
           {:error, reason} ->
             {:error, reason}
         end
@@ -51,7 +51,7 @@ defmodule Reality2Web.SentantResolver do
   def all_sentants(_, _, _) do
     case Reality2.Sentants.read_all(:definition) do
       {:ok, sentants} ->
-        {:ok, Enum.map(sentants, fn sentant -> convert_map_keys(sentant) end)}
+        {:ok, Enum.map(sentants, fn sentant -> sentant |> convert_map_keys |> convert_for_output end)}
       {:error, reason} ->
         {:error, reason}
     end
@@ -72,7 +72,7 @@ defmodule Reality2Web.SentantResolver do
         # Decode the yaml_definition from encoded uri
         yaml_decoded = URI.decode(yaml_definition)
 
-        # Create the Sentant (or update it if it already exists)
+        # Create the Sentant (or update it if it already exists and the ID is given)
         case Reality2.Sentants.create(yaml_decoded) do
           # Success, so get the Sentant details to send back
           {:ok, sentantid} ->
@@ -80,7 +80,7 @@ defmodule Reality2Web.SentantResolver do
             case Reality2.Sentants.read(%{id: sentantid}, :definition) do
               {:ok, sentant} ->
                 # Send back the sentant details
-                {:ok, convert_map_keys(sentant)}
+                {:ok, sentant |> convert_map_keys |> convert_for_output}
               {:error, reason} ->
                 # Something went wrong
                 {:error, reason}
@@ -110,7 +110,7 @@ defmodule Reality2Web.SentantResolver do
             case Reality2.Sentants.delete(%{id: sentantid}) do
               {:ok, _} ->
                 # Send back the sentant details
-                {:ok, convert_map_keys(sentant)}
+                {:ok, sentant |> convert_map_keys |> convert_for_output}
               {:error, reason} ->
                 # Something went wrong
                 {:error, reason}
@@ -150,7 +150,7 @@ defmodule Reality2Web.SentantResolver do
             sentants = Enum.map(sentant_ids, fn id ->
               case Reality2.Sentants.read(%{id: id}, :definition) do
                 {:ok, sentant} ->
-                  convert_map_keys(sentant)
+                  sentant |> convert_map_keys |> convert_for_output
                 {:error, _reason} ->
                   # Something went wrong
                   false
@@ -188,7 +188,7 @@ defmodule Reality2Web.SentantResolver do
                 case Reality2.Sentants.read(%{id: sentantid}, :definition) do
                   {:ok, sentant} ->
                     # Send back the sentant details
-                    {:ok, convert_map_keys(sentant)}
+                    {:ok, sentant |> convert_map_keys |> convert_for_output}
                   {:error, reason} ->
                     # Something went wrong
                     {:error, reason}
@@ -234,5 +234,57 @@ defmodule Reality2Web.SentantResolver do
   end
   defp convert_map_keys(data) when is_list(data), do: Enum.map(data, fn x -> convert_map_keys(x) end)
   defp convert_map_keys(data), do: data
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  # Tweak the raw Sentant data to remove private elements
+  # -----------------------------------------------------------------------------------------------------------------------------------------
+  defp convert_for_output(data) when is_map(data) do
+    automations = data |> Helpers.Map.get(:automations, [])
+    events = Enum.map(automations, fn(automation) -> automation |> Helpers.Map.get(:transitions, []) |> find_events end) |> List.flatten
+    signals = Enum.map(automations, fn(automation) -> automation |> Helpers.Map.get(:transitions, []) |> find_signals end) |> List.flatten
+
+    data
+    |> Map.drop([:automation, :plugins])
+    |> Map.put(:events, events)
+    |> Map.put(:signals, [])
+  end
+  defp convert_for_output(data) when is_list(data), do: Enum.map(data, fn x -> convert_for_output(x) end)
+  defp convert_for_output(data), do: data
+
+  defp find_events([]), do: []
+  defp find_events([transition | rest]) do
+    case Helpers.Map.get(transition, :public, false) do
+      true -> [Helpers.Map.get(transition, :event) | find_events(rest)]
+      _ -> find_events(rest)
+    end
+  end
+
+  defp find_signals([]), do: []
+  defp find_signals([transition | rest]) do
+    case Helpers.Map.get(transition, :actions, []) do
+      [] -> find_signals(rest)
+      actions ->
+        signals = Enum.map(actions, fn(action) -> get_signal_from_action(action) end) |> List.flatten
+        signals ++ find_signals(rest)
+    end
+  end
+  defp get_signal_from_action(action) do
+    IO.puts(inspect(action))
+    case Helpers.Map.get(action, :command) do
+      :signal ->
+        case Helpers.Map.get(action, :parameters) do
+          nil -> []
+          parameters ->
+            case Helpers.Map.get(parameters, :public, false) do
+              false -> []
+              true -> [Helpers.Map.get(parameters, :event, [])]
+            end
+        end
+      _ -> []
+    end
+  end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 end

@@ -57,6 +57,7 @@ sentant:
         - from: "*"
           event: zenquote
           to: ready
+          public: true
           actions:
             - plugin: com.zenquote.api
               command: send
@@ -90,6 +91,7 @@ sentant:
 
             - command: signal
               parameters:
+                public: true
                 event: chatgpt_answer
   # ----------------------------------------------------------------------------------------------------
  

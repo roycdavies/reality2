@@ -19,6 +19,7 @@ defmodule Reality2Web.Schema.Sentant do
     field :event, non_null(:string),            description: "Signal event"
     field :parameters, :json,                   description: "Signal parameters"
     field :passthrough, :json,                  description: "Passed through parameters"
+    field :public, :boolean,                    description: "Whether the signal is publically advertised (false by default)"
   end
 
   object :plugin_output do
@@ -48,6 +49,7 @@ defmodule Reality2Web.Schema.Sentant do
     field :event, non_null(:string),            description: "Transition event"
     field :to, non_null(:string),               description: "Transition to"
     field :actions, list_of(:action),           description: "Transition actions"
+    field :public, :boolean,                    description: "Whether the event for this transition is publically advertised (false by default)"
   end
 
   object :automation do
@@ -81,8 +83,10 @@ defmodule Reality2Web.Schema.Sentant do
     field :id, non_null(:uuid4),                description: "Sentant ID"
     field :name, non_null(:string),             description: "Sentant name"
     field :description, :string,                description: "Sentant description"
-    field :automations, list_of(:automation),   description: "Sentant automations"
-    field :plugins, list_of(:plugin),           description: "Sentant plugins"
+    # field :automations, list_of(:automation),   description: "Sentant automations"
+    # field :plugins, list_of(:plugin),           description: "Sentant plugins"
+    field :events, list_of(:string),            description: "Public events"
+    field :signals, list_of(:string),           description: "Public signals"
   end
   # ------------------------------------------------------------------------------------------------------
 

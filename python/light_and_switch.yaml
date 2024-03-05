@@ -26,6 +26,7 @@ swarm:
           # turn_on event
           - from: off
             event: turn_on
+            public: true
             to: on
             actions:
               # Send turn_on event to the Light Bulb Sentant
@@ -43,6 +44,7 @@ swarm:
           # turn_off event
           - from: on
             event: turn_off
+            public: true
             to: off
             actions:
               # Send turn_off event to the Light Bulb Sentant
@@ -96,6 +98,7 @@ swarm:
               - command: signal
                 parameters:
                   event: turn_off
+                  public: true
                 passthrough:
                   another: 100
     # --------------------------------------------------------------------------------------------------
