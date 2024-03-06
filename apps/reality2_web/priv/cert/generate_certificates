@@ -1,18 +1,22 @@
 echo "Create a CA certificate and key"
 openssl genrsa -out ca.key 2048
-openssl req -new -x509 -key ca.key -out ca.crt -subj "/CN=reality2"
+openssl req -new -x509 -key ca.key -out ca.crt -subj "/CN=reality2.local"
 
 echo "Create a server certificate signing request (CSR)"
 openssl genrsa -out server.key 2048
-openssl req -new -key server.key -out server.csr -subj "/CN=reality2"
+openssl req -new -key server.key -out server.csr -subj "/CN=reality2.local"
 
 echo "Sign the server certificate with the CA"
 openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 365
 
 echo "Create a client certificate signing request (CSR)"
 openssl genrsa -out client.key 2048
-openssl req -new -key client.key -out client.csr -subj "/CN=reality2"
+openssl req -new -key client.key -out client.csr -subj "/CN=reality2.local"
 
 echo "Sign the client certificate with the CA"
 openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365
+
+echo "Copy server certificates to reality2_web"
+cp server.crt ../Reality2/apps/reality2_web/priv/cert/
+cp server.key ../Reality2/apps/reality2_web/priv/cert/
 
