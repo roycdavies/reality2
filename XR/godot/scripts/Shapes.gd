@@ -1,4 +1,5 @@
 class_name Shapes
+
 class Line:
 	
 	var _mesh
