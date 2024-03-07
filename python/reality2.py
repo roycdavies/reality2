@@ -29,6 +29,8 @@ class Reality2:
     
     __client: Client
     __transport: RequestsHTTPTransport
+    
+    __running = True
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -36,7 +38,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Constructor
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __init__(self, domain_name, port, ssl = True):
+    def __init__ (self, domain_name, port, ssl = True):
         self.__secure = ssl
         if (ssl):
             self.__graphql_http_url = "https://" + domain_name + ":" + str(port) + "/reality2"
@@ -51,20 +53,32 @@ class Reality2:
         # Create a GraphQL client using the defined transport
         self.__client = Client(transport=self.__transport, fetch_schema_from_transport=True)
     # --------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    
+    
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # Destructor - Close the connection(s)
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def __del__ (self):
+        print("Closing Connections")
+        self.__running = False
+        self.__client.close_async()
+        self.__transport.close()
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
         
         
         
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    # Public methods
+    # Public GraphQL methods
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Queries
-    def sentantAll(self, details = "id name"):
+    def sentantAll (self, details = "id name"):
         try:
             return self.__client.execute(self.__sentant_all(details))
         except:
             return None
     
-    def sentantGet(self, id="", name = "", details = "id name"):
+    def sentantGet (self, id="", name = "", details = "id name"):
         try:
             if (id != ""):
                 return self.__client.execute(self.__sentant_get_by_id(details), variable_values={"id": id})
@@ -74,31 +88,31 @@ class Reality2:
             return None
     
     # Mutations
-    def sentantLoad(self, yamlDefinition, details = "id name"):
+    def sentantLoad (self, yamlDefinition, details = "id name"):
         try:
             return self.__client.execute(self.__sentant_load(details), variable_values={"yamlDefinition": yamlDefinition})
         except:
             return None
     
-    def swarmLoad(self, yamlDefinition, details = "id name"):
+    def swarmLoad (self, yamlDefinition, details = "id name"):
         try:
             return self.__client.execute(self.__swarm_load(details), variable_values={"yamlDefinition": yamlDefinition})
         except:
             return None
     
-    def sentantSend(self, id, event, parameters = {}, details = "description name"):
+    def sentantSend (self, id, event, parameters = {}, details = "description name"):
         try:
             return self.__client.execute(self.__sentant_send(details), variable_values={"id": id, "event": event, "parameters": json.dumps(parameters)})
         except:
             return None
     
-    def sentantUnload(self, id, details = "id name"):
+    def sentantUnload (self, id, details = "id name"):
         try:
             return self.__client.execute(self.__sentant_unload(details), variable_values={"id": id})
         except:
             return None
     
-    def sentantUnloadByName(self, name, details = "id name"):
+    def sentantUnloadByName (self, name, details = "id name"):
         sentant = self.sentantGet(name=name, details="id")
         if (sentant and sentant["sentantGet"]):
             try:
@@ -108,7 +122,7 @@ class Reality2:
         else:
             return None
     
-    def sentantUnloadAll(self):
+    def sentantUnloadAll (self):
         try:
             sentants = self.sentantAll()
             for sentant in sentants["sentantAll"]:
@@ -117,7 +131,7 @@ class Reality2:
             return None
     
     # Subscriptions
-    def awaitSignal(self, id, signal, callback=None, details="event parameters passthrough sentant { id name }"):
+    def awaitSignal (self, id, signal, callback=None, details="event parameters passthrough sentant { id name }"):
         threading.Thread(target=self.__subscribe, args=(self.__graphql_webs_url, id, signal, callback, details, )).start()
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -132,7 +146,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Check the status of the websocket
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __check_status(self, message):
+    def __check_status (self, message):
         message_dict = json.loads(message)
         if "payload" in message_dict:
             if "status" in message_dict["payload"]:
@@ -149,9 +163,9 @@ class Reality2:
 
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    # Define the heartbeat thread that keeps the websocket connection alive
+    # Define the heartbeat thread that keeps the websocket connection alive (to be called in it's own a thread)
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __heartbeat_thread(self, websocket):
+    def __heartbeat_thread (self, websocket):
         heartbeat = {
             "topic": "phoenix",
             "event": "heartbeat",
@@ -159,7 +173,7 @@ class Reality2:
             "ref": 0
         }
         
-        while True:
+        while self.__running:
             time.sleep(30)
             websocket.send(json.dumps(heartbeat))
     # --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -169,7 +183,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Scubscribe to the Node channel representing the sentant and signal
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __subscribe(self, server, sentantid, signal, callback, details):
+    def __subscribe (self, server, sentantid, signal, callback, details):
         join_message = {
             "topic": "__absinthe__:control",
             "event": "phx_join",
@@ -227,7 +241,7 @@ class Reality2:
         threading.Thread(target=self.__heartbeat_thread, args=(websocket,)).start()
         
         # Listen for messages
-        while True:
+        while self.__running:
             message = websocket.recv()
             message_json = json.loads(message)
             payload = message_json["payload"]
@@ -251,7 +265,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Await Signal definition (note the lack of gql() is on purpose as this is a subscription to the websocket
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __await_signal(self, details):
+    def __await_signal (self, details):
         return (
         """
         subscription AwaitSignal($id: UUID4!, $signal: String!) {
@@ -307,7 +321,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Load a Sentant definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_load(self, details):
+    def __sentant_load (self, details):
         return (gql(
         """
         mutation SentantLoad($yamlDefinition: String!) {
@@ -324,7 +338,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Unload a Sentant
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_unload(self, details):
+    def __sentant_unload (self, details):
         return (gql(
         """
         mutation SentantUnload($id: UUID4!) {
@@ -341,7 +355,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Get a Sentant's details
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_get_by_id(self, details):
+    def __sentant_get_by_id (self, details):
         return (gql(
         """
         query SentantGet($id: UUID4) {
@@ -358,7 +372,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Get a Sentant's details
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_get_by_name(self, details):
+    def __sentant_get_by_name (self, details):
         return (gql(
         """
         query SentantGet($name: String) {
@@ -375,7 +389,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Get all Sentant's details
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __sentant_all(self, details):
+    def __sentant_all (self, details):
         return (gql(
         """
         query SentantAll {
