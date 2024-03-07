@@ -27,3 +27,14 @@ In the node-red folder, there is some example setup for that graphical tool.  Yo
 ## Plans
 
 There are many plans for this platform which will be made public in due course.  For now, this is very early alpha stage.
+
+## Some setup notes
+
+    1. In the layer above the main Reality2 folder, create a file called OPENAI_API_KEY.txt.  Put in there your OpenAPI key.  This is used by some of the python and node.red scripts to setup Sentants that use OpenAI.  It is not included directly in the code for security reasons.
+    
+    2. Again, in the folder above the Reality2 folder, create a folder called 'cert'.  Either copy or link the Reality2/cert/generate_certificates file into this folder.  Go into that folder in command line, and run the script.  DO NOT RUN THAT SCRIPT INSIDE THE CERT FOLDER IN THE REALITY2 FOLDER.  Again, this is for security reasons, so that your signing authority certificates are not visible in the main Reality2 folder.
+
+    3. Optional, but recommended: edit your /etc/hosts file to include the line - it will allow you to use the domain name reality2 or reality2.local in the webbrowser.  Obviously, you will need admin priveleges:
+        ```
+        127.0.0.1   reality2.local      reality2
+        ```

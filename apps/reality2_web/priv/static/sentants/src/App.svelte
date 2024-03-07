@@ -73,7 +73,7 @@
     // GraphQL
     // -------------------------------------------------------------------------------------------------
     // GraphQL client setup 
-    let reality2Node = new reality2_node("https://localhost:4001");
+    let reality2Node = new reality2_node("https://" + window.location.hostname + ":4001");
 
     $: allSentants = reality2Node.sentantAll();
 

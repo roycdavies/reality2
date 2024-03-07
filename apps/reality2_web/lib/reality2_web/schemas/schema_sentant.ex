@@ -14,7 +14,7 @@ defmodule Reality2Web.Schema.Sentant do
 
   alias Reality2Web.SentantResolver
 
-  object :signal do
+  object :signal_output do
     field :sentant, non_null(:sentant),         description: "Sentant"
     field :event, non_null(:string),            description: "Signal event"
     field :parameters, :json,                   description: "Signal parameters"
@@ -178,7 +178,7 @@ defmodule Reality2Web.Schema.Sentant do
     # ----------------------------------------------------------------------------------------------------
     @desc "Subscribe to sentant signal events"
     # ----------------------------------------------------------------------------------------------------
-    field :await_signal, :signal do
+    field :await_signal, :signal_output do
       arg :id, non_null(:uuid4)
       arg :signal, non_null(:string)
 
