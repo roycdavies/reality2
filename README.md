@@ -30,9 +30,9 @@ There are many plans for this platform which will be made public in due course. 
 
 ## Some setup notes
 
-1. In the layer above the main Reality2 folder, create a file called OPENAI_API_KEY.txt.  Put in there your OpenAPI key.  This is used by some of the python and node.red scripts to setup Sentants that use OpenAI.  It is not included directly in the code for security reasons - so that when submitting this to GIT, the API key is not included.
+1. In the layer above the main Reality2 folder, create a file called OPENAI_API_KEY.txt.  Put in there your OpenAPI key.  This is used by some of the python and node.red scripts to setup Sentants that use OpenAI.  It is not included directly in the code for security reasons.
 
-2. Again, in the folder above the Reality2 folder, create a folder called 'cert'.  Either copy or link the Reality2/cert/generate_certificates file into this folder.  Go into that folder in command line, and run the script.  DO NOT RUN THAT SCRIPT INSIDE THE CERT FOLDER IN THE REALITY2 FOLDER, ONLY RUN IT IN THE CERT FOLDER YOU HAVE JUST CREATED.  ALSO, DON'T SYMBOLICALLY LINK TO THE REALITY2/CERT FOLDER AS THAT WILL STILL LEAVE THE CERTIFICATES INSIDE THE REALITY2 FOLDER.  Again, this is for security reasons, so that our signing authority certificates are not visible in the main Reality2 folder when submitting to GIT.
+2. Again, in the folder above the Reality2 folder, create a folder called 'cert'.  Either copy or link the Reality2/cert/generate_certificates file into this folder.  Go into that folder in command line, and run the script.  DO NOT RUN THAT SCRIPT INSIDE THE CERT FOLDER IN THE REALITY2 FOLDER, ONLY RUN IT IN THE CERT FOLDER YOU HAVE JUST CREATED.  ALSO, DON'T SYMBOLICALLY LINK TO THE REALITY2/CERT FOLDER AS THAT WILL STILL LEAVE THE CERTIFICATES INSIDE THE REALITY2 FOLDER.  Again, this is for security reasons.
 
 3. Optional, but recommended: edit your /etc/hosts file to include the following line - it will allow you to use the domain name reality2 or reality2.local in the webbrowser.  Obviously, you will need admin privileges:
     ```
