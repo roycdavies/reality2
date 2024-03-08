@@ -10,7 +10,7 @@ That said, at least initially, internet connected devices such as browsers, whic
 
 ## GraphQL
 
-Presently, we use a GraphQL API with queries, mutations and subscriptions.  I'll get a Postman defition file in here soon, though of course you can create your own using introspection.
+Presently, we use a GraphQL API with queries, mutations and subscriptions.  I'll get a Postman definition file in here soon, though of course you can create your own using introspection.
 
 ## Sentant definition files
 

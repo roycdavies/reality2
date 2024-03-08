@@ -48,7 +48,7 @@ var monitoringSentant = {
 								}
 							}
 						]
-					}					
+					}
 				]
 			}
 		]
@@ -81,16 +81,16 @@ func sentantAll_response(data, _passthrough={}):
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func sentantLoad(callback, details: String = "id", yamlDefinition = ""):
+func sentantLoad(callback, details: String = "id", definition = ""):
 	var body = """
-		mutation SentantLoad($yamlDefinition: String!) {
-			sentantLoad(yamlDefinition: $yamlDefinition) {
+		mutation SentantLoad($definition: String!) {
+			sentantLoad(definition: $definition) {
 				""" + details + """
 			}
 		}
 	"""
 	var variables = {
-		"yamlDefinition": yamlDefinition
+		"definition": definition
 	}
 	GQL.query(body, callback, variables)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------

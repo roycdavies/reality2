@@ -61,19 +61,19 @@ defmodule Reality2Web.SentantResolver do
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  # Load a Sentant from the yaml_definition.
+  # Load a Sentant from the definition.
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def load_sentant(_root, args, _info) do
-    case Map.get(args, :yaml_definition) do
+    case Map.get(args, :definition) do
       nil ->
-        # There was no yaml_definition
-        {:error, :yaml_definition}
-      yaml_definition ->
-        # Decode the yaml_definition from encoded uri
-        yaml_decoded = URI.decode(yaml_definition)
+        # There was no definition
+        {:error, :definition}
+      definition ->
+        # Decode the definition from encoded uri
+        decoded = URI.decode(definition)
 
         # Create the Sentant (or update it if it already exists and the ID is given)
-        case Reality2.Sentants.create(yaml_decoded) do
+        case Reality2.Sentants.create(decoded) do
           # Success, so get the Sentant details to send back
           {:ok, sentantid} ->
             # Read the sentant detals from the Sentant
@@ -126,19 +126,19 @@ defmodule Reality2Web.SentantResolver do
 
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  # Load a Swarm of Sentants from the yaml_definition.
+  # Load a Swarm of Sentants from the definition.
   # -----------------------------------------------------------------------------------------------------------------------------------------
   def load_swarm(_root, args, _info) do
     # Create a new swarm
-    case Map.get(args, :yaml_definition) do
+    case Map.get(args, :definition) do
       nil ->
-        {:error, :yaml_definition}
-      yaml_definition ->
-        # Decode the yaml_definition from encoded uri
-        yaml_decoded = URI.decode(yaml_definition)
+        {:error, :definition}
+      definition ->
+        # Decode the definition from encoded uri
+        decoded = URI.decode(definition)
 
         # Create the Swarm
-        case Reality2.Swarm.create(yaml_decoded) do
+        case Reality2.Swarm.create(decoded) do
           {:error, {error_code, reason}} -> {:error, Atom.to_string(error_code) <> ":" <> reason}
           {:error, reason} -> {:error, reason}
           {:ok, swarm} ->

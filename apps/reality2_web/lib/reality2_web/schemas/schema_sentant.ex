@@ -136,7 +136,7 @@ defmodule Reality2Web.Schema.Sentant do
     @desc "Load a sentant"
     # ----------------------------------------------------------------------------------------------------
     field :sentant_load, non_null(:sentant) do
-      arg :yaml_definition, non_null(:string)
+      arg :definition, non_null(:string)
       resolve(&SentantResolver.load_sentant/3)
     end
 
@@ -152,7 +152,7 @@ defmodule Reality2Web.Schema.Sentant do
     @desc "Load a swarm of sentants"
     # ----------------------------------------------------------------------------------------------------
     field :swarm_load, non_null(:swarm) do
-      arg :yaml_definition, non_null(:string)
+      arg :definition, non_null(:string)
       resolve(&SentantResolver.load_swarm/3)
     end
 

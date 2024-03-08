@@ -88,15 +88,15 @@ class Reality2:
             return None
     
     # Mutations
-    def sentantLoad (self, yamlDefinition, details = "id name"):
+    def sentantLoad (self, definition, details = "id name"):
         try:
-            return self.__client.execute(self.__sentant_load(details), variable_values={"yamlDefinition": yamlDefinition})
+            return self.__client.execute(self.__sentant_load(details), variable_values={"definition": definition})
         except:
             return None
     
-    def swarmLoad (self, yamlDefinition, details = "id name"):
+    def swarmLoad (self, definition, details = "id name"):
         try:
-            return self.__client.execute(self.__swarm_load(details), variable_values={"yamlDefinition": yamlDefinition})
+            return self.__client.execute(self.__swarm_load(details), variable_values={"definition": definition})
         except:
             return None
     
@@ -286,8 +286,8 @@ class Reality2:
     def __swarm_load (self, details):
         return (gql(
         """
-        mutation SwarmLoad($yamlDefinition: String!) {
-            swarmLoad(yamlDefinition: $yamlDefinition) {
+        mutation SwarmLoad($definition: String!) {
+            swarmLoad(definition: $definition) {
                 description
                 name
                 sentants {
@@ -324,8 +324,8 @@ class Reality2:
     def __sentant_load (self, details):
         return (gql(
         """
-        mutation SentantLoad($yamlDefinition: String!) {
-            sentantLoad(yamlDefinition: $yamlDefinition) {
+        mutation SentantLoad($definition: String!) {
+            sentantLoad(definition: $definition) {
                 """ + details + """
             }
         }
