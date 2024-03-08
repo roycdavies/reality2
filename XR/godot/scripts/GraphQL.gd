@@ -50,9 +50,9 @@ func connected():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func query(the_query, callback, variables={}, headers_dict={}):
+func query(the_query, callback, variables={}, headers_dict={}, passthrough={}):
 	# Queries and Mutations are sent the same way if using POST.
-	mutation(the_query, callback, variables, headers_dict)
+	mutation(the_query, callback, variables, headers_dict, passthrough)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -60,7 +60,7 @@ func query(the_query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Mutation POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func mutation(the_query, callback, variables={}, headers_dict={}):
+func mutation(the_query, callback, variables={}, headers_dict={}, passthrough={}):
 	# Add the standard headers (or overwrite)
 	headers_dict["Content-Type"] = "application/json"
 	headers_dict["Accept"] = "*/*"
@@ -72,7 +72,7 @@ func mutation(the_query, callback, variables={}, headers_dict={}):
 	
 	# Create the body and POST it.
 	var body = JSON.stringify({ "query": the_query, "variables": variables })
-	_POST(body, callback, headers)
+	_POST(body, callback, headers, passthrough)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -81,7 +81,7 @@ func mutation(the_query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # GraphQL subscription via Websockets
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func subscription(the_query, callback, variables={}, headers_dict={}):
+func subscription(the_query, callback, variables={}, headers_dict={}, passthrough={}):
 	if (_socket_connected):
 		# Create a reference to save the callback for later
 		var reference = str(_callbacks_counter)
@@ -99,7 +99,7 @@ func subscription(the_query, callback, variables={}, headers_dict={}):
 		}
 		
 		# Save the callback reference
-		_callbacks[reference] = callback
+		_callbacks[reference] = {"callback": callback, "passthrough": passthrough}
 		_callbacks_counter = _callbacks_counter + 1
 		# Send to the websocket
 		_socket.send_text(JSON.stringify(subscribe))
@@ -137,13 +137,13 @@ func _process(_delta):
 					_callbacks.erase(data_dict.ref)
 				elif (data_dict.payload.status == "error"):
 					if (data_dict.has("ref")):
-						_callbacks[data_dict.ref].call({"errors": [{"message": data_dict.payload.response.reason}]})
+						_callbacks[data_dict.ref].callback.call({"errors": [{"message": data_dict.payload.response.reason}]}, _callbacks[data_dict.ref].passthrough)
 					
 			elif (data_dict.payload.has("result") and data_dict.payload.has("subscriptionId")):
 				# Using the subscriptionId, call the callback routine with the result
 				var subscriptionID = data_dict.payload.subscriptionId
 				if (_callbacks.has(subscriptionID)):
-					_callbacks[subscriptionID].call(data_dict.payload.result)
+					_callbacks[subscriptionID].callback.call(data_dict.payload.result, _callbacks[subscriptionID].passthrough)
 	
 	# Check if it is time for a hearbeat.
 	if (Time.get_ticks_msec() > _socket_heartbeat_time):
@@ -212,7 +212,7 @@ func _SOCKET_heartbeat():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Post data in the body to a URL, with headers, and return the result to the callback function, or an appropriate error
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func _POST(body, callback, headers):
+func _POST(body, callback, headers, passthrough):
 	var uri = _URL(graphql_URL)	
 	var err = 0
 	var http = HTTPClient.new() # Create the Client.
@@ -244,17 +244,17 @@ func _POST(body, callback, headers):
 							var chunk = http.read_response_body_chunk()
 							if chunk.size() != 0:
 								response += chunk
-						callback.call(JSON.parse_string(response.get_string_from_ascii()))
+						callback.call(JSON.parse_string(response.get_string_from_ascii()), passthrough)
 					else:
-						callback.call({"errors": [{"message": "response error"}]})
+						callback.call({"errors": [{"message": "response error"}]}, passthrough)
 				else:
-					callback.call({"errors": [{"message": "request error"}]})
+					callback.call({"errors": [{"message": "request error"}]}, passthrough)
 			else:
-				callback.call({"errors": [{"message": "request error"}]})
+				callback.call({"errors": [{"message": "request error"}]}, passthrough)
 		else:
-			callback.call({"errors": [{"message": "connection error"}]})
+			callback.call({"errors": [{"message": "connection error"}]}, passthrough)
 	else:
-		callback.call({"errors": [{"message": "connection error"}]})
+		callback.call({"errors": [{"message": "connection error"}]}, passthrough)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

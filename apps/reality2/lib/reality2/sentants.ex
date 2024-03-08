@@ -72,7 +72,7 @@ defmodule Reality2.Sentants do
 
   **Parameters**
   - `definition` - A string containing the definition of the Sentant to be created in YAML format.
-  - (or) 'definition_map' - A map as created from a YAML definition.
+  - (or) 'definition_map' - A map as created from a YAML, TOML or JSON definition.
 
   **Returns**
   - `{:ok, id}` - The Sentant was created.
@@ -114,7 +114,7 @@ defmodule Reality2.Sentants do
                       add_plugins_to_sentant(id, sentant_map)
                       add_automations_to_sentant(id, sentant_map)
 
-                      sendto_all(%{event: "_sentant_created", parameters: %{id: id, name: name}})
+                      sendto_all(%{event: "__internal", parameters: %{id: id, name: name, event: "created"}})
                       {:ok, id}
                     error -> error
                 end
@@ -128,7 +128,7 @@ defmodule Reality2.Sentants do
                 add_plugins_to_sentant(existing_id, sentant_map)
                 add_automations_to_sentant(existing_id, sentant_map)
 
-                sendto_all(%{event: "_sentant_created", parameters: %{id: id, name: name}})
+                sendto_all(%{event: "__internal", parameters: %{id: id, name: name, event: "created"}})
                 {:ok, existing_id}
             end
           error -> error
@@ -324,8 +324,9 @@ defmodule Reality2.Sentants do
               name ->
                 Reality2.Metadata.delete(:SentantNames, id)
                 Reality2.Metadata.delete(:SentantIDs, name)
+                sendto_all(%{event: "__internal", parameters: %{id: id, name: name, event: "deleted"}})
+                {:ok, id}
             end
-            {:ok, id}
         end
       end
   end
@@ -408,7 +409,7 @@ defmodule Reality2.Sentants do
   @spec sendto_all(message :: map()) ::
     {:ok, integer()}
   @doc """
-  Send a message to all Sentants.  This is an asynchronous operation, so the result is always `{:ok}`.
+  Send a message to all Sentants.  This is an asynchronous operation, so the result is always `{:ok, num_sentants}`.
 
   - Parameters
     - `message` - The message to be sent, which must contain a `:command` string and optionally a `:parameters` map, and a `:passthrough` map.

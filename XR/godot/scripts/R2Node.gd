@@ -74,8 +74,9 @@ func _process(delta):
 # TODO: Delete existing sentant graphical representations first.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func load_sentants(sentants = []):
+	print (sentants)
 	for sentant in sentants:
-		add_sentant(sentant.name)
+		add_sentant(sentant["name"])
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -83,8 +84,15 @@ func load_sentants(sentants = []):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Add a Sentant to the Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func add_sentant(name):
+func add_sentant(sentant_name):
 	var new_sentant = sentant_scene.instantiate()
-	new_sentant.name = name
+	new_sentant.name = sentant_name
 	add_child(new_sentant)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+func remove_sentant(sentant_name):
+	for child in get_children():
+		if (child.name == sentant_name):
+			remove_child(child)
