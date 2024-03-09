@@ -15,13 +15,15 @@ class_name GraphQL
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Public parameters
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-## URL to main GraphQL API
-@export var graphql_URL: String = "https://localhost:4001/reality2"
-## URL to Websocket used for subscriptions
-@export var websocket_URL: String = "wss://localhost:4001/reality2/websocket"
-## Time to wait before concluding websocket connection is not working
+## Domain name of Node, without the https:// or http://
+@export var domain_name: String = "localhost"
+## Port of the Node.  Usually 4001 (https) or 4002 (http).
+@export var port: String = "4001"
+## Whether to use secure connection or not.  Is is recommended to set this to true.
+@export var secure: bool = true
+## Time to wait before concluding websocket connection is not working (seconds)
 @export var websocket_connection_timeout = 10
-## How often to check the websocket connection to keep it open
+## How often to check the websocket connection to keep it open (seconds)
 @export var websocket_heartbeat = 30
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -34,6 +36,9 @@ var _socket_heartbeat_time
 var _socket_connected = false
 var _callbacks = {}
 var _callbacks_counter = 0
+
+var _graphql_URL: String = ""
+var _websocket_URL: String = ""
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -113,6 +118,13 @@ func subscription(the_query, callback, variables={}, headers_dict={}, passthroug
 # Set things up
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
+	if (secure):
+		_graphql_URL = "https://" + domain_name + ":" + port + "/reality2"
+		_websocket_URL = "wss://" + domain_name + ":" + port + "/reality2/websocket"
+	else:
+		_graphql_URL = "http://" + domain_name + ":" + port + "/reality2"
+		_websocket_URL = "ws://" + domain_name + ":" + port + "/reality2/websocket"
+		
 	_SOCKET_connect()
 	_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -120,7 +132,7 @@ func _ready():
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Poll the Websocket
+# Poll the Websocket and keep it open
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
 	_socket.poll()
@@ -158,7 +170,7 @@ func _process(_delta):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _SOCKET_connect():
 	# Open the connection
-	_socket.connect_to_url(websocket_URL, TLSOptions.client_unsafe())
+	_socket.connect_to_url(_websocket_URL, TLSOptions.client_unsafe())
 	
 	var timeout = Time.get_ticks_msec() + websocket_connection_timeout * 500
 	_socket.poll()
@@ -213,7 +225,7 @@ func _SOCKET_heartbeat():
 # Post data in the body to a URL, with headers, and return the result to the callback function, or an appropriate error
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _POST(body, callback, headers, passthrough):
-	var uri = _URL(graphql_URL)	
+	var uri = _URL(_graphql_URL)	
 	var err = 0
 	var http = HTTPClient.new() # Create the Client.
 

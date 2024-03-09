@@ -49,8 +49,7 @@ script = ExtResource("1_64hbo")
 orbitControls = NodePath("OrbitControls")
 
 [node name="GraphQL" parent="." instance=ExtResource("8_6kerl")]
-graphql_URL = "https://reality2.local:4001/reality2"
-websocket_URL = "wss://reality2.local:4001/reality2/websocket"
+domain_name = "reality2"
 
 [node name="UX" parent="." instance=ExtResource("9_84jqk")]
 
