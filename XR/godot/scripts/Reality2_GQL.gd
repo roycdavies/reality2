@@ -251,9 +251,9 @@ class GQL:
 			"signal": the_signal,
 			"id": id
 		}
-		_GQL.subscription(body, awaitSignal_callback, variables, {}, {"callback": callback, "details": details, "passthrough": passthrough})
+		_GQL.subscription(body, _awaitSignal_callback, variables, {}, {"callback": callback, "details": details, "passthrough": passthrough})
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
-	func awaitSignal_callback(data, passthrough):
+	func _awaitSignal_callback(data, passthrough):
 		var response = []
 		var errors = {}
 		if (data.has("errors")):
