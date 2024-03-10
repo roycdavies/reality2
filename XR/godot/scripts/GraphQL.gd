@@ -167,16 +167,17 @@ func _process(_delta):
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Connect to the websocket in preparation for a subscription call
+# Note that this particular configuration is specfic for Absinthe in Phoenix Server.  You may need to tweak it for other graphql implementations.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _SOCKET_connect():
 	# Open the connection
 	_socket.connect_to_url(_websocket_URL, TLSOptions.client_unsafe())
-	
+
 	var timeout = Time.get_ticks_msec() + websocket_connection_timeout * 500
 	_socket.poll()
 	while (_socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN) and (Time.get_ticks_msec() < timeout):
 		_socket.poll()
-	
+
 	if (Time.get_ticks_msec() < timeout):
 		var join_message = {
 			"topic": "__absinthe__:control",
@@ -185,12 +186,12 @@ func _SOCKET_connect():
 			"ref": 0
 		}
 		_socket.send_text(JSON.stringify(join_message))
-	
+
 		timeout = Time.get_ticks_msec() + websocket_connection_timeout * 500
 		_socket.poll()
 		while (_socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN) and (Time.get_ticks_msec() < timeout):
 			_socket.poll()
-			
+
 		if (Time.get_ticks_msec() < timeout):		
 			_socket_connected = true
 			print ("Websocket Connected")

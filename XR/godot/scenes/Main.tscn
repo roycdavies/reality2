@@ -49,7 +49,7 @@ script = ExtResource("1_64hbo")
 orbitControls = NodePath("OrbitControls")
 
 [node name="GraphQL" parent="." instance=ExtResource("8_6kerl")]
-domain_name = "reality2"
+domain_name = "reality2.local"
 
 [node name="UX" parent="." instance=ExtResource("9_84jqk")]
 
