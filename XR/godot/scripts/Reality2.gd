@@ -7,7 +7,7 @@ extends RigidBody3D
 @export var GQL: Node
 
 @export_group("Reality2 Node")
-@export var NodeNames = ["this"]
+@export var NodeNames = ["localhost"]
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -64,8 +64,8 @@ func _ready():
 		
 		_reality2_nodes[nodeName].r2gql.byName( "monitor", func (id): _reality2_nodes[nodeName].r2gql.sentantUnload(id) )
 		_reality2_nodes[nodeName].r2gql.sentantLoad( JSON.stringify(monitoringSentant) )
-		_reality2_nodes[nodeName].r2gql.sentantAll(func(sentants, _p): add_node(NodeNames[0], sentants), "description id name")
-		_reality2_nodes[nodeName].r2gql.byName( "monitor", func(id): _reality2_nodes[nodeName].r2gql.awaitSignal(id, "internal", _monitor) )
+		_reality2_nodes[nodeName].r2gql.sentantAll(func(sentants, passthrough): add_node(passthrough.name, sentants), "description id name", {"name": nodeName})
+		_reality2_nodes[nodeName].r2gql.byName( "monitor", func(id): _reality2_nodes[nodeName].r2gql.awaitSignal(id, "internal", _monitor, "name id", {"name": nodeName}) )
 	# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -73,13 +73,14 @@ func _ready():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Monitor changes to the Node coming from the Monitor node created above.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func _monitor(data = {}):
+func _monitor(data = {}, passthrough = {}):
+	print ("_MONITOR", data, passthrough)
 	if (data.has("event")):
 		if (data.parameters.has("event")):
 			if (data.parameters.event == "created"):
-				_reality2_nodes[NodeNames[0]].add_sentant(NodeNames[0], data.parameters.name)
+				_reality2_nodes[passthrough.name].node_visual.add_sentant(data.parameters.name)
 			elif (data.parameters.event == "deleted"):
-				_reality2_nodes[NodeNames[0]].remove_sentant(NodeNames[0], data.parameters.name)
+				_reality2_nodes[passthrough.name].node_visual.remove_sentant(data.parameters.name)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
