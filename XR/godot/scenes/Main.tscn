@@ -1,29 +1,12 @@
 [gd_scene load_steps=15 format=3 uid="uid://cc71islaf4sqf"]
 
 [ext_resource type="Script" path="res://scripts/Selector.gd" id="1_64hbo"]
+[ext_resource type="Script" path="res://scripts/GraphQL.gd" id="2_6c3yx"]
 [ext_resource type="Script" path="res://addons/orbit-controls/orbit-controls.gd" id="2_tmv0o"]
 [ext_resource type="PackedScene" uid="uid://m3vri17l8600" path="res://scenes/Reality2.tscn" id="3_reumx"]
 [ext_resource type="Shader" path="res://materials/iridescent/source/star_shader.gdshader" id="4_midff"]
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="5_ikgce"]
-[ext_resource type="PackedScene" uid="uid://b4gje7ot3h305" path="res://scenes/GraphQL.tscn" id="8_6kerl"]
 [ext_resource type="PackedScene" uid="uid://b2bw3n4qi7omp" path="res://scenes/UX.tscn" id="9_84jqk"]
-
-[sub_resource type="Theme" id="Theme_rl7gn"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_mxip7"]
-
-[sub_resource type="Sky" id="Sky_yja41"]
-sky_material = SubResource("ShaderMaterial_mxip7")
-
-[sub_resource type="Environment" id="Environment_qsxco"]
-background_mode = 1
-background_color = Color(0.6, 0.654902, 0.690196, 1)
-sky = SubResource("Sky_yja41")
-ambient_light_source = 2
-reflected_light_source = 2
-volumetric_fog_density = 0.5
-
-[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_xwnjh"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_awh1k"]
 render_priority = 0
@@ -43,17 +26,48 @@ flip_faces = true
 radius = 100.0
 height = 200.0
 
-[node name="Node3D" type="Node3D" node_paths=PackedStringArray("orbitControls")]
+[sub_resource type="Theme" id="Theme_rl7gn"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mxip7"]
+
+[sub_resource type="Sky" id="Sky_yja41"]
+sky_material = SubResource("ShaderMaterial_mxip7")
+
+[sub_resource type="Environment" id="Environment_qsxco"]
+background_mode = 1
+background_color = Color(0.6, 0.654902, 0.690196, 1)
+sky = SubResource("Sky_yja41")
+ambient_light_source = 2
+reflected_light_source = 2
+volumetric_fog_density = 0.5
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_xwnjh"]
+
+[node name="Reality2 Main" type="Node3D" node_paths=PackedStringArray("orbitControls")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
 script = ExtResource("1_64hbo")
-orbitControls = NodePath("OrbitControls")
+orbitControls = NodePath("User Experience/OrbitControls")
 
-[node name="GraphQL" parent="." instance=ExtResource("8_6kerl")]
-domain_name = "reality2.local"
+[node name="localhost" type="Node" parent="."]
+script = ExtResource("2_6c3yx")
 
-[node name="UX" parent="." instance=ExtResource("9_84jqk")]
+[node name="Center" type="Node3D" parent="."]
 
-[node name="OrbitControls" type="Control" parent="."]
+[node name="Reality2" parent="Center" node_paths=PackedStringArray("GQL") instance=ExtResource("3_reumx")]
+mass = 0.01
+GQL = NodePath("../../localhost")
+NodeNames = ["this"]
+
+[node name="OuterShell" type="MeshInstance3D" parent="Center"]
+material_override = SubResource("ShaderMaterial_awh1k")
+mesh = SubResource("SphereMesh_03wrp")
+skeleton = NodePath("../..")
+
+[node name="User Experience" type="Node3D" parent="."]
+
+[node name="Interface" parent="User Experience" instance=ExtResource("9_84jqk")]
+
+[node name="OrbitControls" type="Control" parent="User Experience"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
@@ -63,22 +77,14 @@ script = ExtResource("2_tmv0o")
 _camera = NodePath("../Camera3D")
 max_zoom = 75.0
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="User Experience"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 20)
 doppler_tracking = 2
 current = true
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Camera3D"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="User Experience/Camera3D"]
 light_temperature = 7500.0
 
-[node name="Reality2" parent="." node_paths=PackedStringArray("GQL") instance=ExtResource("3_reumx")]
-mass = 0.01
-GQL = NodePath("../GraphQL")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="User Experience"]
 environment = SubResource("Environment_qsxco")
 camera_attributes = SubResource("CameraAttributesPractical_xwnjh")
-
-[node name="OuterShell" type="MeshInstance3D" parent="."]
-material_override = SubResource("ShaderMaterial_awh1k")
-mesh = SubResource("SphereMesh_03wrp")

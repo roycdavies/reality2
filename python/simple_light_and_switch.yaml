@@ -75,21 +75,13 @@ swarm:
               - command: signal
                 parameters:
                   event: turn_on
-                passthrough:
-                  another: 100
             
           # turn_off event
           - from: "*"
             event: turn_off
             to: off
             actions:
-              - command: set # Set the variable: test (to test passing through of results from one action to the next)
-                parameters:
-                  key: test
-                  value: 42
               - command: signal
                 parameters:
                   event: turn_off
-                passthrough:
-                  another: 100
     # --------------------------------------------------------------------------------------------------

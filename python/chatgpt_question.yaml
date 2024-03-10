@@ -71,10 +71,6 @@ sentant:
           event: chatgpt_response
           to: ready
           actions:
-            - command: set # Set the variable: test (to test passing through of results from one action to the next)
-              parameters:
-                key: test
-                value: 42
             - command: set # Set the variable: answer
               parameters:
                 key: answer
