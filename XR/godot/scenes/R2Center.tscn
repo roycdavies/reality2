@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://m3vri17l8600"]
 
-[ext_resource type="Script" path="res://scripts/Reality2.gd" id="1_g57xc"]
+[ext_resource type="Script" path="res://scripts/R2Center.gd" id="1_jae6o"]
 [ext_resource type="Shader" path="res://materials/iridescent/source/star_shader.gdshader" id="2_dr4sr"]
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="3_1o70l"]
 [ext_resource type="Script" path="res://materials/iridescent/preview/spin.gd" id="4_oq3cs"]
@@ -30,11 +30,11 @@ height = 2.0
 [sub_resource type="SystemFont" id="SystemFont_4yb0d"]
 subpixel_positioning = 0
 
-[node name="Reality2" type="RigidBody3D"]
+[node name="R2Center" type="RigidBody3D"]
 editor_description = "A Reality2 Node"
 gravity_scale = 1.629
 freeze = true
-script = ExtResource("1_g57xc")
+script = ExtResource("1_jae6o")
 
 [node name="CSGSphere3D" type="CSGSphere3D" parent="."]
 visible = false

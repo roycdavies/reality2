@@ -1,11 +1,19 @@
+# ======================================================================================================================================================
+# R2 Center
+# ---------
+#
+# The central sphere in the 3D world, from which all the Reality2 Nodes come out.  Each Reality2 Node gets its own GQL connection.
+#
+# Dr. Roy C.Davies
+# roycdavies.github.io
+# March 2024
+# ======================================================================================================================================================
+
 extends RigidBody3D
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Public Variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-@export_group("GraphQL")
-@export var GQL: Node
-
 @export_group("Reality2 Node")
 @export var NodeNames = ["localhost"]
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -16,6 +24,7 @@ extends RigidBody3D
 # Private Variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 var _node_scene = preload("res://scenes/R2Node.tscn")
+var _GQL_template = preload("res://scenes/GraphQL.tscn")
 var _angularVelocity = Vector3(0,0,0)
 var _reality2_nodes = {}
 var R2GQL
@@ -60,7 +69,8 @@ var monitoringSentant = {
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
 	for nodeName in NodeNames:
-		_reality2_nodes[nodeName] = {"r2gql": Reality2.GQL.new(GQL), "node_visual": null}
+		_reality2_nodes[nodeName] = {"r2gql": Reality2.GQL.new(), "node_visual": null}
+		self.add_child(_reality2_nodes[nodeName].r2gql.GQL())
 		
 		_reality2_nodes[nodeName].r2gql.byName( "monitor", func (id): _reality2_nodes[nodeName].r2gql.sentantUnload(id) )
 		_reality2_nodes[nodeName].r2gql.sentantLoad( JSON.stringify(monitoringSentant) )

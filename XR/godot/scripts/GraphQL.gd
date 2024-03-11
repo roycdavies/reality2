@@ -5,6 +5,7 @@
 # A very simple GraphQL set of functions designed for the Reality2 Node, but could be adapted for other GraphQL scenarios.
 # To use it, create a Node object and add this as its script.  If you need multiple GraphQL connections, create one for each.
 #
+# Dr. Roy C. Davies
 # roycdavies.github.io
 # March 2024
 # ======================================================================================================================================================

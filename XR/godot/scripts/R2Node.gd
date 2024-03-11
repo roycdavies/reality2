@@ -1,13 +1,20 @@
+# ======================================================================================================================================================
+# R2 Node
+# -------
+#
+# Represents a Reality2 node graphically.
+#
+# Dr. Roy C.Davies
+# roycdavies.github.io
+# March 2024
+# ======================================================================================================================================================
+
 extends Node3D
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Public variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-@export_group("Debugging Parameters")
-## Debug Mode
-@export var debug = false
-## Number of Sentants in this Swarm
-@export var numSentants = 5
+
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -15,7 +22,7 @@ extends Node3D
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Private variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-var sentant_scene = preload("res://scenes/Sentant.tscn")
+var sentant_scene = preload("res://scenes/R2Sentant.tscn")
 var angularVelocity = Vector3(0,0,0)
 var shape
 var connecting_line
@@ -44,10 +51,6 @@ func _ready():
 	title.font_size = 30
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(title)
-	
-	if debug:
-		for i in range(0, numSentants):
-			add_sentant("Sentant_" + str(i))
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -71,10 +74,14 @@ func _process(delta):
 	
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Given an array of Sentant details, create the sentant graphical representations connected to this Node.
-# TODO: Delete existing sentant graphical representations first.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func load_sentants(sentants = []):
-	print (sentants)
+	# Remove any existing Sentants
+	for child in get_children():
+		if (!(child.name.begins_with("___") and child.name.ends_with("___"))):
+			remove_child(child)
+		
+	# Add the 'new' ones from the list
 	for sentant in sentants:
 		add_sentant(sentant["name"])
 # ------------------------------------------------------------------------------------------------------------------------------------------------------

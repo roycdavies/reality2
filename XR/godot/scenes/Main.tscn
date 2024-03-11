@@ -1,9 +1,8 @@
-[gd_scene load_steps=15 format=3 uid="uid://cc71islaf4sqf"]
+[gd_scene load_steps=14 format=3 uid="uid://cc71islaf4sqf"]
 
 [ext_resource type="Script" path="res://scripts/Selector.gd" id="1_64hbo"]
-[ext_resource type="Script" path="res://scripts/GraphQL.gd" id="2_6c3yx"]
 [ext_resource type="Script" path="res://addons/orbit-controls/orbit-controls.gd" id="2_tmv0o"]
-[ext_resource type="PackedScene" uid="uid://m3vri17l8600" path="res://scenes/Reality2.tscn" id="3_reumx"]
+[ext_resource type="PackedScene" uid="uid://m3vri17l8600" path="res://scenes/R2Center.tscn" id="3_reumx"]
 [ext_resource type="Shader" path="res://materials/iridescent/source/star_shader.gdshader" id="4_midff"]
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="5_ikgce"]
 [ext_resource type="PackedScene" uid="uid://b2bw3n4qi7omp" path="res://scenes/UX.tscn" id="9_84jqk"]
@@ -48,14 +47,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.0
 script = ExtResource("1_64hbo")
 orbitControls = NodePath("User Experience/OrbitControls")
 
-[node name="localhost" type="Node" parent="."]
-script = ExtResource("2_6c3yx")
-
 [node name="Center" type="Node3D" parent="."]
 
-[node name="Reality2" parent="Center" node_paths=PackedStringArray("GQL") instance=ExtResource("3_reumx")]
+[node name="Reality2" parent="Center" instance=ExtResource("3_reumx")]
 mass = 0.01
-GQL = NodePath("../../localhost")
 NodeNames = ["this"]
 
 [node name="OuterShell" type="MeshInstance3D" parent="Center"]

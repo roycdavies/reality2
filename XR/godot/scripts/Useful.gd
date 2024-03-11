@@ -1,10 +1,24 @@
+# ======================================================================================================================================================
+# Useful
+# ------
+#
+# Some useful functions.
+#
+# Dr. Roy C.Davies
+# roycdavies.github.io
+# March 2024
+# ======================================================================================================================================================
+
 class_name Useful
 
-static func gentle_twist(delta, angularVelocity):
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Create a gentle twisting, swaying motion.  When called, keep the angularVelocity as a variable, and call from the _process function, passing in delta.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+static func gentle_twist(delta, angularVelocity: Vector3):
 	# Create some gentle sway-y motion
 	if (randf() > 0.7):
 		var stepValue = delta / 1000
-		var maxValue = stepValue * 30.0
+		var maxValue = stepValue * 20.0
 		
 		var xDirection = randf() > 0.5
 		var yDirection = randf() > 0.5
@@ -28,5 +42,6 @@ static func gentle_twist(delta, angularVelocity):
 			angularVelocity.z -= stepValue
 		angularVelocity.z = clampf(angularVelocity.z, -maxValue, maxValue)
 	
-	# Set the angular velocity of this node	
+	# return the new angular velocity
 	return(angularVelocity)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
