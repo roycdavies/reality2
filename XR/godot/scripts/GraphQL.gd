@@ -54,6 +54,26 @@ func connected():
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func set_domain(_secure: bool, _domain_name: String, _port: int):
+	domain_name = _domain_name
+	secure = _secure
+	port = str(_port)
+	
+	if (secure):
+		_graphql_URL = "https://" + domain_name + ":" + port + "/reality2"
+		_websocket_URL = "wss://" + domain_name + ":" + port + "/reality2/websocket"
+	else:
+		_graphql_URL = "http://" + domain_name + ":" + port + "/reality2"
+		_websocket_URL = "ws://" + domain_name + ":" + port + "/reality2/websocket"
+		
+	_SOCKET_connect()
+	_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func query(the_query, callback, variables={}, headers_dict={}, passthrough={}):
@@ -85,12 +105,13 @@ func mutation(the_query, callback, variables={}, headers_dict={}, passthrough={}
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# GraphQL subscription via Websockets
+# GraphQL subscription via Websocket
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func subscription(the_query, callback, variables={}, headers_dict={}, passthrough={}):
 	if (_socket_connected):
 		# Create a reference to save the callback for later
 		var reference = str(_callbacks_counter)
+		print (reference)
 		
 		# The subscription message (with the reference that is returned later)
 		var subscribe = {
@@ -110,18 +131,9 @@ func subscription(the_query, callback, variables={}, headers_dict={}, passthroug
 		# Send to the websocket
 		_socket.send_text(JSON.stringify(subscribe))
 	else:
-		callback.call({"errors": [{"message": "Websocket not connected"}]})
+		callback.call({"errors": [{"message": "Websocket not connected"}]}, passthrough)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
-func set_domain(_secure: bool, _domain_name: String, _port: int):
-	domain_name = _domain_name
-	secure = _secure
-	port = str(_port)
-# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -136,8 +148,8 @@ func _ready():
 		_graphql_URL = "http://" + domain_name + ":" + port + "/reality2"
 		_websocket_URL = "ws://" + domain_name + ":" + port + "/reality2/websocket"
 		
-	_SOCKET_connect()
-	_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
+	#_SOCKET_connect()
+	#_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

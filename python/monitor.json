@@ -1,19 +1,30 @@
-sentant:
-  name: "Monitor the Node"
-  automations:
-    - from: start
-      event: init
-      to: ready
-
-    - from: ready
-      event: __node.sentantLoad
-      to: ready
-      actions:
-        - command: set
-          parameters:
-            key: id
-            value: __id__
-        - command: signal
-          public: true
-          parameters:
-            event: sentantLoad
+{
+	"sentant": {
+		"name": "monitor",
+		"automations": [
+			{
+				"name": "Monitor",
+				"transitions": [
+					{
+						"from": "start",
+						"to": "idle",
+						"event": "init"
+					},
+					{
+						"from": "idle",
+						"to": "idle",
+						"event": "__internal",
+						"actions": [
+							{
+								"command": "signal",
+								"parameters": {
+									"event": "internal"
+								}
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}

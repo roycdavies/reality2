@@ -51,7 +51,7 @@ orbitControls = NodePath("User Experience/OrbitControls")
 
 [node name="Reality2" parent="Center" instance=ExtResource("3_reumx")]
 mass = 0.01
-NodeNames = ["this"]
+NodeNames = ["localhost", "reality2", "reality2.local"]
 
 [node name="OuterShell" type="MeshInstance3D" parent="Center"]
 material_override = SubResource("ShaderMaterial_awh1k")

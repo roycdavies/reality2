@@ -69,7 +69,7 @@ var monitoringSentant = {
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
 	for nodeName in NodeNames:
-		_reality2_nodes[nodeName] = {"r2gql": Reality2.GQL.new(), "node_visual": null}
+		_reality2_nodes[nodeName] = {"r2gql": Reality2.GQL.new(true, nodeName, 4001), "node_visual": null}
 		self.add_child(_reality2_nodes[nodeName].r2gql.GQL())
 		
 		_reality2_nodes[nodeName].r2gql.byName( "monitor", func (id): _reality2_nodes[nodeName].r2gql.sentantUnload(id) )
@@ -109,11 +109,10 @@ func _process(delta):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Add a Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func add_node(the_name: String, sentants = []):
-	for nodeName in NodeNames:
-		_reality2_nodes[nodeName].node_visual = _node_scene.instantiate()
-		_reality2_nodes[nodeName].node_visual.load_sentants(sentants)
-			
-		_reality2_nodes[nodeName].node_visual.name = the_name
-		add_child(_reality2_nodes[nodeName].node_visual)
+func add_node(nodeName: String, sentants = []):
+	_reality2_nodes[nodeName].node_visual = _node_scene.instantiate()
+	_reality2_nodes[nodeName].node_visual.load_sentants(sentants)
+		
+	_reality2_nodes[nodeName].node_visual.name = nodeName
+	add_child(_reality2_nodes[nodeName].node_visual)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
