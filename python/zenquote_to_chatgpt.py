@@ -33,4 +33,7 @@ reality2_node.awaitSignal(id, "chatgpt_answer", printout)
 time.sleep(1)
 # Send the event to the Sentant
 reality2_node.sentantSend(id, "zenquote")
+
+time.sleep(3)
+reality2_node.close()
     

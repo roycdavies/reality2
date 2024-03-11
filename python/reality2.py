@@ -9,6 +9,7 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from websockets.sync.client import connect, ssl
 
+# Avoid errors with self-signed certificates.
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -30,7 +31,7 @@ class Reality2:
     __client: Client
     __transport: RequestsHTTPTransport
     
-    __running = True
+    __events = []
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -57,13 +58,21 @@ class Reality2:
     
     
     # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def close(self):
+        for thread in self.__events:
+            thread.set()
+        self.__client.close_sync()
+        self.__transport.close()  
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+
+    
+    
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Destructor - Close the connection(s)
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __del__ (self):
-        print("Closing Connections")
-        self.__running = False
-        self.__client.close_async()
-        self.__transport.close()
+        self.close()
     # --------------------------------------------------------------------------------------------------------------------------------------------------
         
         
@@ -132,7 +141,10 @@ class Reality2:
     
     # Subscriptions
     def awaitSignal (self, id, signal, callback=None, details="event parameters passthrough sentant { id name }"):
-        threading.Thread(target=self.__subscribe, args=(self.__graphql_webs_url, id, signal, callback, details, )).start()
+        newEvent = threading.Event()
+        self.__events.append(newEvent)
+        newThread = threading.Thread(target=self.__subscribe, args=(self.__graphql_webs_url, id, signal, callback, details, newEvent, ))
+        newThread.start()
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
         
@@ -165,7 +177,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Define the heartbeat thread that keeps the websocket connection alive (to be called in it's own a thread)
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __heartbeat_thread (self, websocket):
+    def __heartbeat_thread (self, websocket, running: threading.Event):
         heartbeat = {
             "topic": "phoenix",
             "event": "heartbeat",
@@ -173,8 +185,10 @@ class Reality2:
             "ref": 0
         }
         
-        while self.__running:
-            time.sleep(30)
+        while not running.is_set():
+            for i in range(30):
+                time.sleep(1)
+                if running.is_set(): break
             websocket.send(json.dumps(heartbeat))
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -183,7 +197,7 @@ class Reality2:
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Scubscribe to the Node channel representing the sentant and signal
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    def __subscribe (self, server, sentantid, signal, callback, details):
+    def __subscribe (self, server, sentantid, signal, callback, details, running: threading.Event):
         join_message = {
             "topic": "__absinthe__:control",
             "event": "phx_join",
@@ -212,13 +226,13 @@ class Reality2:
             ssl_context.verify_mode = ssl.CERT_NONE
             
             with connect(server, ssl_context=ssl_context) as websocket:
-                self.__after_connect(websocket, join_message, subscribe, sentantid, signal, callback, server)
+                self.__after_connect(websocket, join_message, subscribe, sentantid, signal, callback, server, running)
         else:
             with connect(server) as websocket:
-                self.__after_connect(websocket, join_message, subscribe, sentantid, signal, callback, server)
+                self.__after_connect(websocket, join_message, subscribe, sentantid, signal, callback, server, running)
             
             
-    def __after_connect(self, websocket, join_message, subscribe, sentantid, signal, callback, server):
+    def __after_connect(self, websocket, join_message, subscribe, sentantid, signal, callback, server, running: threading.Event):
         # Join the channel
         websocket.send(json.dumps(join_message))
         message = websocket.recv()
@@ -238,10 +252,10 @@ class Reality2:
             return
                     
         # Start the heartbeat thread
-        threading.Thread(target=self.__heartbeat_thread, args=(websocket,)).start()
+        threading.Thread(target=self.__heartbeat_thread, args=(websocket, running, )).start()
         
         # Listen for messages
-        while self.__running:
+        while not running.is_set():
             message = websocket.recv()
             message_json = json.loads(message)
             payload = message_json["payload"]

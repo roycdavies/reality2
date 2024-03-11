@@ -28,3 +28,6 @@ time.sleep(1)
 # Send some events
 reality2_node.sentantSend(id_switch, "turn_on")
 reality2_node.sentantSend(id_switch, "turn_off")
+
+time.sleep(3)
+reality2_node.close()
