@@ -34,5 +34,5 @@ reality2_node.sentantSend(id, "chatgpt")
 reality2_node.sentantSend(id, "chatgpt", {"message": "What is the meaning of life?"})
 reality2_node.sentantSend(id, "chatgpt", {"message": "Give me 10 topics for teaching about 3D printers"})
 
-time.sleep(5)
+time.sleep(10)
 reality2_node.close()

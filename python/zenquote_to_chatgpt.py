@@ -34,6 +34,6 @@ time.sleep(1)
 # Send the event to the Sentant
 reality2_node.sentantSend(id, "zenquote")
 
-time.sleep(3)
+time.sleep(5)
 reality2_node.close()
     
