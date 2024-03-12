@@ -35,7 +35,7 @@ sentant:
       url: https://zenquotes.io/api/random
       method: GET
       headers:
-        "Content-Type": "application/json"        
+        "Content-Type": "application/json"
       output:
         key: zenquote
         value: "0.q"
@@ -45,6 +45,7 @@ sentant:
 
 
   # ----------------------------------------------------------------------------------------------------
+  # Automations (A list, so begin with a dash)
   # ----------------------------------------------------------------------------------------------------
   automations:
     - name: Zen Quote
