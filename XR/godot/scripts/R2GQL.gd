@@ -45,6 +45,9 @@ class GQL:
 
 	# Convert the name of a Sentant to its ID.  If a Sentant with that name does not exist, calls back with null, otherwise the ID.
 	func byName(name: String, callback): _byName(name, callback)
+	
+	# Return true if currently connected.
+	func connected(): return _GQL.connected()
 		
 	# ------------------------------
 	# Queries
@@ -255,6 +258,47 @@ class GQL:
 				passthrough.callback.call(response, passthrough.passthrough)
 			else:
 				print ("SENTANT_UNLOAD: ", response)
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	
+	
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	# Send an event and parameters to 
+	# --------------------------------------------------------------------------------------------------------------------------------------------------
+	func _sentantSend(id, event, parameters, callback, details, passthrough):
+		if id:
+			var body = """
+				mutation SentantSend($id: UUID4!, $event: String!, $parameters: Json) {
+					sentantSend(id: $id, event: $event, parameters: $parameters) {
+					""" + details + """
+					}
+				}
+			"""
+			var variables = {
+				"id": id,
+				"event": event,
+				"parameters": JSON.stringify(parameters)
+			}
+			_GQL.mutation(body, _sentantSend_response, variables, {}, {"callback": callback, "passthrough": passthrough})
+		else:
+			if callback:
+				callback.call({"message":"invalid id"})
+	# --------------------------------------------------------------------------------------------------------------------------------------------------		
+	func _sentantSend_response(data, passthrough):
+		var response = []
+		var errors = {}
+		if (data.has("errors")):
+			errors = data["errors"]
+			if passthrough.callback:
+				passthrough.callback.call(errors[0], passthrough.passthrough)
+			else:
+				print("ERROR: ", errors[0])
+		else:
+			response = data["data"]["sentantSend"]
+			if passthrough.callback:
+				passthrough.callback.call(response, passthrough.passthrough)
+			else:
+				print ("SENTANT_SEND: ", response)
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 
 

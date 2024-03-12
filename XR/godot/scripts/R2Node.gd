@@ -80,10 +80,11 @@ func load_sentants(sentants = []):
 	for child in get_children():
 		if (!(child.name.begins_with("___") and child.name.ends_with("___"))):
 			remove_child(child)
-		
+
 	# Add the 'new' ones from the list
 	for sentant in sentants:
-		add_sentant(sentant["name"])
+		if (sentant.has("name")):
+			add_sentant(sentant["name"])
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

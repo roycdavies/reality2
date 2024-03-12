@@ -112,9 +112,10 @@ func _process(delta):
 # Add a Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func add_node(nodeName: String, sentants = []):
-	_reality2_nodes[nodeName].node_visual = _node_scene.instantiate()
-	_reality2_nodes[nodeName].node_visual.load_sentants(sentants)
-		
-	_reality2_nodes[nodeName].node_visual.name = nodeName
-	add_child(_reality2_nodes[nodeName].node_visual)
+	if (_reality2_nodes[nodeName].r2gql.connected()):
+		_reality2_nodes[nodeName].node_visual = _node_scene.instantiate()
+		_reality2_nodes[nodeName].node_visual.load_sentants(sentants)
+			
+		_reality2_nodes[nodeName].node_visual.name = nodeName
+		add_child(_reality2_nodes[nodeName].node_visual)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
