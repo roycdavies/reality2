@@ -11,7 +11,8 @@ defmodule AiReality2Auth.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      description: "Reality2 Authentication Plugin"
     ]
   end
 

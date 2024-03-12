@@ -10,7 +10,6 @@ defmodule Reality2.Automation do
 
   @doc false
   use GenServer, restart: :transient
-  alias Absinthe.Subscription
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # Supervisor Callbacks
@@ -324,7 +323,7 @@ defmodule Reality2.Automation do
               passthrough: passthrough
             }
             IO.puts("subscription_data: " <> inspect(subscription_data, pretty: true))
-            Subscription.publish(Reality2Web.Endpoint, subscription_data, await_signal: id <> "|" <> event)
+            Absinthe.Subscription.publish(Reality2Web.Endpoint, subscription_data, await_signal: id <> "|" <> event)
             %{}
         end
     end

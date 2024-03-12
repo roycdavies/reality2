@@ -14,7 +14,7 @@ defmodule Reality2.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      description: "Reality2 Sentient Agent (Sentant) based Platform with plugin architecture for Intuitive Spatial Computing supporting Assistive Technologies.",
+      description: "Reality2 Sentient Agent (Sentant) Platform",
 
       name: "Reality2.AI",
       source_url: "https://github.com/roycdavies/reality2/tree/main/apps/reality2",

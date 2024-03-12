@@ -14,7 +14,7 @@ defmodule Reality2Web.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      description: "Reality2 Web Application",
+      description: "Reality2 Web and GraphQL Application",
 
       name: "Reality2.Web",
       source_url: "https://github.com/roycdavies/reality2",

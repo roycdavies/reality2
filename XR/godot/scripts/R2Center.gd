@@ -72,8 +72,10 @@ func _ready():
 		_reality2_nodes[nodeName] = {"r2gql": Reality2.GQL.new(true, nodeName, 4001), "node_visual": null}
 		self.add_child(_reality2_nodes[nodeName].r2gql.GQL())
 		
-		_reality2_nodes[nodeName].r2gql.byName( "monitor", func (id): _reality2_nodes[nodeName].r2gql.sentantUnload(id) )
-		_reality2_nodes[nodeName].r2gql.sentantLoad( JSON.stringify(monitoringSentant) )
+		_reality2_nodes[nodeName].r2gql.byName( "monitor", func (id):
+			if (id == null):
+				_reality2_nodes[nodeName].r2gql.sentantLoad( JSON.stringify(monitoringSentant) )				
+		)
 		_reality2_nodes[nodeName].r2gql.sentantAll(func(sentants, passthrough): add_node(passthrough.name, sentants), "description id name", {"name": nodeName})
 		_reality2_nodes[nodeName].r2gql.byName( "monitor", func(id): _reality2_nodes[nodeName].r2gql.awaitSignal(id, "internal", _monitor, "name id", {"name": nodeName}) )
 	# ------------------------------------------------------------------------------------------------------------------------------------------------------
