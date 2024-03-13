@@ -16,6 +16,7 @@ import time
 import re
 import pygeohash
 from pyubx2 import UBXReader    # https://pypi.org/project/pyubx2/
+from requests import *
 
 from reality2 import Reality2
 from fsm import *
@@ -23,11 +24,9 @@ from fsm import *
 # ====================================================================================================
 # Variables
 # ====================================================================================================
-reality2 = "/root/Development/Reality2/Reality2/run_as_dev"
+reality2 = "/root/Reality2/Reality2/SBC/unihiker/start_reality2"
 unihiker_config_file = "/opt/unihiker/pyboardUI/config.cfg"
 unihiker_config = {}
-useremail = "roy@imersia.com"
-password = "1gelk0tt"
 led = ""
 rgblight = ""
 ipaddr = ""
@@ -39,18 +38,8 @@ stateGUI = ""
 gpsGUI = ""
 qrcode = ""
 qrcode_text = ""
-geobotid1 = "a10ba25c-e8b1-11ea-b1e6-6474f696ef8e"
-geobotid2 = "8de3d445-112f-11ee-913c-7cf01f83542a"
-trackedgeobot = "92ffcbea-54c6-11ee-ad48-1a9b443f7516"
 gps_serial_port = None
 prev_geohash = ""
-server = {
-    "apiurl": "https://localhost/api",
-    "sessionid": "",
-    "userid": "9527ca9c-e8b1-11ea-9b9c-647413e74bfc",
-    "developerid": "test",
-    "geohash": "rcknm16mwdqz"
-}
 
 display_wifi_qr = True
 
@@ -159,7 +148,7 @@ def print_state():
 def get_hotspot_ip():
     ipaddr = ""
     adapters = ifaddr.get_adapters()
-    # print (adapters)
+    print (adapters)
     
     # First see if there is a wifi connection
     for adapter in adapters:
@@ -185,7 +174,7 @@ def get_hotspot_ip():
 # Switch between QR codes
 # ----------------------------------------------------------------------------------------------------
 def switch_qr():
-    global display_wifi_qr, qrcode, qrcode_text, ipaddr, wifi_ssid, wifi_password, geobotid1, geobotid2
+    global display_wifi_qr, qrcode, qrcode_text, ipaddr, wifi_ssid, wifi_password
     
     display_wifi_qr = not display_wifi_qr
     
@@ -193,8 +182,8 @@ def switch_qr():
         qrcode.config(text=generate_wifi_qr_code(wifi_ssid, wifi_password))
         qrcode_text.config(text="ssid: " + wifi_ssid + " pass: " + wifi_password)
     else:
-        qrcode.config(text="https://" + ipaddr + "/?id=" + geobotid1)
-        qrcode_text.config(text="geobot")
+        qrcode.config(text="https://" + ipaddr + ":4001")
+        qrcode_text.config(text="reality2 web")
 # ----------------------------------------------------------------------------------------------------
 
 
@@ -203,7 +192,7 @@ def switch_qr():
 # Set things up
 # ----------------------------------------------------------------------------------------------------
 def initialise():
-    global messageGUI, stateGUI, requests, gui, qrcode, qrcode_text, display_wifi_qr, led, rgblight, wifi_ssid, wifi_password, ipaddr
+    global messageGUI, stateGUI, gui, qrcode, qrcode_text, display_wifi_qr, led, rgblight, wifi_ssid, wifi_password, ipaddr
     
     with open(unihiker_config_file) as user_file:
         unihiker_config = json.loads(user_file.read())
@@ -213,14 +202,14 @@ def initialise():
     # Get the IP Addr of this Reality2 Node
     ipaddr = get_hotspot_ip()
 
-    # Setup the callbacks for the buttons
+    # Set up the callbacks for the buttons
     gui.on_a_click(on_a_click)
     gui.on_b_click(on_b_click)
 
     # Draw the original message and keep the GUI object
     messageGUI = gui.draw_text(x=120, y=50, text="Initialising", origin="n", font_size=10)
     
-    # Create a scannable QR code to the Geobot
+    # Create a scannable QR code to the Wifi
     if (ipaddr == ""):
         gui.draw_text(x=120, y=170, text="No Network", origin="n", font_size=10)
     else:
@@ -234,7 +223,7 @@ def initialise():
     gui.start_thread(print_state)
 
     # Disable warnings due to not having proper certificates for SSH
-    requests.packages.urllib3.disable_warnings()
+    # requests.packages.urllib3.disable_warnings()
 
     # Start the sensors board
     Board().begin()
@@ -262,16 +251,15 @@ def check_reality2(_):
 
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
-def check_receiving(_):
-    global server
+def check_server(is_running):
+    global Reality2FSM
     
-    data = OPTIONS(server, "sessions", {})
-    if data["status"] != -500:
+    if (is_running):
         Reality2FSM.event("serverok")
-        return (True)
     else:
-        Reality2FSM.event("checkserver", 2)
-        return (False)
+        Reality2FSM.event("checkserver", 1)
+        
+    return (True)
 # ----------------------------------------------------------------------------------------------------
 
 
@@ -299,8 +287,7 @@ def start_reality2(is_running):
 # Stop Reality2 Node
 # ----------------------------------------------------------------------------------------------------
 def stop_thread():
-    subprocess.run(["killall", "heart"])
-    subprocess.run(["killall", "reality2"])
+    subprocess.run(["killall", "beam.smp"])
 
 def stop_reality2(is_running):
     global Reality2FSM
@@ -316,21 +303,10 @@ def stop_reality2(is_running):
 # ----------------------------------------------------------------------------------------------------
 # Log in
 # ----------------------------------------------------------------------------------------------------
-def log_in(_):
-    global useremail, password, Reality2FSM, server
+def connect_monitor(_):
+    global Reality2FSM, server
 
-    # Log in
-    # data = GET(server, "sessions", {"useremail":useremail, "password":password})
-    # if data["status"] == 200:
-    #     print(data["result"])
-    #     server["sessionid"] = data["result"]["sessionid"]
-    #     Reality2FSM.event("loggedin")
-    #     return (True)
-    # else:
-    #     Reality2FSM.event("login", 2)
-    #     return (False)
-    
-    Reality2FSM.event("loggedin")
+    Reality2FSM.event("connected")
     return (True)
 # ----------------------------------------------------------------------------------------------------
 
@@ -369,16 +345,6 @@ def set_led(value):
 # ----------------------------------------------------------------------------------------------------
 def interpret_message(message):
     pass
-    # messagejson = json.loads(message)
-    # if ("wotcha" in messagejson):
-    #     wotcha = messagejson["wotcha"]
-    #     # print (wotcha)
-    #     if ("trigger" in wotcha):
-    #         trigger = wotcha["trigger"]
-    #         # print (trigger)
-    #         if not ("channelid" in trigger):
-    #             print (trigger["event"])
-    #             Reality2FSM.event(trigger["event"])
 # ----------------------------------------------------------------------------------------------------
                 
                 
@@ -470,28 +436,28 @@ def quit(_):
 # ----------------------------------------------------------------------------------------------------
 # Set the transitions
 # ----------------------------------------------------------------------------------------------------
-#                       state               event               newstate            actions
-Reality2FSM.add(Transition("start",            "init",             "starting",         ["Starting Reality2 Node", printout, check_reality2, start_reality2]))
+#                           state               event               newstate            actions
+Reality2FSM.add(Transition("start",            "init",             "starting",          ["Starting Reality2 Node", printout, check_reality2, start_reality2]))
 
-Reality2FSM.add(Transition("starting",         "checkserver",      "starting",         [check_receiving]))
-Reality2FSM.add(Transition("starting",         "serverok",         "loggingin",        ["Logging in", printout, log_in]))
+Reality2FSM.add(Transition("starting",         "checkserver",      "starting",          [check_reality2, check_server]))
+Reality2FSM.add(Transition("starting",         "serverok",         "connecting",        ["Connecting", printout, connect_monitor]))
 
-Reality2FSM.add(Transition("loggingin",        "login",            "loggingin",        [log_in]))
-Reality2FSM.add(Transition("loggingin",        "loggedin",         "wotching",         ["Reality2 Node ready", printout, connect_to_companion]))
-Reality2FSM.add(Transition("loggingin",        "error",            "error",            ["Error", printout]))
+Reality2FSM.add(Transition("connecting",       "connect",          "connecting",        [connect_monitor]))
+Reality2FSM.add(Transition("connecting",       "connected",        "ready",             ["Reality2 Node ready", printout, connect_to_companion]))
+Reality2FSM.add(Transition("connecting",       "error",            "error",             ["Error", printout]))
 
-Reality2FSM.add(Transition("wotching",         "connected",        "companion",        ["Connected to Companion", printout]))
-Reality2FSM.add(Transition("wotching",         "error",            "error",            ["Error", printout]))
+Reality2FSM.add(Transition("wotching",         "connected",        "companion",         ["Connected to Companion", printout]))
+Reality2FSM.add(Transition("wotching",         "error",            "error",             ["Error", printout]))
 
-Reality2FSM.add(Transition("companion",        "error",            "error",            ["Error", printout]))
+Reality2FSM.add(Transition("companion",        "error",            "error",             ["Error", printout]))
 
 
-Reality2FSM.add(Transition("companion",        "a_button",         "companion",        ["Sending Message", printout, "touch", send_event]))
-Reality2FSM.add(Transition("companion",        "on",               "companion",        ["ON", printout, "1", set_led]))
-Reality2FSM.add(Transition("companion",        "off",              "companion",        ["OFF", printout, "0", set_led]))
+Reality2FSM.add(Transition("companion",        "a_button",         "companion",         ["Sending Message", printout, "touch", send_event]))
+Reality2FSM.add(Transition("companion",        "on",               "companion",         ["ON", printout, "1", set_led]))
+Reality2FSM.add(Transition("companion",        "off",              "companion",         ["OFF", printout, "0", set_led]))
 
-Reality2FSM.add(Transition("*",                "clear",            "*",                [clear]))
-Reality2FSM.add(Transition("*",                "b_button",         "quitting",         ["Quitting...", printout, check_reality2, stop_reality2, quit]))
+Reality2FSM.add(Transition("*",                "clear",            "*",                 [clear]))
+Reality2FSM.add(Transition("*",                "b_button",         "quitting",          ["Quitting...", printout, check_reality2, stop_reality2, quit]))
 # ----------------------------------------------------------------------------------------------------
 
 # Open the serial port for the GPS unit
