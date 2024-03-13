@@ -418,9 +418,11 @@ def wait_for_message(ws):
 #     the_companion = threading.Thread(target=wait_for_message, args=(ws,))
 #     the_companion.start()
         
-# def connect_to_companion(_):
-#     start_websocket = threading.Thread(target=connect)
-#     start_websocket.start()
+def connect_to_companion(_):
+    Reality2FSM.event("connected")
+
+    # start_websocket = threading.Thread(target=connect)
+    # start_websocket.start()
 # ----------------------------------------------------------------------------------------------------
 
 
