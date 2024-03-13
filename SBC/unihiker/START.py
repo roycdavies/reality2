@@ -16,6 +16,7 @@ import time
 import re
 import pygeohash
 from pyubx2 import UBXReader    # https://pypi.org/project/pyubx2/
+import requests
 
 from reality2 import Reality2
 from fsm import *
@@ -234,7 +235,7 @@ def initialise():
     gui.start_thread(print_state)
 
     # Disable warnings due to not having proper certificates for SSH
-    requests.packages.urllib3.disable_warnings()
+    # requests.packages.urllib3.disable_warnings()
 
     # Start the sensors board
     Board().begin()
