@@ -1,10 +1,7 @@
+
+
 from reality2 import Reality2
 import time
-
-def printout(data):
-    print(data["awaitSignal"])
-    # print(data["awaitSignal"]["parameters"]["zenquote"])
-    
 
 reality2_node = Reality2("localhost", 4001, True)
 reality2_node.sentantUnloadByName("Zen ChatGPT")
@@ -20,20 +17,24 @@ yamlDefinition = yamlDefinition.replace("__openai_api_key__", OPENAI_API_KEY)
     
 # Load the Sentant
 result = reality2_node.sentantLoad(yamlDefinition)
-print(result)
 
 # Grab the ID of the Sentant
 id = result["sentantLoad"]["id"]
 
-# Start the subscription to the Sentant
-reality2_node.awaitSignal(id, "zenquote_answer", printout)
-reality2_node.awaitSignal(id, "chatgpt_answer", printout)
+# Start the subscriptions to the Sentant
+reality2_node.awaitSignal(id, "zenquote_answer",
+    lambda data: print(data["awaitSignal"]["parameters"]["zenquote"]))
+reality2_node.awaitSignal(id, "chatgpt_answer",
+    lambda data: print(data["awaitSignal"]["parameters"]["answer"]))
 
 
 time.sleep(1)
 # Send the event to the Sentant
 reality2_node.sentantSend(id, "zenquote")
 
-time.sleep(5)
+time.sleep(10)
+# Close the subscriptions
 reality2_node.close()
+    
+    
     

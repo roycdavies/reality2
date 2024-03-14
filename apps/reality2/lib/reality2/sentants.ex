@@ -312,8 +312,10 @@ defmodule Reality2.Sentants do
       nil ->
         {:error, :id}
       pid ->
-        # Remove the Apps assoeciated with plugins from the Sentant
+        # Remove the Apps associated with plugins from the Sentant
         remove_plugins_from_sentant(id)
+
+        # TODO: Close any websockets for this Sentant
 
         # Remove the Sentant processes.  Potentially, if this fails, the sentant could be left running, but with no plugin processes in the Apps.
         case Supervisor.stop(pid, :shutdown) do
