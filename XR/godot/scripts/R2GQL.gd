@@ -71,7 +71,7 @@ class GQL:
 	func sentantUnload(id = null, callback = null, details = "id name", passthrough = {}): _sentantUnload(id, callback, details, passthrough)
 	
 	# Send an event with parameters to a Sentant
-	func sentantSend(id = null, event = null, parameters = {}, callback = null, details = "id name", passthrough = {}): pass
+	func sentantSend(id = null, event = null, parameters = {}, callback = null, details = "id name", passthrough = {}): _sentantSend(id, event parameters, callback, details, passsthrough)
 	
 	# Load a swarm of Sentants
 	func swarmLoad(definition = null, callback = null, details = "id name", passthrough = {}): pass
