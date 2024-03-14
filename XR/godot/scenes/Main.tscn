@@ -55,7 +55,7 @@ mesh = SubResource("SphereMesh_03wrp")
 skeleton = NodePath("../..")
 
 [node name="R2Center" parent="Center" instance=ExtResource("4_lv0r6")]
-NodeNames = ["localhost", "10.1.2.3"]
+NodeNames = ["localhost", "10.1.2.3", "130.216.239.48"]
 
 [node name="User Experience" type="Node3D" parent="."]
 

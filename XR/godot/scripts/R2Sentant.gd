@@ -20,6 +20,16 @@ var shape
 
 
 
+func set_color(the_color: Color):
+	var child = get_child(0)
+	var material = StandardMaterial3D.new()
+	material.albedo_color = Color.DARK_GRAY # Red color, RGBA
+
+	child.material_override = material
+
+	
+	
+
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Set up the Sentant visual representation, and connect the floaty springs code.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -41,6 +51,9 @@ func _ready():
 	title.font_size = 30
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(title)
+	
+	if(name == "monitor"):
+		set_color(Color.DARK_BLUE)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
