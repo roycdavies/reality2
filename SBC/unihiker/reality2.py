@@ -5,9 +5,9 @@
 import json
 import time
 import threading
-from gql import gql, Client
-from gql.transport.requests import RequestsHTTPTransport
 from websockets.sync.client import connect, ssl
+
+import requests
 
 # Avoid errors with self-signed certificates.
 import urllib3
@@ -28,9 +28,6 @@ class Reality2:
     __graphql_webs_url: str
     __secure: True
     
-    __client: Client
-    __transport: RequestsHTTPTransport
-    
     __events = []
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -47,12 +44,6 @@ class Reality2:
         else:
             self.__graphql_http_url = "http://" + domain_name + ":" + str(port) + "/reality2"
             self.__graphql_webs_url = "ws://" + domain_name + ":" + str(port) + "/reality2/websocket"
-        
-        # Select your transport with a defined url endpoint
-        self.__transport = RequestsHTTPTransport(url=self.__graphql_http_url, verify=False, retries=3)
-        
-        # Create a GraphQL client using the defined transport
-        self.__client = Client(transport=self.__transport, fetch_schema_from_transport=True)
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     
     
@@ -62,8 +53,6 @@ class Reality2:
     def close(self):
         for thread in self.__events:
             thread.set()
-        self.__client.close_sync()
-        self.__transport.close()  
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
     
@@ -74,58 +63,61 @@ class Reality2:
     def __del__ (self):
         pass
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-        
+    
+    
+    
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    # A POST for using with GraphQL
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+    def __graphql_post(self, query, variables):
+        try:
+            body = {
+                "query": query,
+                "variables": json.dumps(variables)
+            }
+            answer = requests.post(self.__graphql_http_url, data = body, verify = False)
+            if answer.status_code == 200:
+                return (answer.json()["data"])
+            else:
+                return None
+        except:
+            return None
+    # --------------------------------------------------------------------------------------------------------------------------------------------------
+
         
         
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Public GraphQL methods
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     # Queries
-    def sentantAll (self, details = "id name"):
-        try:
-            return self.__client.execute(self.__sentant_all(details))
-        except:
-            return None
+    def sentantAll (self, details = "id name"):   
+        return self.__graphql_post(self.__sentant_all(details), {})
+
     
     def sentantGet (self, id="", name = "", details = "id name"):
-        try:
-            if (id != ""):
-                return self.__client.execute(self.__sentant_get_by_id(details), variable_values={"id": id})
-            else:
-                return self.__client.execute(self.__sentant_get_by_name(details), variable_values={"name": name})
-        except:
-            return None
+        if (id != ""):
+            return self.__graphql_post(self.__sentant_get_by_id(details), {"id": id})
+        else:
+            return self.__graphql_post(self.__sentant_get_by_name(details), {"name": name})
     
     # Mutations
     def sentantLoad (self, definition, details = "id name"):
-        try:
-            return self.__client.execute(self.__sentant_load(details), variable_values={"definition": definition})
-        except:
-            return None
+        return self.__graphql_post(self.__sentant_load(details), {"definition": definition})
     
     def swarmLoad (self, definition, details = "id name"):
-        try:
-            return self.__client.execute(self.__swarm_load(details), variable_values={"definition": definition})
-        except:
-            return None
+        return self.__graphql_post(self.__swarm_load(details), {"definition": definition})
     
     def sentantSend (self, id, event, parameters = {}, details = "description name"):
-        try:
-            return self.__client.execute(self.__sentant_send(details), variable_values={"id": id, "event": event, "parameters": json.dumps(parameters)})
-        except:
-            return None
+        return self.__graphql_post(self.__sentant_send(details), {"id": id, "event": event, "parameters": json.dumps(parameters)})
     
     def sentantUnload (self, id, details = "id name"):
-        try:
-            return self.__client.execute(self.__sentant_unload(details), variable_values={"id": id})
-        except:
-            return None
+        return self.__graphql_post(self.__sentant_unload(details), {"id": id})
     
     def sentantUnloadByName (self, name, details = "id name"):
         sentant = self.sentantGet(name=name, details="id")
         if (sentant and sentant["sentantGet"]):
             try:
-                return self.__client.execute(self.__sentant_unload(details), variable_values={"id": sentant["sentantGet"]["id"]})
+                return self.__graphql_post(self.__sentant_unload(details), {"id": sentant["sentantGet"]["id"]})
             except:
                 return None
         else:
@@ -277,7 +269,7 @@ class Reality2:
 
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------
-    # Await Signal definition (note the lack of gql() is on purpose as this is a subscription to the websocket
+    # Await Signal definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __await_signal (self, details):
         return (
@@ -298,7 +290,7 @@ class Reality2:
     # Load Swarm definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __swarm_load (self, details):
-        return (gql(
+        return (
         """
         mutation SwarmLoad($definition: String!) {
             swarmLoad(definition: $definition) {
@@ -310,7 +302,7 @@ class Reality2:
             }
         }
         """
-    ))
+    )
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -319,7 +311,7 @@ class Reality2:
     # Send Event definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __sentant_send (self, details):
-        return (gql(
+        return (
         """
         mutation SentantSend($id: UUID4!, $event: String!, $parameters: Json) {
             sentantSend(id: $id, event: $event, parameters: $parameters) {
@@ -327,7 +319,7 @@ class Reality2:
             }
         }
         """
-    ))
+    )
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -336,7 +328,7 @@ class Reality2:
     # Load a Sentant definition
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __sentant_load (self, details):
-        return (gql(
+        return (
         """
         mutation SentantLoad($definition: String!) {
             sentantLoad(definition: $definition) {
@@ -344,7 +336,7 @@ class Reality2:
             }
         }
         """
-    ))
+    )
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -353,7 +345,7 @@ class Reality2:
     # Unload a Sentant
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __sentant_unload (self, details):
-        return (gql(
+        return (
         """
         mutation SentantUnload($id: UUID4!) {
             sentantUnload(id: $id) {
@@ -361,7 +353,7 @@ class Reality2:
             }
         }
         """
-    ))
+    )
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -370,7 +362,7 @@ class Reality2:
     # Get a Sentant's details
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __sentant_get_by_id (self, details):
-        return (gql(
+        return (
         """
         query SentantGet($id: UUID4) {
             sentantGet(id: $id) {
@@ -378,7 +370,7 @@ class Reality2:
             }
         }
         """
-    ))
+    )
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -387,7 +379,7 @@ class Reality2:
     # Get a Sentant's details
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __sentant_get_by_name (self, details):
-        return (gql(
+        return (
         """
         query SentantGet($name: String) {
             sentantGet(name: $name) {
@@ -395,7 +387,7 @@ class Reality2:
             }
         }
         """
-    ))
+    )
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -404,7 +396,7 @@ class Reality2:
     # Get all Sentant's details
     # --------------------------------------------------------------------------------------------------------------------------------------------------
     def __sentant_all (self, details):
-        return (gql(
+        return (
         """
         query SentantAll {
             sentantAll {
@@ -412,7 +404,7 @@ class Reality2:
             }
         }
         """
-    ))
+    )
     # --------------------------------------------------------------------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
