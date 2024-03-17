@@ -1,13 +1,20 @@
+# ======================================================================================================================================================
+# R2 Node
+# -------
+#
+# Represents a Reality2 node graphically.
+#
+# Dr. Roy C.Davies
+# roycdavies.github.io
+# March 2024
+# ======================================================================================================================================================
+
 extends Node3D
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Public variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-@export_group("Debugging Parameters")
-## Debug Mode
-@export var debug = false
-## Number of Sentants in this Swarm
-@export var numSentants = 5
+@export var r2class: String
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -15,7 +22,7 @@ extends Node3D
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Private variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-var sentant_scene = preload("res://scenes/Sentant.tscn")
+var sentant_scene = preload("res://scenes/R2Sentant.tscn")
 var angularVelocity = Vector3(0,0,0)
 var shape
 var connecting_line
@@ -44,10 +51,6 @@ func _ready():
 	title.font_size = 30
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(title)
-	
-	if debug:
-		for i in range(0, numSentants):
-			add_sentant("Sentant_" + str(i))
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -60,34 +63,7 @@ func _process(delta):
 	shape.update(delta)
 	
 	# Add a bit of gentel motion
-	#self.rotation = Useful.gentle_twist(delta, angularVelocity, self.rotation)
-	
-	var stepValue = delta / 1000
-	var maxValue = stepValue * 30.0
-	
-	var xDirection = randf() > 0.5
-	var yDirection = randf() > 0.5
-	var zDirection = randf() > 0.5
-	
-	if (xDirection):
-		angularVelocity.x += stepValue
-	else:
-		angularVelocity.x -= stepValue
-	angularVelocity.x = clampf(angularVelocity.x, -maxValue, maxValue)
-		
-	if (yDirection):
-		angularVelocity.y += stepValue
-	else:
-		angularVelocity.y -= stepValue	
-	angularVelocity.y = clampf(angularVelocity.y, -maxValue, maxValue)
-		
-	if (zDirection):
-		angularVelocity.z += stepValue
-	else:
-		angularVelocity.z -= stepValue
-	angularVelocity.z = clampf(angularVelocity.z, -maxValue, maxValue)
-	
-	# Set the rotation of this node	
+	angularVelocity = Useful.gentle_twist(delta, angularVelocity)
 	rotation = rotation + angularVelocity
 	
 	# Update the connecting line between this node and its parent
@@ -98,20 +74,38 @@ func _process(delta):
 	
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Given an array of Sentant details, create the sentant graphical representations connected to this Node.
-# TODO: Delete existing sentant graphical representations first.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func load_sentants(sentants = []):
+	# Remove any existing Sentants
+	for child in get_children():
+		if (!(child.name.begins_with("___") and child.name.ends_with("___"))):
+			remove_child(child)
+
+	# Add the 'new' ones from the list
 	for sentant in sentants:
-		add_sentant(sentant.name)
+		if (sentant.has("name")):
+			add_sentant(sentant["name"])
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 	
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Add a Sentant to the Node
+# Add a Sentant to this Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func add_sentant(name):
+func add_sentant(sentant_name):
 	var new_sentant = sentant_scene.instantiate()
-	new_sentant.name = name
+	new_sentant.name = sentant_name
+	new_sentant.r2class = "sentant"
 	add_child(new_sentant)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Remove a Sentant from this node
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func remove_sentant(sentant_name):
+	for child in get_children():
+		if (child.name == sentant_name):
+			remove_child(child)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------

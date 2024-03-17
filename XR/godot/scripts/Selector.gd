@@ -14,7 +14,8 @@ extends Node3D
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Public variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-@export var orbitControls :Node
+@export var orbitControls: Control
+@export var UX: Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -32,6 +33,7 @@ var xr_interface: XRInterface
 # Set up some XR stuff.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
+	UX.set_menu("Reality2")
 	xr_interface = XRServer.find_interface("OpenXR")
 	if xr_interface and xr_interface.is_initialized():
 		print("OpenXR initialized successfully")
@@ -66,24 +68,44 @@ func _process(delta):
 # From the mouse position, find which object is under the mouse when clicked, and move the view to look at it.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _unhandled_input(event):
-	if (event is InputEventMouseButton) || (event is InputEventScreenTouch):
+	if (event is InputEventMouseButton):
+		print(event)
 		if event["button_index"] == 1 && event["pressed"]:
-			var space = get_world_3d().get_direct_space_state()
-			var mousePosViewport = get_viewport().get_mouse_position()
-			var camera = get_viewport().get_camera_3d()
-			var rayOrigin = camera.project_ray_origin(mousePosViewport)
-			var rayEnd = rayOrigin+camera.project_ray_normal(mousePosViewport)*100
-			var detectionParameters = PhysicsRayQueryParameters3D.new() 
-			detectionParameters.collide_with_bodies = true
-			detectionParameters.collide_with_areas = true
-			detectionParameters.from = rayOrigin
-			detectionParameters.to = rayEnd	
+			handle_input(event)
+	elif (event is InputEventScreenTouch):
+		if event["index"] == 0 && event["pressed"]:
+			handle_input(event)
+		
+func handle_input(event):
+	var space = get_world_3d().get_direct_space_state()
+	var mousePosViewport = get_viewport().get_mouse_position()
+	var camera = get_viewport().get_camera_3d()
+	var rayOrigin = camera.project_ray_origin(mousePosViewport)
+	var rayEnd = rayOrigin+camera.project_ray_normal(mousePosViewport)*100
+	var detectionParameters = PhysicsRayQueryParameters3D.new() 
+	detectionParameters.collide_with_bodies = true
+	detectionParameters.collide_with_areas = true
+	detectionParameters.from = rayOrigin
+	detectionParameters.to = rayEnd	
+	
+	var result = space.intersect_ray(detectionParameters)
+	if result and result.collider:
+		var object = result.collider.get_parent()
+		if (object.name == "Center"):
+			UX.set_menu("Reality2")
+		elif (object.name == "monitor"):
+			UX.set_menu("None")
+		elif object.r2class == "node":
+			UX.set_menu("Node")					
+		elif object.r2class == "sentant":
+			UX.set_menu("Sentant")		
 			
-			var result = space.intersect_ray(detectionParameters)
-			if result and result.collider:
-				var object = result.collider.get_parent()
-				if (object.name == "root"):
-					object = result.collider.get_parent()
-				currentObject = object
-				lerper = 0.0
+		if ("r2class" in object): 
+			print (object.r2class)
+		currentObject = object
+		lerper = 0.0
+	else:
+		UX.unselect()
+		
+	
 # ------------------------------------------------------------------------------------------------------------------------------------------------------

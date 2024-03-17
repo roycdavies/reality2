@@ -298,15 +298,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		on_mouse_wheel(event)
 		
 	# ON TOUCH
-	if event is InputEventScreenTouch:
-		if event.pressed:
-			on_touch_down(event)
-		else:
-			on_touch_up(event)
+	#if event is InputEventScreenTouch:
+		#if event.pressed:
+			#on_touch_down(event)
+		#else:
+			#on_touch_up(event)
 			
 	# ON TOUCH DRAG
-	if event is InputEventScreenDrag:
-		on_touch_move(event)
+	#if event is InputEventScreenDrag:
+		#on_touch_move(event)
+		
+	#accept_event()
 
 func save_state() -> void:
 	target0 = target
@@ -428,10 +430,10 @@ func remove_pointer(event):
 	
 	pointerPositions.erase(event.index)
 	
-	for i in pointers.size():
-		if pointers[i].index == event.index:
-			pointers.remove(i)
-			return
+	#for i in pointers.size():
+		#if pointers[i].index == event.index:
+			#pointers.remove(i)
+			#return
 
 func track_pointer(event):
 

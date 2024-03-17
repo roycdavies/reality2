@@ -3,6 +3,10 @@
 extends Control
 class_name RadialMenuAdvanced
 
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Public variables
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 ##Draws layer every frame, will be disabled on start
 @export										var select_action_name : String = 'fire'
 @export										var action_released : bool = false
@@ -59,16 +63,23 @@ class_name RadialMenuAdvanced
 @export_range(-250, 256, 1)					var animated_pulse_offset:int = 0
 @export_range(-56, 56, 1)					var animated_pulse_speed:int = 10
 @export										var animated_pulse_color:Color = Color.WHITE
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Signals
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 signal slot_selected(slot,  index: int)
 signal selection_canceled
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Private Variables
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 enum STROKE_TYPE {OUTLINE, INNER, OUTER}
-
 
 var viewport_size:Vector2
 
@@ -80,45 +91,52 @@ var childs := {}
 var radius := 0
 var line_rotation_offset := 0
 var offset := Vector2.ZERO
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Set up
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
 	viewport_size = Vector2(
 		ProjectSettings.get('display/window/size/viewport_width'),
 		ProjectSettings.get('display/window/size/viewport_height')
 	)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Various Set Functions
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _set_drawing(val:bool):
 	enabled = val
 	set_process(val)
-	#set_process_unhandled_input(mouse_enabled if val else false)
-
-
+	set_process_unhandled_input(mouse_enabled if val else false)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _set_mouse_enabled(val:bool):
 	mouse_enabled = val
-	#set_process_unhandled_input(val)
+	set_process_unhandled_input(val)
 	if !val:		selection = -1
-
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _set_children_rotate(val:bool):
 	children_rotate = val
 	if !val:
 		for v in get_children():
 			if (v is Control) and v.visible:
 				v.rotation = 0
-		
-
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _set_auto_radius(val):
 	if val:
 		radius = int(viewport_size.y / 2.5)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-
-
-
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Some helpful constants
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 const ROT_OFFSETS = {
 	3 : deg_to_rad(30),
 	5 : deg_to_rad(54),
@@ -128,14 +146,21 @@ const ROT_OFFSETS = {
 	13 : deg_to_rad(20),
 	15 : deg_to_rad(6),
 }
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func calc_by_stroke_type(width, type:STROKE_TYPE):
-	return (((width / 2.0) * (-1 if type == STROKE_TYPE.INNER else 1)) if (type != STROKE_TYPE.OUTLINE)else 0.0)
+	return (((width / 2.0) * (-1 if type == STROKE_TYPE.INNER else 1)) if (type != STROKE_TYPE.OUTLINE) else 0.0)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Draw a child element
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func draw_child(i:int, texture_offset = Vector2.ZERO, i_default:int = 0):
 	var children := []
 	for v in get_children():
@@ -153,17 +178,19 @@ func draw_child(i:int, texture_offset = Vector2.ZERO, i_default:int = 0):
 		if children_auto_sizing:
 			factor = (radius / (children_size * 1.5)) * children_auto_sizing_factor
 			
-		
 		child._set_size.call_deferred(Vector2.ONE * children_size * factor)
 		child.position = (offset - (child.size / 2.0)) + texture_offset + children_offset
 		child.pivot_offset = child.size / 2.0
 		
-		
 		if children_rotate:
 			child.rotation_degrees = int(360 - 360 * (i / float(child_count)))
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# The main drawing routine
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _draw():
 	offset = Vector2(
 		self.size.x / 2.0,
@@ -173,7 +200,6 @@ func _draw():
 	var smallest = (self.size.y / 2.0)
 	if (size.x / 2.0) < smallest:
 		smallest = (self.size.x / 2.0)
-	
 	
 	radius = int(smallest)
 	childs.clear()
@@ -185,23 +211,11 @@ func _draw():
 				radius = int(smallest)
 	else:
 		radius = circle_radius
-	
-	
-	
-	
-	
-	
+
 	draw_circle(offset, radius, color)
-	
-	
-	
 	
 	if selection == -1 and first_in_center:
 		draw_circle(offset, arc_inner_radius, hover_color)
-	
-	
-	
-	
 	
 	child_count = 0
 	for v in get_children():
@@ -215,7 +229,6 @@ func _draw():
 	if ROT_OFFSETS.has(child_count):
 		rads_offset = (ROT_OFFSETS[child_count]as float)
 	
-	
 	if child_count > 0:
 		for i in child_count:
 			var rads = (TAU * i / child_count)
@@ -223,27 +236,20 @@ func _draw():
 			
 			i += 1
 			
-			
-			
 			var starts_rads = ((TAU * (i - 1)) / child_count) - rads_offset
 			var ends_rads = ((TAU * i) / child_count) - rads_offset
 			
 			starts_rads -= deg_to_rad(line_rotation_offset)
 			ends_rads -= deg_to_rad(line_rotation_offset)
 			
-			
 			match child_count:
 				1:			ends_rads += 0.4188		#deg_to_rad(24)
 				5, 9:		i -= 1
 			
-			
 			var mid_rads = (starts_rads + ends_rads) / 2.0 * -1
 			var radius_mid = (arc_inner_radius + radius) / 2.0
 			
-			
 			var draw_pos = (radius_mid * Vector2.from_angle(mid_rads))
-			
-			
 			
 			i = wrap(i, 0, child_count)
 			
@@ -264,7 +270,6 @@ func _draw():
 					PackedColorArray([hover_color]),
 				)
 			
-			
 			if child_count > 1:
 				var point :Vector2= Vector2.from_angle(rads)
 				draw_line(
@@ -275,14 +280,10 @@ func _draw():
 					line_antialised
 				)
 			
-			
 			draw_child(i + (1 if first_in_center else -1), draw_pos, i)
-	
 	
 	if first_in_center and (child_count > 0):
 		draw_child(0, Vector2.ZERO, -1)
-	
-	
 	
 	draw_arc(offset, arc_inner_radius, arc_start_angle, arc_end_angle, arc_detail, arc_color, arc_line_width, arc_antialiased)
 	
@@ -292,12 +293,15 @@ func _draw():
 	if animated_pulse_enabled:
 		if delta >= 100:			delta = 0.0
 		draw_arc(offset, (radius - animated_pulse_offset + animated_pulse_intensity + sin(delta * animated_pulse_speed) * animated_pulse_intensity), TAU, 128, arc_detail, animated_pulse_color, arc_line_width, arc_antialiased)
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Main routine
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
 	if radius < 2:		return
-	
 	
 	if animated_pulse_enabled:
 		delta += _delta
@@ -307,7 +311,6 @@ func _process(_delta):
 		var size_offset = (viewport_size/2.0 - (offset - circle_offset))
 		
 		var mouse_pos = (get_global_mouse_position() - viewport_size / 2.0) - size_offset + pos_offset - circle_offset
-		
 		
 		var mouse_radius = mouse_pos.length()
 		
@@ -320,26 +323,34 @@ func _process(_delta):
 				selection= 0
 		elif mouse_radius < radius:
 			var mouse_rads = fposmod(-mouse_pos.angle(), TAU) + deg_to_rad(line_rotation_offset)
-			
 			selection = wrap(      ceil(((mouse_rads / TAU) * child_count)),   0,    child_count      )
-			
-	
 	
 	queue_redraw()
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-
-
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# The input function where it all begins
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _unhandled_input(event):
-
-	#if (event.is_action_released(select_action_name)if action_released else event.is_action_pressed(select_action_name)): 
-	if (event is InputEventMouseButton) || (event is InputEventScreenTouch):
+	if (event is InputEventMouseButton):
 		if event["button_index"] == 1 && event["pressed"]:
 			if selection != -2:
 				emit_signal('slot_selected', childs[str(selection)]if childs.has(str(selection))else null, selection)
+	elif (event is InputEventScreenTouch):
+		if event["index"] == 0 && event["pressed"]:
+			if selection != -2:
+				emit_signal('slot_selected', childs[str(selection)]if childs.has(str(selection))else null, selection)
+			
+			#
+	#if (event.is_action_released(select_action_name) if action_released else event.is_action_pressed(select_action_name)): 
+		#if selection != -2:
+			#emit_signal('slot_selected', childs[str(selection)]if childs.has(str(selection))else null, selection)
+	#elif event is InputEventScreenTouch:
+		#if selection != -2:
+			#emit_signal('slot_selected', childs[str(selection)]if childs.has(str(selection))else null, selection)
 	
 	if event.is_action_pressed('ui_cancel'):
-		emit_signal('selection_canceled')
-	
-	
+		emit_signal('selection_canceled')	
+# ------------------------------------------------------------------------------------------------------------------------------------------------------

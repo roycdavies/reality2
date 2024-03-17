@@ -5,6 +5,7 @@
 # A way to create objects with children that encircle them, keeping on average a specified distance from each other and the centre object, in a springy,
 # floaty way.
 #
+# Dr. Roy C.Davies
 # roycdavies.github.io
 # March 2024
 # ======================================================================================================================================================

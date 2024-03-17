@@ -5,6 +5,7 @@
 # A very simple GraphQL set of functions designed for the Reality2 Node, but could be adapted for other GraphQL scenarios.
 # To use it, create a Node object and add this as its script.  If you need multiple GraphQL connections, create one for each.
 #
+# Dr. Roy C. Davies
 # roycdavies.github.io
 # March 2024
 # ======================================================================================================================================================
@@ -15,13 +16,15 @@ class_name GraphQL
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Public parameters
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-## URL to main GraphQL API
-@export var graphql_URL: String = "https://localhost:4001/reality2"
-## URL to Websocket used for subscriptions
-@export var websocket_URL: String = "wss://localhost:4001/reality2/websocket"
-## Time to wait before concluding websocket connection is not working
+## Domain name of Node, without the https:// or http://
+@export var domain_name: String = "localhost"
+## Port of the Node.  Usually 4001 (https) or 4002 (http).
+@export var port: String = "4001"
+## Whether to use secure connection or not.  Is is recommended to set this to true.
+@export var secure: bool = true
+## Time to wait before concluding websocket connection is not working (seconds)
 @export var websocket_connection_timeout = 10
-## How often to check the websocket connection to keep it open
+## How often to check the websocket connection to keep it open (seconds)
 @export var websocket_heartbeat = 30
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -34,6 +37,9 @@ var _socket_heartbeat_time
 var _socket_connected = false
 var _callbacks = {}
 var _callbacks_counter = 0
+
+var _graphql_URL: String = ""
+var _websocket_URL: String = ""
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -48,11 +54,31 @@ func connected():
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func set_domain(_secure: bool, _domain_name: String, _port: int):
+	domain_name = _domain_name
+	secure = _secure
+	port = str(_port)
+	
+	if (secure):
+		_graphql_URL = "https://" + domain_name + ":" + port + "/reality2"
+		_websocket_URL = "wss://" + domain_name + ":" + port + "/reality2/websocket"
+	else:
+		_graphql_URL = "http://" + domain_name + ":" + port + "/reality2"
+		_websocket_URL = "ws://" + domain_name + ":" + port + "/reality2/websocket"
+		
+	_SOCKET_connect()
+	_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Query POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func query(the_query, callback, variables={}, headers_dict={}):
+func query(the_query, callback, variables={}, headers_dict={}, passthrough={}):
 	# Queries and Mutations are sent the same way if using POST.
-	mutation(the_query, callback, variables, headers_dict)
+	mutation(the_query, callback, variables, headers_dict, passthrough)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -60,7 +86,7 @@ func query(the_query, callback, variables={}, headers_dict={}):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Do a GraphQL Mutation POST call
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func mutation(the_query, callback, variables={}, headers_dict={}):
+func mutation(the_query, callback, variables={}, headers_dict={}, passthrough={}):
 	# Add the standard headers (or overwrite)
 	headers_dict["Content-Type"] = "application/json"
 	headers_dict["Accept"] = "*/*"
@@ -72,19 +98,20 @@ func mutation(the_query, callback, variables={}, headers_dict={}):
 	
 	# Create the body and POST it.
 	var body = JSON.stringify({ "query": the_query, "variables": variables })
-	_POST(body, callback, headers)
+	_POST(body, callback, headers, passthrough)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# GraphQL subscription via Websockets
+# GraphQL subscription via Websocket
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func subscription(the_query, callback, variables={}, headers_dict={}):
+func subscription(the_query, callback, variables={}, headers_dict={}, passthrough={}):
 	if (_socket_connected):
 		# Create a reference to save the callback for later
 		var reference = str(_callbacks_counter)
+		print (reference)
 		
 		# The subscription message (with the reference that is returned later)
 		var subscribe = {
@@ -99,13 +126,14 @@ func subscription(the_query, callback, variables={}, headers_dict={}):
 		}
 		
 		# Save the callback reference
-		_callbacks[reference] = callback
+		_callbacks[reference] = {"callback": callback, "passthrough": passthrough}
 		_callbacks_counter = _callbacks_counter + 1
 		# Send to the websocket
 		_socket.send_text(JSON.stringify(subscribe))
 	else:
-		callback.call({"errors": [{"message": "Websocket not connected"}]})
+		callback.call({"errors": [{"message": "Websocket not connected"}]}, passthrough)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -113,14 +141,21 @@ func subscription(the_query, callback, variables={}, headers_dict={}):
 # Set things up
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _ready():
-	_SOCKET_connect()
-	_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
+	if (secure):
+		_graphql_URL = "https://" + domain_name + ":" + port + "/reality2"
+		_websocket_URL = "wss://" + domain_name + ":" + port + "/reality2/websocket"
+	else:
+		_graphql_URL = "http://" + domain_name + ":" + port + "/reality2"
+		_websocket_URL = "ws://" + domain_name + ":" + port + "/reality2/websocket"
+		
+	#_SOCKET_connect()
+	#_socket_heartbeat_time = Time.get_ticks_msec() + websocket_heartbeat * 1000
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-# Poll the Websocket
+# Poll the Websocket and keep it open
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _process(_delta):
 	_socket.poll()
@@ -137,13 +172,13 @@ func _process(_delta):
 					_callbacks.erase(data_dict.ref)
 				elif (data_dict.payload.status == "error"):
 					if (data_dict.has("ref")):
-						_callbacks[data_dict.ref].call({"errors": [{"message": data_dict.payload.response.reason}]})
+						_callbacks[data_dict.ref].callback.call({"errors": [{"message": data_dict.payload.response.reason}]}, _callbacks[data_dict.ref].passthrough)
 					
 			elif (data_dict.payload.has("result") and data_dict.payload.has("subscriptionId")):
 				# Using the subscriptionId, call the callback routine with the result
 				var subscriptionID = data_dict.payload.subscriptionId
 				if (_callbacks.has(subscriptionID)):
-					_callbacks[subscriptionID].call(data_dict.payload.result)
+					_callbacks[subscriptionID].callback.call(data_dict.payload.result, _callbacks[subscriptionID].passthrough)
 	
 	# Check if it is time for a hearbeat.
 	if (Time.get_ticks_msec() > _socket_heartbeat_time):
@@ -155,16 +190,17 @@ func _process(_delta):
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Connect to the websocket in preparation for a subscription call
+# Note that this particular configuration is specfic for Absinthe in Phoenix Server.  You may need to tweak it for other graphql implementations.
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _SOCKET_connect():
 	# Open the connection
-	_socket.connect_to_url(websocket_URL, TLSOptions.client_unsafe())
-	
+	_socket.connect_to_url(_websocket_URL, TLSOptions.client_unsafe())
+
 	var timeout = Time.get_ticks_msec() + websocket_connection_timeout * 500
 	_socket.poll()
 	while (_socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN) and (Time.get_ticks_msec() < timeout):
 		_socket.poll()
-	
+
 	if (Time.get_ticks_msec() < timeout):
 		var join_message = {
 			"topic": "__absinthe__:control",
@@ -173,12 +209,12 @@ func _SOCKET_connect():
 			"ref": 0
 		}
 		_socket.send_text(JSON.stringify(join_message))
-	
+
 		timeout = Time.get_ticks_msec() + websocket_connection_timeout * 500
 		_socket.poll()
 		while (_socket.get_ready_state() != WebSocketPeer.State.STATE_OPEN) and (Time.get_ticks_msec() < timeout):
 			_socket.poll()
-			
+
 		if (Time.get_ticks_msec() < timeout):		
 			_socket_connected = true
 			print ("Websocket Connected")
@@ -212,8 +248,8 @@ func _SOCKET_heartbeat():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Post data in the body to a URL, with headers, and return the result to the callback function, or an appropriate error
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func _POST(body, callback, headers):
-	var uri = _URL(graphql_URL)	
+func _POST(body, callback, headers, passthrough):
+	var uri = _URL(_graphql_URL)	
 	var err = 0
 	var http = HTTPClient.new() # Create the Client.
 
@@ -244,17 +280,17 @@ func _POST(body, callback, headers):
 							var chunk = http.read_response_body_chunk()
 							if chunk.size() != 0:
 								response += chunk
-						callback.call(JSON.parse_string(response.get_string_from_ascii()))
+						callback.call(JSON.parse_string(response.get_string_from_ascii()), passthrough)
 					else:
-						callback.call({"errors": [{"message": "response error"}]})
+						callback.call({"errors": [{"message": "response error"}]}, passthrough)
 				else:
-					callback.call({"errors": [{"message": "request error"}]})
+					callback.call({"errors": [{"message": "request error"}]}, passthrough)
 			else:
-				callback.call({"errors": [{"message": "request error"}]})
+				callback.call({"errors": [{"message": "request error"}]}, passthrough)
 		else:
-			callback.call({"errors": [{"message": "connection error"}]})
+			callback.call({"errors": [{"message": "connection error"}]}, passthrough)
 	else:
-		callback.call({"errors": [{"message": "connection error"}]})
+		callback.call({"errors": [{"message": "connection error"}]}, passthrough)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

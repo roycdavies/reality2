@@ -4,20 +4,20 @@
             "outputFile": "com.godot.game-mergeDebugResources-9:/values-en/values-en.xml",
             "map": [
                 {
-                    "source": "/Volumes/Storage/Development/Reality2/Reality2/XR/godot/android/build/res/values-en/godot_project_name_string.xml",
+                    "source": "/home/roycdavies/Development/Reality2/Reality2/XR/godot/android/build/res/values-en/godot_project_name_string.xml",
                     "from": {
                         "startLines": "3",
                         "startColumns": "1",
                         "startOffsets": "112",
-                        "endColumns": "68",
-                        "endOffsets": "179"
+                        "endColumns": "66",
+                        "endOffsets": "177"
                     },
                     "to": {
                         "startLines": "2",
                         "startColumns": "4",
                         "startOffsets": "55",
-                        "endColumns": "71",
-                        "endOffsets": "122"
+                        "endColumns": "69",
+                        "endOffsets": "120"
                     }
                 }
             ]

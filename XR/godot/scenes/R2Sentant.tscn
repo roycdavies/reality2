@@ -16,7 +16,7 @@ shader_parameter/uv_scale = Vector2(6, 4)
 shader_parameter/glitter_glow_intensity = 0.1
 shader_parameter/noise_direction_sampler = ExtResource("3_thne8")
 shader_parameter/shimmer_glow_intensity = 0.2
-shader_parameter/fresnel_power = 2.0
+shader_parameter/fresnel_power = 4.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_wvkfr"]
 
