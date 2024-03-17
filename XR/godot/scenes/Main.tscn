@@ -1,11 +1,10 @@
-[gd_scene load_steps=15 format=3 uid="uid://cc71islaf4sqf"]
+[gd_scene load_steps=14 format=3 uid="uid://cc71islaf4sqf"]
 
 [ext_resource type="Script" path="res://scripts/Selector.gd" id="1_64hbo"]
 [ext_resource type="Script" path="res://addons/orbit-controls/orbit-controls.gd" id="2_tmv0o"]
 [ext_resource type="PackedScene" uid="uid://m3vri17l8600" path="res://scenes/R2Center.tscn" id="4_lv0r6"]
 [ext_resource type="Shader" path="res://materials/iridescent/source/star_shader.gdshader" id="4_midff"]
 [ext_resource type="Texture2D" uid="uid://disn7gglbscci" path="res://materials/iridescent/source/face_noise_direction.png" id="5_ikgce"]
-[ext_resource type="Script" path="res://addons/GodotAndroidDeeplinkPlugin/Deeplink.gd" id="7_4dri6"]
 [ext_resource type="PackedScene" uid="uid://b2bw3n4qi7omp" path="res://scenes/UX.tscn" id="9_84jqk"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_awh1k"]
@@ -86,10 +85,5 @@ light_temperature = 7500.0
 [node name="WorldEnvironment" type="WorldEnvironment" parent="User Experience"]
 environment = SubResource("Environment_qsxco")
 camera_attributes = SubResource("CameraAttributesPractical_xwnjh")
-
-[node name="Deeplink" type="Node" parent="."]
-script = ExtResource("7_4dri6")
-label = "reality2.local"
-host = "reality.local:4001"
 
 [connection signal="add_new_node" from="User Experience/Interface" to="Center/R2Center" method="add_node"]

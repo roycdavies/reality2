@@ -15,6 +15,10 @@ run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+scrnOutput="*res://addons/onscreen_output/output.tscn"
+
 [display]
 
 window/size/viewport_width=1920
@@ -23,7 +27,7 @@ window/handheld/orientation=4
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/GodotAndroidDeeplinkPlugin/plugin.cfg", "res://addons/advanced_radial_menu/plugin.cfg", "res://addons/orbit-controls/plugin.cfg", "res://addons/orbit_camera/plugin.cfg", "res://addons/script-ide/plugin.cfg")
+enabled=PackedStringArray("res://addons/GodotAndroidDeeplinkPlugin/plugin.cfg", "res://addons/advanced_radial_menu/plugin.cfg", "res://addons/onscreen_output/plugin.cfg", "res://addons/orbit-controls/plugin.cfg")
 
 [input]
 
