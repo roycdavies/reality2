@@ -37,7 +37,7 @@ func _ready():
 	shape = FloatySprings.Planet.new(self, "Reality2Node", Color.BLUE)
 	shape.centreDistance = 10.0
 	shape.closestDistance = 20.0
-	connecting_line = Shapes.Line.new(self, Color.DIM_GRAY)
+	connecting_line = Shapes.Line.new(self, Color.NAVY_BLUE)
 	
 	var title = Label3D.new()
 	title.text = name

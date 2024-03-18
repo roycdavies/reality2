@@ -69,7 +69,7 @@ func _process(delta):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _unhandled_input(event):
 	if (event is InputEventMouseButton):
-		print(event)
+		#print(event)
 		if event["button_index"] == 1 && event["pressed"]:
 			handle_input(event)
 	elif (event is InputEventScreenTouch):

@@ -27,7 +27,7 @@ window/handheld/orientation=4
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/GodotAndroidDeeplinkPlugin/plugin.cfg", "res://addons/advanced_radial_menu/plugin.cfg", "res://addons/onscreen_output/plugin.cfg", "res://addons/orbit-controls/plugin.cfg")
+enabled=PackedStringArray("res://addons/GodotAndroidDeeplinkPlugin/plugin.cfg", "res://addons/advanced_radial_menu/plugin.cfg", "res://addons/orbit-controls/plugin.cfg")
 
 [input]
 
