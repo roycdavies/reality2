@@ -182,11 +182,10 @@ defmodule Reality2Web.SentantResolver do
             # Get the parameters
             parameters = Map.get(args, :parameters, %{})
             # Send the event to the Sentant
-            # TODO: Check if this is a valid event that can be sent from outside
+            # Check if this is a valid event that can be sent from outside, and if so, send it.
             case Reality2.Sentants.read(%{id: sentantid}, :definition) do
               {:ok, sentant} ->
-                automations = sentant |> Helpers.Map.get(:automations, [])
-                events = automations |> find_events_in_automations
+                events = sentant |> Helpers.Map.get(:automations, []) |> find_events_in_automations
                 if (Enum.member?(events, event)) do
                   case Reality2.Sentants.sendto(%{id: sentantid}, %{event: event, parameters: parameters}) do
                     {:ok, _} -> {:ok, sentant}
@@ -195,7 +194,7 @@ defmodule Reality2Web.SentantResolver do
                       {:error, reason}
                   end
                 else
-                  {:error, "invalid event"}
+                  {:error, :invalid_event}
                 end
             end
         end
@@ -207,12 +206,13 @@ defmodule Reality2Web.SentantResolver do
 
   # -----------------------------------------------------------------------------------------------------------------------------------------
   # -----------------------------------------------------------------------------------------------------------------------------------------
-  # def subscribe_event(_root, args, _info) do
-
-  #   {:ok, topic} = PubSub.subscribe(Reality2Web.PubSub, "sentant_event")
-
-  #   {:ok, topic}
-  # end
+  def check_subscribe_allowed(sentantid, signal) do
+    case Reality2.Sentants.read(%{id: sentantid}, :definition) do
+      {:ok, sentant} ->
+        sentant |> Helpers.Map.get(:automations, []) |> find_signals_in_automations |> Enum.member?(signal)
+      _ -> false
+    end
+  end
   # -----------------------------------------------------------------------------------------------------------------------------------------
 
 

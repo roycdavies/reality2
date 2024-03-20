@@ -237,6 +237,7 @@ class Reality2:
         # Subscribe to the Sentant and event    
         websocket.send(json.dumps(subscribe))
         message = websocket.recv()
+        print(message)
         if (self.__check_status(message)): 
             print(f"Subscribed to {sentantid}|{signal}")
         else:

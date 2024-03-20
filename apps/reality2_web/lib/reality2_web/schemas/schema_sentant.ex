@@ -183,9 +183,15 @@ defmodule Reality2Web.Schema.Sentant do
       arg :signal, non_null(:string)
 
       config fn %{id: sentantid, signal: signal}, _ ->
-        IO.puts("await_signal sentantid: #{inspect(sentantid)}")
-        IO.puts("await_signal signal: #{inspect(signal)}")
-        {:ok, topic: sentantid <> "|" <> signal}
+        if Reality2Web.SentantResolver.check_subscribe_allowed(sentantid, signal) do
+          IO.puts("await_signal sentantid: #{inspect(sentantid)}")
+          IO.puts("await_signal signal: #{inspect(signal)}")
+          {:ok, topic: sentantid <> "|" <> signal}
+        else
+          # Absinthe.Subscription.publish(Reality2Web.Endpoint, {:error, :invalid_signal}, await_signal: sentantid <> "|" <> signal)
+          # {:ok, topic: sentantid <> "|" <> signal, status: :invalid_signal}
+          {:error, "Invalid Signal"}
+        end
       end
     end
 

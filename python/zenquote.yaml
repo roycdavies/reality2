@@ -20,7 +20,7 @@ sentant:
           event: init
           to: ready
         - from: "*"
-          public: true
+          public: false
           event: zenquote
           to: ready
           actions:
