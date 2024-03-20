@@ -20,6 +20,7 @@ sentant:
           event: init
           to: ready
         - from: "*"
+          public: true
           event: zenquote
           to: ready
           actions:
@@ -30,6 +31,7 @@ sentant:
           to: ready
           actions:
             - command: signal
+              public: true
               parameters:
                 event: zenquote_response
  

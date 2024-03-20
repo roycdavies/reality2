@@ -13,7 +13,7 @@ swarm:
     # Light Switch Sentant
     # --------------------------------------------------------------------------------------------------
     - name: Light Switch
-      description: This is a test sentant.
+      description: This is a sentant representing a light switch.
       automations:
       - name: switch
         description: This is a test automation.
@@ -25,6 +25,7 @@ swarm:
 
           # turn_on event
           - from: off
+            public: true
             event: turn_on
             to: on
             actions:
@@ -37,6 +38,7 @@ swarm:
           # turn_off event
           - from: on
             event: turn_off
+            public: true
             to: off
             actions:
               # Send turn_off event to the Light Bulb Sentant
@@ -66,6 +68,7 @@ swarm:
             to: on
             actions:
               - command: signal
+                public: true
                 parameters:
                   event: turn_on
             
@@ -75,6 +78,7 @@ swarm:
             to: off
             actions:
               - command: signal
+                public: true
                 parameters:
                   event: turn_off
     # --------------------------------------------------------------------------------------------------

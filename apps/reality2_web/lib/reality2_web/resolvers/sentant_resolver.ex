@@ -182,20 +182,21 @@ defmodule Reality2Web.SentantResolver do
             # Get the parameters
             parameters = Map.get(args, :parameters, %{})
             # Send the event to the Sentant
-            case Reality2.Sentants.sendto(%{id: sentantid}, %{event: event, parameters: parameters}) do
-              {:ok, _} ->
-                # Send back the sentant details
-                case Reality2.Sentants.read(%{id: sentantid}, :definition) do
-                  {:ok, sentant} ->
-                    # Send back the sentant details
-                    {:ok, sentant |> convert_map_keys |> convert_for_output}
-                  {:error, reason} ->
-                    # Something went wrong
-                    {:error, reason}
+            # TODO: Check if this is a valid event that can be sent from outside
+            case Reality2.Sentants.read(%{id: sentantid}, :definition) do
+              {:ok, sentant} ->
+                automations = sentant |> Helpers.Map.get(:automations, [])
+                events = automations |> find_events_in_automations
+                if (Enum.member?(events, event)) do
+                  case Reality2.Sentants.sendto(%{id: sentantid}, %{event: event, parameters: parameters}) do
+                    {:ok, _} -> {:ok, sentant}
+                    {:error, reason} ->
+                      # Something went wrong
+                      {:error, reason}
+                  end
+                else
+                  {:error, "invalid event"}
                 end
-              {:error, reason} ->
-                # Something went wrong
-                {:error, reason}
             end
         end
     end
@@ -243,25 +244,32 @@ defmodule Reality2Web.SentantResolver do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp convert_for_output(data) when is_map(data) do
     automations = data |> Helpers.Map.get(:automations, [])
-    events = Enum.map(automations, fn(automation) -> automation |> Helpers.Map.get(:transitions, []) |> find_events end) |> List.flatten
-    signals = Enum.map(automations, fn(automation) -> automation |> Helpers.Map.get(:transitions, []) |> find_signals end) |> List.flatten
+    events = automations |> find_events_in_automations
+    signals = automations |> find_signals_in_automations
 
     data
-    |> Map.drop([:automation, :plugins])
+    |> Map.drop([:automations, :plugins])
     |> Map.put(:events, events)
-    |> Map.put(:signals, [])
+    |> Map.put(:signals, signals)
   end
   defp convert_for_output(data) when is_list(data), do: Enum.map(data, fn x -> convert_for_output(x) end)
   defp convert_for_output(data), do: data
 
+  defp find_events_in_automations(automations) do
+    Enum.map(automations, fn(automation) -> automation |> Helpers.Map.get(:transitions, []) |> find_events end) |> List.flatten
+  end
   defp find_events([]), do: []
   defp find_events([transition | rest]) do
+    # Only include the event if it is marked as public = true
     case Helpers.Map.get(transition, :public, false) do
       true -> [Helpers.Map.get(transition, :event) | find_events(rest)]
       _ -> find_events(rest)
     end
   end
 
+  defp find_signals_in_automations(automations) do
+    Enum.map(automations, fn(automation) -> automation |> Helpers.Map.get(:transitions, []) |> find_signals end) |> List.flatten
+  end
   defp find_signals([]), do: []
   defp find_signals([transition | rest]) do
     case Helpers.Map.get(transition, :actions, []) do
@@ -272,13 +280,12 @@ defmodule Reality2Web.SentantResolver do
     end
   end
   defp get_signal_from_action(action) do
-    IO.puts(inspect(action))
     case Helpers.Map.get(action, :command) do
-      :signal ->
+      "signal" ->
         case Helpers.Map.get(action, :parameters) do
           nil -> []
           parameters ->
-            case Helpers.Map.get(parameters, :public, false) do
+            case Helpers.Map.get(action, :public, false) do
               false -> []
               true -> [Helpers.Map.get(parameters, :event, [])]
             end
