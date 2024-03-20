@@ -285,7 +285,7 @@ defmodule Reality2Web.SentantResolver do
         case Helpers.Map.get(action, :parameters) do
           nil -> []
           parameters ->
-            case Helpers.Map.get(action, :public, false) do
+            case Helpers.Map.get(action, :public, false) or Helpers.Map.get(parameters, :public, false) do
               false -> []
               true -> [Helpers.Map.get(parameters, :event, [])]
             end

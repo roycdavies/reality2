@@ -31,7 +31,7 @@ sentant:
           to: ready
           actions:
             - command: signal
-              public: true
               parameters:
+                public: true
                 event: zenquote_response
  
