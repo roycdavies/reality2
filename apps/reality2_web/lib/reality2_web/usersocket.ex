@@ -20,6 +20,7 @@ defmodule Reality2Web.UserSocket do
     {:ok, :fred}
   end
 
+  @impl true
   def id(socket) do
     IO.puts("UserSocket.id socket: #{inspect(socket)}")
     nil
