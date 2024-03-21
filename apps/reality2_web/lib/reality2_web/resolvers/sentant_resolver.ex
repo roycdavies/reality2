@@ -186,9 +186,10 @@ defmodule Reality2Web.SentantResolver do
             case Reality2.Sentants.read(%{id: sentantid}, :definition) do
               {:ok, sentant} ->
                 events = sentant |> Helpers.Map.get(:automations, []) |> find_events_in_automations
-                if (Enum.member?(events, event)) do
+                if Enum.member?(events, event) do
                   case Reality2.Sentants.sendto(%{id: sentantid}, %{event: event, parameters: parameters}) do
-                    {:ok, _} -> {:ok, sentant}
+                    {:ok, _} ->
+                      {:ok, sentant |> convert_map_keys |> convert_for_output}
                     {:error, reason} ->
                       # Something went wrong
                       {:error, reason}
@@ -196,6 +197,7 @@ defmodule Reality2Web.SentantResolver do
                 else
                   {:error, :invalid_event}
                 end
+              {:error, reason} -> {:error, reason}
             end
         end
     end

@@ -32,7 +32,7 @@ sentant:
         model: "gpt-3.5-turbo-1106"
         messages:
           - role: "system"
-            content: "You are a helpful assistant from the 1950s."
+            content: "You are a helpful assistant."
           - role: "user"
             content: __message__
 
@@ -59,6 +59,7 @@ sentant:
           # The transition that initiaties the call to the plugin
         - from: "*"
           event: chatgpt
+          public: true
           to: ready
           actions:
             - plugin: com.openai.api
@@ -78,6 +79,7 @@ sentant:
             - command: print # Prints to the console
             - command: signal # sends a signal to subscribed clients
               parameters:
+                public: true
                 event: chatgpt_answer
 
   # ----------------------------------------------------------------------------------------------------

@@ -52,6 +52,7 @@ var monitoringSentant = {
 							{
 								"command": "signal",
 								"parameters": {
+									"public": true,
 									"event": "internal"
 								}
 							}

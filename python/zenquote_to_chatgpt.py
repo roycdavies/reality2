@@ -23,9 +23,9 @@ id = result["sentantLoad"]["id"]
 
 # Start the subscriptions to the Sentant
 reality2_node.awaitSignal(id, "zenquote_answer",
-    lambda data: print(data["awaitSignal"]["parameters"]["zenquote"]))
+    lambda data: print("ZENQUOTE\n", data["awaitSignal"]["parameters"]["zenquote"]))
 reality2_node.awaitSignal(id, "chatgpt_answer",
-    lambda data: print(data["awaitSignal"]["parameters"]["answer"]))
+    lambda data: print("CHATGPT\n", data["awaitSignal"]["parameters"]["answer"]))
 
 
 time.sleep(1)

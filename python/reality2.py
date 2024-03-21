@@ -76,8 +76,12 @@ class Reality2:
                 "variables": json.dumps(variables)
             }
             answer = requests.post(self.__graphql_http_url, data = body, verify = False)
+            response = answer.json()
             if answer.status_code == 200:
-                return (answer.json()["data"])
+                if "errors" in response:
+                    return(response["errors"][0])
+                else:
+                    return(response["data"])
             else:
                 return None
         except:
@@ -107,17 +111,17 @@ class Reality2:
     def swarmLoad (self, definition, details = "id name"):
         return self.__graphql_post(self.__swarm_load(details), {"definition": definition})
     
-    def sentantSend (self, id, event, parameters = {}, details = "description name"):
+    def sentantSend (self, id, event, parameters = {}, details = "id"):
         return self.__graphql_post(self.__sentant_send(details), {"id": id, "event": event, "parameters": json.dumps(parameters)})
     
     def sentantUnload (self, id, details = "id name"):
         return self.__graphql_post(self.__sentant_unload(details), {"id": id})
     
     def sentantUnloadByName (self, name, details = "id name"):
-        sentant = self.sentantGet(name=name, details="id")
-        if (sentant and sentant["sentantGet"]):
+        response = self.sentantGet(name=name, details="id")
+        if ("sentantGet" in response):
             try:
-                return self.__graphql_post(self.__sentant_unload(details), {"id": sentant["sentantGet"]["id"]})
+                return self.__graphql_post(self.__sentant_unload(details), {"id": response["sentantGet"]["id"]})
             except:
                 return None
         else:
@@ -237,7 +241,6 @@ class Reality2:
         # Subscribe to the Sentant and event    
         websocket.send(json.dumps(subscribe))
         message = websocket.recv()
-        print(message)
         if (self.__check_status(message)): 
             print(f"Subscribed to {sentantid}|{signal}")
         else:

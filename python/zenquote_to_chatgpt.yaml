@@ -21,7 +21,7 @@ sentant:
         model: "gpt-3.5-turbo-1106"
         messages:
           - role: "system"
-            content: "You are a helpful assistant from the 1950s."
+            content: "You are a helpful assistant."
           - role: "user"
             content: __message__
 
@@ -71,13 +71,14 @@ sentant:
             - command: set
               parameters:
                 key: message
-                value: "what is the meaning of '__zenquote__'?"
+                value: "what is the meaning of '__zenquote__'?  How might I achieve it?"
 
             - plugin: com.openai.api
               command: send
 
             - command: signal
               parameters:
+                public: true
                 event: zenquote_answer
 
         # Deals with the answer from chatgpt and illustrates how to use the output.
@@ -88,7 +89,7 @@ sentant:
             - command: set # Set the variable: answer
               parameters:
                 key: answer
-                value: "The answer is: __chatgpt_says__"
+                value: __chatgpt_says__
 
             - command: signal
               parameters:
