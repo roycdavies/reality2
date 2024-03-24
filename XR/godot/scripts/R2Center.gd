@@ -114,7 +114,7 @@ func add_node(nodeName: String):
 			if (id == null):
 				_reality2_nodes[nodeName].r2gql.sentantLoad( JSON.stringify(monitoringSentant) )				
 		)
-		_reality2_nodes[nodeName].r2gql.sentantAll(func(sentants, passthrough): _add_sentants(passthrough.name, sentants), "description id name", {"name": nodeName})
+		_reality2_nodes[nodeName].r2gql.sentantAll(func(sentants, passthrough): _add_sentants(passthrough.name, sentants), "description id name signals events", {"name": nodeName})
 		_reality2_nodes[nodeName].r2gql.byName( "monitor", func(id): _reality2_nodes[nodeName].r2gql.awaitSignal(id, "internal", _monitor, "name id", {"name": nodeName}) )
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 

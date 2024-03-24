@@ -98,6 +98,7 @@ func menu_selected(slot, id):
 						print("Sending an event to this sentant")
 					"Info":
 						print("Getting sentant info")
+						OS.shell_open("https://localhost:4001/")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
