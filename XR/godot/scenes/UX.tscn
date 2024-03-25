@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://b2bw3n4qi7omp"]
+[gd_scene load_steps=15 format=3 uid="uid://b2bw3n4qi7omp"]
 
 [ext_resource type="Script" path="res://scripts/UX.gd" id="1_6dfe7"]
 [ext_resource type="Script" path="res://addons/advanced_radial_menu/radial_menu_class.gd" id="1_11hd1"]
@@ -9,17 +9,29 @@
 [ext_resource type="Texture2D" uid="uid://dpue8uh8cfwly" path="res://icons/rotate-right-solid.png" id="6_f7fd1"]
 [ext_resource type="Texture2D" uid="uid://dilgdvic8eade" path="res://icons/info-solid.png" id="6_p1sqi"]
 [ext_resource type="Texture2D" uid="uid://c2g1fyyhtta56" path="res://icons/comment-regular.png" id="9_xgs6e"]
+[ext_resource type="FontFile" uid="uid://tmey4pvbyxdm" path="res://themes/Arial.ttf" id="10_7uwjw"]
 [ext_resource type="Script" path="res://scripts/LineEdit.gd" id="10_u6fv2"]
 
-[node name="UX" type="Node" node_paths=PackedStringArray("menus", "input_box")]
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_elqcf"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_6a615"]
+font = ExtResource("10_7uwjw")
+font_size = 20
+
+[sub_resource type="LabelSettings" id="LabelSettings_qcpyc"]
+font = ExtResource("10_7uwjw")
+
+[node name="UX" type="Node" node_paths=PackedStringArray("menus", "input_box", "details_box")]
 script = ExtResource("1_6dfe7")
 menus = NodePath("Radial Menus")
-input_box = NodePath("LineEdit")
+input_box = NodePath("Path")
+details_box = NodePath("Details")
 
 [node name="Radial Menus" type="Node" parent="."]
 script = ExtResource("2_7ly3v")
 
 [node name="Reality2" type="Control" parent="Radial Menus"]
+visible = false
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -55,6 +67,7 @@ animated_pulse_speed = 2
 animated_pulse_color = Color(0.431373, 0.431373, 0.431373, 1)
 
 [node name="CloseAll" type="TextureRect" parent="Radial Menus/Reality2"]
+visible = false
 layout_mode = 0
 offset_left = 121.244
 offset_top = -70.0
@@ -66,6 +79,7 @@ texture = ExtResource("3_rd3ty")
 expand_mode = 1
 
 [node name="ReloadAll" type="TextureRect" parent="Radial Menus/Reality2"]
+visible = false
 layout_mode = 0
 offset_left = -121.244
 offset_top = -70.0
@@ -77,6 +91,7 @@ texture = ExtResource("6_f7fd1")
 expand_mode = 1
 
 [node name="OpenNew" type="TextureRect" parent="Radial Menus/Reality2"]
+visible = false
 layout_mode = 0
 offset_top = 140.0
 offset_right = 40.0
@@ -123,6 +138,7 @@ animated_pulse_speed = 2
 animated_pulse_color = Color(0.431373, 0.431373, 0.431373, 1)
 
 [node name="Close" type="TextureRect" parent="Radial Menus/Node"]
+visible = false
 layout_mode = 0
 offset_left = 81.3173
 offset_top = 81.3173
@@ -134,6 +150,7 @@ texture = ExtResource("3_rd3ty")
 expand_mode = 1
 
 [node name="Reload" type="TextureRect" parent="Radial Menus/Node"]
+visible = false
 layout_mode = 0
 offset_left = 81.3173
 offset_top = -81.3173
@@ -146,6 +163,7 @@ texture = ExtResource("6_f7fd1")
 expand_mode = 1
 
 [node name="NewSentant" type="TextureRect" parent="Radial Menus/Node"]
+visible = false
 layout_mode = 0
 offset_left = -81.3173
 offset_top = -81.3173
@@ -158,6 +176,7 @@ texture = ExtResource("6_18k0g")
 expand_mode = 1
 
 [node name="Info" type="TextureRect" parent="Radial Menus/Node"]
+visible = false
 layout_mode = 0
 offset_left = -81.3173
 offset_top = 81.3173
@@ -205,6 +224,7 @@ animated_pulse_speed = 2
 animated_pulse_color = Color(0.431373, 0.431373, 0.431373, 1)
 
 [node name="Delete" type="TextureRect" parent="Radial Menus/Sentant"]
+visible = false
 layout_mode = 0
 offset_top = 115.0
 offset_right = 40.0
@@ -216,6 +236,7 @@ texture = ExtResource("3_rd3ty")
 expand_mode = 1
 
 [node name="Message" type="TextureRect" parent="Radial Menus/Sentant"]
+visible = false
 layout_mode = 0
 offset_left = 99.5929
 offset_top = -57.5
@@ -227,6 +248,7 @@ texture = ExtResource("9_xgs6e")
 expand_mode = 1
 
 [node name="Info" type="TextureRect" parent="Radial Menus/Sentant"]
+visible = false
 layout_mode = 0
 offset_left = -99.5929
 offset_top = -57.5
@@ -238,22 +260,82 @@ theme = ExtResource("5_rn40b")
 texture = ExtResource("6_p1sqi")
 expand_mode = 1
 
-[node name="LineEdit" type="LineEdit" parent="."]
+[node name="Details" type="Panel" parent="."]
+visible = false
+material = SubResource("CanvasItemMaterial_elqcf")
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -301.0
-offset_top = -41.0
-offset_right = -1.0
-offset_bottom = -1.0
+offset_left = -200.0
+offset_top = -160.0
+offset_right = 200.0
+offset_bottom = 200.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(2, 2)
+
+[node name="Name" type="Label" parent="Details"]
+visible = false
+layout_mode = 2
+offset_right = 400.0
+offset_bottom = 40.0
+text = "name"
+label_settings = SubResource("LabelSettings_6a615")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Description" type="Label" parent="Details"]
+visible = false
+layout_mode = 2
+offset_top = 40.0
+offset_right = 400.0
+offset_bottom = 320.0
+text = "description"
+label_settings = SubResource("LabelSettings_qcpyc")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="Details"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = 145.0
+offset_right = 50.0
+offset_bottom = 176.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "OK"
+
+[node name="Path" type="Panel" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -20.0
+offset_right = 200.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LineEdit" type="LineEdit" parent="Path"]
+visible = false
+layout_mode = 2
+offset_right = 400.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_force_pass_scroll_events = false
 theme_override_font_sizes/font_size = 20
-text = "Hello World"
+placeholder_text = "path"
 alignment = 1
 virtual_keyboard_type = 7
 select_all_on_focus = true
@@ -263,5 +345,8 @@ script = ExtResource("10_u6fv2")
 [connection signal="slot_selected" from="Radial Menus/Reality2" to="." method="menu_selected"]
 [connection signal="slot_selected" from="Radial Menus/Node" to="." method="menu_selected"]
 [connection signal="slot_selected" from="Radial Menus/Sentant" to="." method="menu_selected"]
-[connection signal="esc_key_pressed" from="LineEdit" to="." method="esckey_pressed"]
-[connection signal="text_submitted" from="LineEdit" to="." method="enterkey_pressed"]
+[connection signal="focus_exited" from="Details" to="." method="esckey_pressed"]
+[connection signal="button_down" from="Details/Button" to="." method="esckey_pressed"]
+[connection signal="pressed" from="Details/Button" to="." method="esckey_pressed"]
+[connection signal="esc_key_pressed" from="Path/LineEdit" to="." method="esckey_pressed"]
+[connection signal="text_submitted" from="Path/LineEdit" to="." method="enterkey_pressed"]

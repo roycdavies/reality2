@@ -8,6 +8,7 @@ extends Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 @export var menus: Node
 @export var input_box: Node
+@export var details_box: Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -24,6 +25,8 @@ signal add_new_node(name: String)
 # Private variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 var mode = "selecting"
+var current_details = {}
+var current_name = ""
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -51,13 +54,16 @@ func unselect():
 		
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
-func set_menu(the_name: String):
+func set_menu(the_name: String, details = {}):
 	if menus:
 		menus.show_child_by_name(the_name)
 	if input_box:
-		input_box.visible = false
-		input_box.set_process(false)
+		_setVisibility(input_box, false)
+	if details_box:
+		_setVisibility(details_box, false)
 	mode = "selecting"
+	current_name = the_name
+	current_details = details
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -78,8 +84,8 @@ func menu_selected(slot, id):
 						print("Opening a new node")
 						mode = "NewNodeEnteringText_1"
 						menus.show_child(-1)
-						input_box.visible = true
-						input_box.set_process(true)
+						if input_box:
+							_setVisibility(input_box, true)
 			"Node":
 				match (slot.name):
 					"Close":
@@ -89,7 +95,13 @@ func menu_selected(slot, id):
 					"NewSentant":
 						print("Creating a new sentant")
 					"Info":
-						print("Getting node info")
+						menus.show_child(-1)
+						mode = "ShowingDetails"
+						if details_box:
+							_set_details("", current_details.url if current_details.has("url") else "")
+							_setVisibility(details_box, true)
+							print(current_details)
+							print("Getting node info")
 			"Sentant":
 				match (slot.name):
 					"Delete":
@@ -97,8 +109,14 @@ func menu_selected(slot, id):
 					"Message":
 						print("Sending an event to this sentant")
 					"Info":
-						print("Getting sentant info")
-						OS.shell_open("https://localhost:4001/")
+						menus.show_child(-1)
+						mode = "ShowingDetails"
+						if details_box:
+							_set_details(current_details.name if current_details.has("name") else "", current_details.description if current_details.has("description") else "")
+							_setVisibility(details_box, true)
+							print(current_details)
+							print("Getting sentant info")
+							#OS.shell_open("https://localhost:4001/")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -118,9 +136,9 @@ func enterkey_pressed(new_text: String):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func esckey_pressed():
-	if (input_box and mode == "NewNodeEnteringText"):
+	if (input_box and (mode == "NewNodeEnteringText" or mode == "ShowingDetails")):
 		print("Esc Key")
-		set_menu("Reality2")
+		set_menu(current_name, current_details)
 		mode = "selecting"
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -130,4 +148,26 @@ func esckey_pressed():
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func choosing_yes_or_no():
 	pass
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func _set_details(the_name, description):
+	if details_box:
+		var details_children = details_box.get_children()
+		details_children[0].text = the_name
+		details_children[1].text = description
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+func _setVisibility(node: Node, visible: bool):
+	node.visible = visible
+	node.set_process(visible)
+	for child in node.get_children():
+		_setVisibility(child, visible)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------

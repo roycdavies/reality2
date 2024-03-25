@@ -84,7 +84,7 @@ func _monitor(data = {}, passthrough = {}):
 	if (data.has("event")):
 		if (data.parameters.has("event")):
 			if (data.parameters.event == "created"):
-				_reality2_nodes[passthrough.name].node_visual.add_sentant(data.parameters.name)
+				_reality2_nodes[passthrough.name].node_visual.add_sentant(data.parameters.name, data.parameters)
 			elif (data.parameters.event == "deleted"):
 				_reality2_nodes[passthrough.name].node_visual.remove_sentant(data.parameters.name)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -129,6 +129,7 @@ func _add_sentants(nodeName: String, sentants = []):
 		_reality2_nodes[nodeName].node_visual.load_sentants(sentants)
 			
 		_reality2_nodes[nodeName].node_visual.name = nodeName
+		_reality2_nodes[nodeName].node_visual.details = {"url": _reality2_nodes[nodeName].r2gql.GQL().url(), "websocket": _reality2_nodes[nodeName].r2gql.GQL().socket_url()}
 		_reality2_nodes[nodeName].node_visual.r2class = "node"
 		add_child(_reality2_nodes[nodeName].node_visual)
 # ------------------------------------------------------------------------------------------------------------------------------------------------------

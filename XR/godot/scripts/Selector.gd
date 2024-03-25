@@ -92,13 +92,13 @@ func handle_input(event):
 	if result and result.collider:
 		var object = result.collider.get_parent()
 		if (object.name == "Center"):
-			UX.set_menu("Reality2")
+			UX.set_menu("Reality2", {})
 		elif (object.name == "monitor"):
-			UX.set_menu("None")
+			UX.set_menu("None", object.details)
 		elif object.r2class == "node":
-			UX.set_menu("Node")					
+			UX.set_menu("Node", object.details)					
 		elif object.r2class == "sentant":
-			UX.set_menu("Sentant")		
+			UX.set_menu("Sentant", object.details)		
 			
 		if ("r2class" in object): 
 			print (object.r2class)

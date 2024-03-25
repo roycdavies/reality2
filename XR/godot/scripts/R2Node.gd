@@ -110,4 +110,5 @@ func remove_sentant(sentant_name):
 	for child in get_children():
 		if (child.name == sentant_name):
 			remove_child(child)
+			child.queue_free()
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
