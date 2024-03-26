@@ -1,7 +1,5 @@
 404.html
-AiReality2Vars.Data.html
-AiReality2Vars.Main.html
-AiReality2Vars.html
+AiReality2Auth.html
 api-reference.html
 dist/handlebars.runtime-NWIB6V2M.js
 dist/handlebars.templates-43PMFBC7.js
@@ -30,7 +28,7 @@ dist/merriweather-latin-ext-300-normal-K6L27CZ5.woff2
 dist/merriweather-vietnamese-300-italic-EHHNZPUO.woff2
 dist/merriweather-vietnamese-300-normal-U376L4Z4.woff2
 dist/remixicon-NKANDIL5.woff2
-dist/search_data-8BE7995E.js
-dist/sidebar_items-F909CE9A.js
+dist/search_data-27B14664.js
+dist/sidebar_items-55E21453.js
 index.html
 search.html

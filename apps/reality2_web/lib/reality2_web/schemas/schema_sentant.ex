@@ -58,6 +58,11 @@ defmodule Reality2Web.Schema.Sentant do
     field :transitions, list_of(:transition),   description: "Automation transitions"
   end
 
+  object :sentant_event do
+    field :name, non_null(:string),             description: "Event name"
+    field :parameters, :json,                   description: "Event parameters"
+  end
+
   # ------------------------------------------------------------------------------------------------------
   # Sentant Schema definition
   # ------------------------------------------------------------------------------------------------------
@@ -83,9 +88,7 @@ defmodule Reality2Web.Schema.Sentant do
     field :id, non_null(:uuid4),                description: "Sentant ID"
     field :name, non_null(:string),             description: "Sentant name"
     field :description, :string,                description: "Sentant description"
-    # field :automations, list_of(:automation),   description: "Sentant automations"
-    # field :plugins, list_of(:plugin),           description: "Sentant plugins"
-    field :events, list_of(:string),            description: "Public events"
+    field :events, list_of(:sentant_event),     description: "Public events"
     field :signals, list_of(:string),           description: "Public signals"
   end
   # ------------------------------------------------------------------------------------------------------
