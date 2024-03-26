@@ -59,7 +59,7 @@ defmodule Reality2Web.Schema.Sentant do
   end
 
   object :sentant_event do
-    field :name, non_null(:string),             description: "Event name"
+    field :event, non_null(:string),            description: "Event name"
     field :parameters, :json,                   description: "Event parameters"
   end
 

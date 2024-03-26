@@ -185,7 +185,7 @@ defmodule Reality2Web.SentantResolver do
             # Check if this is a valid event that can be sent from outside, and if so, send it.
             case Reality2.Sentants.read(%{id: sentantid}, :definition) do
               {:ok, sentant} ->
-                events = sentant |> Helpers.Map.get(:automations, []) |> find_events_in_automations
+                events = sentant |> Helpers.Map.get(:automations, []) |> find_events_in_automations(true)
                 if Enum.member?(events, event) do
                   case Reality2.Sentants.sendto(%{id: sentantid}, %{event: event, parameters: parameters}) do
                     {:ok, _} ->
@@ -246,7 +246,7 @@ defmodule Reality2Web.SentantResolver do
   # -----------------------------------------------------------------------------------------------------------------------------------------
   defp convert_for_output(data) when is_map(data) do
     automations = data |> Helpers.Map.get(:automations, [])
-    events = automations |> find_events_in_automations
+    events = automations |> find_events_in_automations(true)
     signals = automations |> find_signals_in_automations
 
     data
@@ -257,15 +257,20 @@ defmodule Reality2Web.SentantResolver do
   defp convert_for_output(data) when is_list(data), do: Enum.map(data, fn x -> convert_for_output(x) end)
   defp convert_for_output(data), do: data
 
-  defp find_events_in_automations(automations) do
-    Enum.map(automations, fn(automation) -> automation |> Helpers.Map.get(:transitions, []) |> find_events end) |> List.flatten
+  defp find_events_in_automations(automations, with_parameters \\ false) do
+    Enum.map(automations, fn(automation) -> automation |> Helpers.Map.get(:transitions, []) |> find_events(with_parameters) end) |> List.flatten
   end
-  defp find_events([]), do: []
-  defp find_events([transition | rest]) do
+  defp find_events([], _), do: []
+  defp find_events([transition | rest], with_parameters) do
     # Only include the event if it is marked as public = true
     case Helpers.Map.get(transition, :public, false) do
-      true -> [Helpers.Map.get(transition, :event) | find_events(rest)]
-      _ -> find_events(rest)
+      true ->
+        if (with_parameters == true) do
+          [%{event: Helpers.Map.get(transition, :event), parameters: Helpers.Map.get(transition, :parameters, %{})} | find_events(rest, with_parameters)]
+        else
+          [Helpers.Map.get(transition, :event) | find_events(rest, with_parameters)]
+        end
+      _ -> find_events(rest, with_parameters)
     end
   end
 

@@ -172,18 +172,19 @@ class GQL:
 	func _sentantAll_response(data, passthrough):
 		var response = []
 		var errors = {}
-		if (data.has("errors")):
-			errors = data["errors"]
-			if (passthrough.callback):
-				passthrough.callback.call(errors, passthrough.passthrough)
+		if (data != null):
+			if (data.has("errors")):
+				errors = data["errors"]
+				if (passthrough.callback):
+					passthrough.callback.call(errors, passthrough.passthrough)
+				else:
+					print("ERROR: ", errors)
 			else:
-				print("ERROR: ", errors)
-		else:
-			response = data["data"]["sentantAll"]
-			if (passthrough.callback):
-				passthrough.callback.call(response, passthrough.passthrough)
-			else:
-				print ("SENTANT_ALL: ", response)
+				response = data["data"]["sentantAll"]
+				if (passthrough.callback):
+					passthrough.callback.call(response, passthrough.passthrough)
+				else:
+					print ("SENTANT_ALL: ", response)
 	# --------------------------------------------------------------------------------------------------------------------------------------------------
 
 

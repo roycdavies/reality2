@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://b2bw3n4qi7omp"]
+[gd_scene load_steps=22 format=3 uid="uid://b2bw3n4qi7omp"]
 
 [ext_resource type="Script" path="res://scripts/UX.gd" id="1_6dfe7"]
 [ext_resource type="Script" path="res://addons/advanced_radial_menu/radial_menu_class.gd" id="1_11hd1"]
@@ -12,7 +12,115 @@
 [ext_resource type="FontFile" uid="uid://tmey4pvbyxdm" path="res://themes/Arial.ttf" id="10_7uwjw"]
 [ext_resource type="Script" path="res://scripts/LineEdit.gd" id="10_u6fv2"]
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_elqcf"]
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_ctcas"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1bj5i"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.3)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6wftf"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0.75)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_frt4r"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.225, 0.225, 0.225, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m74gl"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.0666667, 0.0745098, 0.235294, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wec3p"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0, 0, 0, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o542f"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.517647, 0.588235, 0.815686, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="Theme" id="Theme_g5k7p"]
+default_font = ExtResource("10_7uwjw")
+Button/colors/font_color = Color(0.875, 0.875, 0.875, 1)
+Button/colors/font_disabled_color = Color(0.875, 0.875, 0.875, 0.5)
+Button/colors/font_focus_color = Color(0.95, 0.95, 0.95, 1)
+Button/colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
+Button/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+Button/colors/font_outline_color = Color(1, 1, 1, 1)
+Button/colors/font_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_disabled_color = Color(1, 1, 1, 0.4)
+Button/colors/icon_focus_color = Color(1, 1, 1, 1)
+Button/colors/icon_hover_color = Color(1, 1, 1, 1)
+Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_normal_color = Color(1, 1, 1, 1)
+Button/colors/icon_pressed_color = Color(1, 1, 1, 1)
+Button/constants/h_separation = 4
+Button/constants/icon_max_width = 0
+Button/constants/outline_size = 0
+Button/font_sizes/font_size = 16
+Button/styles/disabled = SubResource("StyleBoxFlat_1bj5i")
+Button/styles/focus = SubResource("StyleBoxFlat_6wftf")
+Button/styles/hover = SubResource("StyleBoxFlat_frt4r")
+Button/styles/normal = SubResource("StyleBoxFlat_m74gl")
+Button/styles/pressed = SubResource("StyleBoxFlat_wec3p")
+Panel/styles/panel = SubResource("StyleBoxFlat_o542f")
+VBoxContainer/constants/separation = 4
 
 [sub_resource type="LabelSettings" id="LabelSettings_6a615"]
 font = ExtResource("10_7uwjw")
@@ -262,7 +370,7 @@ expand_mode = 1
 
 [node name="Details" type="Panel" parent="."]
 visible = false
-material = SubResource("CanvasItemMaterial_elqcf")
+material = SubResource("CanvasItemMaterial_ctcas")
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -274,6 +382,7 @@ offset_right = 200.0
 offset_bottom = 200.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("Theme_g5k7p")
 
 [node name="Name" type="Label" parent="Details"]
 visible = false

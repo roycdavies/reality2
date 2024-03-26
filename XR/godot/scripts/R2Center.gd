@@ -26,7 +26,6 @@ extends RigidBody3D
 # Private Variables
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 var _node_scene = preload("res://scenes/R2Node.tscn")
-var _GQL_template = preload("res://scenes/GraphQL.tscn")
 var _angularVelocity = Vector3(0,0,0)
 var _reality2_nodes = {}
 var R2GQL
@@ -114,7 +113,7 @@ func add_node(nodeName: String):
 			if (id == null):
 				_reality2_nodes[nodeName].r2gql.sentantLoad( JSON.stringify(monitoringSentant) )				
 		)
-		_reality2_nodes[nodeName].r2gql.sentantAll(func(sentants, passthrough): _add_sentants(passthrough.name, sentants), "description id name signals events", {"name": nodeName})
+		_reality2_nodes[nodeName].r2gql.sentantAll(func(sentants, passthrough): _add_sentants(passthrough.name, sentants), "description id name signals events { event parameters }", {"name": nodeName})
 		_reality2_nodes[nodeName].r2gql.byName( "monitor", func(id): _reality2_nodes[nodeName].r2gql.awaitSignal(id, "internal", _monitor, "name id", {"name": nodeName}) )
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -124,6 +123,9 @@ func add_node(nodeName: String):
 # Add a Node
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 func _add_sentants(nodeName: String, sentants = []):
+	print ("HERE")
+	print(_reality2_nodes[nodeName].r2gql.connected())
+	print(sentants)
 	if (_reality2_nodes[nodeName].r2gql.connected()):
 		_reality2_nodes[nodeName].node_visual = _node_scene.instantiate()
 		_reality2_nodes[nodeName].node_visual.load_sentants(sentants)

@@ -59,6 +59,8 @@ sentant:
           # The transition that initiaties the call to the plugin
         - from: "*"
           event: chatgpt
+          parameters: 
+            message: string
           public: true
           to: ready
           actions:
