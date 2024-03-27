@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://b2bw3n4qi7omp"]
+[gd_scene load_steps=16 format=3 uid="uid://b2bw3n4qi7omp"]
 
 [ext_resource type="Script" path="res://scripts/UX.gd" id="1_6dfe7"]
 [ext_resource type="Script" path="res://addons/advanced_radial_menu/radial_menu_class.gd" id="1_11hd1"]
@@ -9,117 +9,11 @@
 [ext_resource type="Texture2D" uid="uid://dpue8uh8cfwly" path="res://icons/rotate-right-solid.png" id="6_f7fd1"]
 [ext_resource type="Texture2D" uid="uid://dilgdvic8eade" path="res://icons/info-solid.png" id="6_p1sqi"]
 [ext_resource type="Texture2D" uid="uid://c2g1fyyhtta56" path="res://icons/comment-regular.png" id="9_xgs6e"]
+[ext_resource type="FontFile" uid="uid://tmey4pvbyxdm" path="res://themes/Arial.ttf" id="10_7uwjw"]
+[ext_resource type="Theme" uid="uid://dspfitktkylp1" path="res://themes/UX.tres" id="10_781pj"]
 [ext_resource type="Script" path="res://scripts/LineEdit.gd" id="10_u6fv2"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_ctcas"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1bj5i"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.1, 0.1, 0.1, 0.3)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-corner_detail = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6wftf"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(1, 1, 1, 0.75)
-draw_center = false
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-corner_detail = 5
-expand_margin_left = 2.0
-expand_margin_top = 2.0
-expand_margin_right = 2.0
-expand_margin_bottom = 2.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_frt4r"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.225, 0.225, 0.225, 0.6)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-corner_detail = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m74gl"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.0666667, 0.0745098, 0.235294, 0.6)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-corner_detail = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wec3p"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0, 0, 0, 0.6)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-corner_detail = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o542f"]
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-bg_color = Color(0.517647, 0.588235, 0.815686, 0.6)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-corner_detail = 5
-
-[sub_resource type="Theme" id="Theme_g5k7p"]
-default_font = ExtResource("10_7uwjw")
-Button/colors/font_color = Color(0.875, 0.875, 0.875, 1)
-Button/colors/font_disabled_color = Color(0.875, 0.875, 0.875, 0.5)
-Button/colors/font_focus_color = Color(0.95, 0.95, 0.95, 1)
-Button/colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
-Button/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
-Button/colors/font_outline_color = Color(1, 1, 1, 1)
-Button/colors/font_pressed_color = Color(1, 1, 1, 1)
-Button/colors/icon_disabled_color = Color(1, 1, 1, 0.4)
-Button/colors/icon_focus_color = Color(1, 1, 1, 1)
-Button/colors/icon_hover_color = Color(1, 1, 1, 1)
-Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
-Button/colors/icon_normal_color = Color(1, 1, 1, 1)
-Button/colors/icon_pressed_color = Color(1, 1, 1, 1)
-Button/constants/h_separation = 4
-Button/constants/icon_max_width = 0
-Button/constants/outline_size = 0
-Button/font_sizes/font_size = 16
-Button/styles/disabled = SubResource("StyleBoxFlat_1bj5i")
-Button/styles/focus = SubResource("StyleBoxFlat_6wftf")
-Button/styles/hover = SubResource("StyleBoxFlat_frt4r")
-Button/styles/normal = SubResource("StyleBoxFlat_m74gl")
-Button/styles/pressed = SubResource("StyleBoxFlat_wec3p")
-Panel/styles/panel = SubResource("StyleBoxFlat_o542f")
-VBoxContainer/constants/separation = 4
 
 [sub_resource type="LabelSettings" id="LabelSettings_6a615"]
 font = ExtResource("10_7uwjw")
@@ -131,12 +25,14 @@ font = ExtResource("10_7uwjw")
 [node name="UX" type="Node" node_paths=PackedStringArray("menus", "input_box", "details_box")]
 script = ExtResource("1_6dfe7")
 menus = NodePath("Radial Menus")
-input_box = NodePath("LineEdit")
+input_box = NodePath("Path")
+details_box = NodePath("Details")
 
 [node name="Radial Menus" type="Node" parent="."]
 script = ExtResource("2_7ly3v")
 
 [node name="Reality2" type="Control" parent="Radial Menus"]
+visible = false
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -153,18 +49,18 @@ pivot_offset = Vector2(20, 20)
 script = ExtResource("1_11hd1")
 select_action_name = "mouse_left"
 auto_sizing = false
-color = Color(0.188235, 0, 0, 0.0941176)
+color = Color(0.517647, 0.588235, 0.815686, 0.6)
 circle_radius = 200
-arc_color = Color(0.431373, 0.431373, 0.431373, 1)
+arc_color = Color(0.247059, 0.301961, 0.513726, 1)
 arc_inner_radius = 80
 arc_detail = 48
 arc_line_width = 1
-line_color = Color(0.431373, 0.431373, 0.431373, 1)
+line_color = Color(0.247059, 0.301961, 0.513726, 1)
 line_width = 1
 children_size = 40
 hover_color = Color(1, 0.301961, 0.301961, 0.2)
 stroke_enabled = true
-stroke_color = Color(0.431373, 0.431373, 0.431373, 1)
+stroke_color = Color(0.247059, 0.301961, 0.513726, 1)
 stroke_width = 1
 animated_pulse_intensity = 10
 animated_pulse_offset = 7
@@ -172,6 +68,7 @@ animated_pulse_speed = 2
 animated_pulse_color = Color(0.431373, 0.431373, 0.431373, 1)
 
 [node name="CloseAll" type="TextureRect" parent="Radial Menus/Reality2"]
+visible = false
 layout_mode = 0
 offset_left = 121.244
 offset_top = -70.0
@@ -183,6 +80,7 @@ texture = ExtResource("3_rd3ty")
 expand_mode = 1
 
 [node name="ReloadAll" type="TextureRect" parent="Radial Menus/Reality2"]
+visible = false
 layout_mode = 0
 offset_left = -121.244
 offset_top = -70.0
@@ -194,6 +92,7 @@ texture = ExtResource("6_f7fd1")
 expand_mode = 1
 
 [node name="OpenNew" type="TextureRect" parent="Radial Menus/Reality2"]
+visible = false
 layout_mode = 0
 offset_top = 140.0
 offset_right = 40.0
@@ -221,18 +120,18 @@ grow_vertical = 2
 script = ExtResource("1_11hd1")
 select_action_name = "mouse_left"
 auto_sizing = false
-color = Color(0.188235, 0, 0, 0.0941176)
+color = Color(0.517647, 0.588235, 0.815686, 0.6)
 circle_radius = 200
-arc_color = Color(0.431373, 0.431373, 0.431373, 1)
+arc_color = Color(0.247059, 0.301961, 0.513726, 1)
 arc_inner_radius = 80
 arc_detail = 48
 arc_line_width = 1
-line_color = Color(0.431373, 0.431373, 0.431373, 1)
+line_color = Color(0.247059, 0.301961, 0.513726, 1)
 line_width = 1
 children_size = 40
 hover_color = Color(1, 0.301961, 0.301961, 0.2)
 stroke_enabled = true
-stroke_color = Color(0.431373, 0.431373, 0.431373, 1)
+stroke_color = Color(0.247059, 0.301961, 0.513726, 1)
 stroke_width = 1
 animated_pulse_intensity = 10
 animated_pulse_offset = 7
@@ -240,22 +139,24 @@ animated_pulse_speed = 2
 animated_pulse_color = Color(0.431373, 0.431373, 0.431373, 1)
 
 [node name="Close" type="TextureRect" parent="Radial Menus/Node"]
+visible = false
 layout_mode = 0
-offset_left = 81.3173
-offset_top = 81.3173
-offset_right = 121.317
-offset_bottom = 121.317
+offset_left = 98.9949
+offset_top = -98.9949
+offset_right = 138.995
+offset_bottom = -58.9949
 pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 texture = ExtResource("3_rd3ty")
 expand_mode = 1
 
 [node name="Reload" type="TextureRect" parent="Radial Menus/Node"]
+visible = false
 layout_mode = 0
-offset_left = 81.3173
-offset_top = -81.3173
-offset_right = 121.317
-offset_bottom = -41.3173
+offset_left = -98.9949
+offset_top = -98.9949
+offset_right = -58.9949
+offset_bottom = -58.9949
 pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 mouse_default_cursor_shape = 3
@@ -263,11 +164,12 @@ texture = ExtResource("6_f7fd1")
 expand_mode = 1
 
 [node name="NewSentant" type="TextureRect" parent="Radial Menus/Node"]
+visible = false
 layout_mode = 0
-offset_left = -81.3173
-offset_top = -81.3173
-offset_right = -41.3173
-offset_bottom = -41.3173
+offset_left = -98.995
+offset_top = 98.9949
+offset_right = -58.995
+offset_bottom = 138.995
 pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 mouse_default_cursor_shape = 3
@@ -275,11 +177,12 @@ texture = ExtResource("6_18k0g")
 expand_mode = 1
 
 [node name="Info" type="TextureRect" parent="Radial Menus/Node"]
+visible = false
 layout_mode = 0
-offset_left = -81.3173
-offset_top = 81.3173
-offset_right = -41.3173
-offset_bottom = 121.317
+offset_left = 98.9949
+offset_top = 98.995
+offset_right = 138.995
+offset_bottom = 138.995
 pivot_offset = Vector2(20, 20)
 mouse_filter = 2
 theme = ExtResource("5_rn40b")
@@ -303,18 +206,18 @@ grow_vertical = 2
 script = ExtResource("1_11hd1")
 select_action_name = "mouse_left"
 auto_sizing = false
-color = Color(0.188235, 0, 0, 0.0941176)
+color = Color(0.517647, 0.588235, 0.815686, 0.6)
 circle_radius = 200
-arc_color = Color(0.431373, 0.431373, 0.431373, 1)
+arc_color = Color(0.247059, 0.301961, 0.513726, 1)
 arc_inner_radius = 80
 arc_detail = 48
 arc_line_width = 1
-line_color = Color(0.431373, 0.431373, 0.431373, 1)
+line_color = Color(0.247059, 0.301961, 0.513726, 1)
 line_width = 1
 children_size = 40
 hover_color = Color(1, 0.301961, 0.301961, 0.2)
 stroke_enabled = true
-stroke_color = Color(0.431373, 0.431373, 0.431373, 1)
+stroke_color = Color(0.247059, 0.301961, 0.513726, 1)
 stroke_width = 1
 animated_pulse_intensity = 10
 animated_pulse_offset = 7
@@ -322,6 +225,7 @@ animated_pulse_speed = 2
 animated_pulse_color = Color(0.431373, 0.431373, 0.431373, 1)
 
 [node name="Delete" type="TextureRect" parent="Radial Menus/Sentant"]
+visible = false
 layout_mode = 0
 offset_top = 115.0
 offset_right = 40.0
@@ -333,6 +237,7 @@ texture = ExtResource("3_rd3ty")
 expand_mode = 1
 
 [node name="Message" type="TextureRect" parent="Radial Menus/Sentant"]
+visible = false
 layout_mode = 0
 offset_left = 99.5929
 offset_top = -57.5
@@ -344,6 +249,7 @@ texture = ExtResource("9_xgs6e")
 expand_mode = 1
 
 [node name="Info" type="TextureRect" parent="Radial Menus/Sentant"]
+visible = false
 layout_mode = 0
 offset_left = -99.5929
 offset_top = -57.5
@@ -363,13 +269,13 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -301.0
-offset_top = -41.0
-offset_right = -1.0
-offset_bottom = -1.0
+offset_left = -200.0
+offset_top = -160.0
+offset_right = 200.0
+offset_bottom = 200.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = SubResource("Theme_g5k7p")
+theme = ExtResource("10_781pj")
 
 [node name="Name" type="Label" parent="Details"]
 visible = false
@@ -409,29 +315,31 @@ grow_vertical = 2
 text = "OK"
 
 [node name="Path" type="Panel" parent="."]
-visible = false
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -200.0
-offset_top = -20.0
+offset_top = -40.0
 offset_right = 200.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="LineEdit" type="LineEdit" parent="Path"]
-visible = false
-layout_mode = 2
-offset_right = 400.0
 offset_bottom = 40.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("10_781pj")
+
+[node name="LineEdit" type="LineEdit" parent="Path"]
+layout_mode = 2
+offset_left = 13.0
+offset_top = 9.0
+offset_right = 386.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_force_pass_scroll_events = false
+theme = ExtResource("10_781pj")
 theme_override_font_sizes/font_size = 20
-text = "Hello World"
+placeholder_text = "path"
 alignment = 1
 virtual_keyboard_type = 7
 select_all_on_focus = true
@@ -441,5 +349,8 @@ script = ExtResource("10_u6fv2")
 [connection signal="slot_selected" from="Radial Menus/Reality2" to="." method="menu_selected"]
 [connection signal="slot_selected" from="Radial Menus/Node" to="." method="menu_selected"]
 [connection signal="slot_selected" from="Radial Menus/Sentant" to="." method="menu_selected"]
-[connection signal="esc_key_pressed" from="LineEdit" to="." method="esckey_pressed"]
-[connection signal="text_submitted" from="LineEdit" to="." method="enterkey_pressed"]
+[connection signal="focus_exited" from="Details" to="." method="esckey_pressed"]
+[connection signal="button_down" from="Details/Button" to="." method="esckey_pressed"]
+[connection signal="pressed" from="Details/Button" to="." method="esckey_pressed"]
+[connection signal="esc_key_pressed" from="Path/LineEdit" to="." method="esckey_pressed"]
+[connection signal="text_submitted" from="Path/LineEdit" to="." method="enterkey_pressed"]
